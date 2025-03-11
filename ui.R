@@ -301,7 +301,7 @@ shinyUI(fluidPage(
                   tabsetPanel(
                     id = "hydro_subtabs",
                     ### DE, Hydro, IHA----
-                    tabPanel("IHA",
+                    tabPanel("IHA", 
                       value = "IHA_tab", br(),
                       column(
                         width = 12, IHAModuleUI("IHATab")
