@@ -1,0 +1,102 @@
+.loading-modal {
+    display:    none;
+    position:   fixed;
+    z-index:    2000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+	background-color:rgba( 255, 255, 255, .8 );
+	background-image:url("ajax-loader-spinner.gif");
+	background-position:50% 50%;
+	background-repeat:no-repeat;
+    opacity: 0.80;
+	-ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity = 80);
+	filter: alpha(opacity = 80);
+}
+
+
+.nav-tabs>li>a{
+ color: cornflowerblue;
+ font-size: 18px;
+ font-weight: bold;
+ }
+
+ #big-heading {font-size:15px;color:black;font-style:bold;display:block;}
+
+ .shiny-notification{
+  position:fixed;
+  top:calc(50%);
+  left:calc(50%);
+ }
+
+#display_fill_data .shiny-input-container .checkbox label span {font-weight: bold;}
+
+
+#statusWorkflow-step1, #statusWorkflow-step2, #statusWorkflow-step3, #statusWorkflow-step4, #statusWorkflow-step5 {
+  cursor: not-allowed;
+}
+
+.fa-folder {color:#F8D775}
+.popover{width:200px;}
+
+#mainTabs {
+  margin-bottom:20px;
+}
+.radio-inline {
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 0px;
+    padding: 10px;
+}
+#mainTabs li a[data-value = 'DataExploration'],
+#mainTabs li a[data-value = 'discreateDataEx'],
+#mainTabs li a[data-value = 'downloadData']
+{
+  visibility:hidden;
+}
+
+.headerImgRes {
+  max-height:188px;
+  width:100%;
+}
+.rectangle {
+  position: relative;
+  width: 250px;
+  height: 50px;
+  /*background: #f5f5f5;*/
+  background:transparent;
+  padding: 15px 0px 0px 10px;
+}
+.rectangle:after {
+  content: '';
+  position: absolute;
+  right: -49px;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-top: 25px solid transparent;
+  /*border-left: 50px solid #f5f5f5;*/
+    border-left: 50px solid #f5f5f5;
+  border-bottom: 25px solid transparent;
+}
+
+[id$='help_text_air_water'],
+[id$='help_text_thermal_statistics'],
+[id$='display_help_text_growing_degree_days'],
+[id$='help_text_IHA'],
+[id$='help_text_flashiness'] {
+  font-size:16px;
+  color:black;
+  font-style:bold;
+  display:block;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-wrap: normal;
+}
+
+div.dt-button-collection button {
+    color: #ffffff;
+    background-color: #2fa4e7;
+    border-color: #2fa4e7;
+}
+
