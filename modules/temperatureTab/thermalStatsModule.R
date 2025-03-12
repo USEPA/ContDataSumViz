@@ -6,7 +6,6 @@
 #' @export
 #'
 #' @examples
-#' 
 ThermalStatsModuleUI <- function(id) {
   ns <- NS(id)
   shinyjs::useShinyjs()
@@ -218,16 +217,15 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         renderTables(id="display_thermal_table_4", data=ST.tim, tblTitle="Timing") 
                         renderTables(id="display_thermal_table_5", data=ST.var, tblTitle="Variability") 
           
-                        require(openxlsx)
-
+                        require(XLConnect)
+                        
                         #Desc.freq, Desc.mag, Desc.roc, Desc.tim, Desc.var descriptions are defined in the constants.R file
                         Group.Desc <- c(Desc.freq, Desc.mag, Desc.roc, Desc.tim, Desc.var)
-                        #df.Groups <- as.data.frame(cbind(c("freq","mag","roc","tim","var"),Group.Desc))
-                        df.Groups <- data.frame(Table = c("freq","mag","roc","tim","var"), Description = Group.Desc) # LCN changed so renders with meaningful column names
+                        df.Groups <- as.data.frame(cbind(c("freq","mag","roc","tim","var"),Group.Desc))
                         SiteID <- localStats$ST.freq[1,1]
                         myDate <- format(Sys.Date(),"%Y%m%d")
                         myTime <- format(Sys.time(),"%H%M%S")
-
+                        
                         Notes.User <- Sys.getenv("USERNAME")
                         Notes.Names <- c("Dataset (SiteID)", "Analysis.Date (YYYYMMDD)"
                                          , "Analysis.Time (HHMMSS)", "Analysis.User")
@@ -245,27 +243,23 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                                             ,"extdata"
                                             ,"StreamThermal_MetricList.xlsx")
                                   , fileName)
-
-                        hs <- createStyle(fgFill = "#D9D9D9", textDecoration = "bold")
-                        
-                        wb <- loadWorkbook(fileName)
-                        
-                        addWorksheet(wb, "AnalysisNotes")
-                        addWorksheet(wb, "TableDescriptions")
-                        addWorksheet(wb, "freq")
-                        addWorksheet(wb, "mag")
-                        addWorksheet(wb, "roc")
-                        addWorksheet(wb, "tim")
-                        addWorksheet(wb, "var")
-                        
-                        writeData(wb, "AnalysisNotes", df.Notes, headerStyle = hs)
-                        writeData(wb, "TableDescriptions", df.Groups, headerStyle = hs)
-                        writeData(wb, "freq", localStats$ST.freq, headerStyle = hs)
-                        writeData(wb, "mag", localStats$ST.mag, headerStyle = hs)
-                        writeData(wb, "roc", localStats$ST.roc, headerStyle = hs)
-                        writeData(wb, "tim", localStats$ST.tim, headerStyle = hs)
-                        writeData(wb, "var", localStats$ST.var, headerStyle = hs)
-                        
+                        ## load workbook, create if not existing
+                        wb <- loadWorkbook(fileName, create = TRUE)
+                        # create sheets
+                        createSheet(wb, name = "NOTES")
+                        createSheet(wb, name = "freq")
+                        createSheet(wb, name = "mag")
+                        createSheet(wb, name = "roc")
+                        createSheet(wb, name = "tim")
+                        createSheet(wb, name = "var")
+                        # write to worksheet
+                        writeWorksheet(wb, df.Notes, sheet = "NOTES", startRow=1)
+                        writeWorksheet(wb, df.Groups, sheet="NOTES", startRow=10)
+                        writeWorksheet(wb, localStats$ST.freq, sheet = "freq")
+                        writeWorksheet(wb, localStats$ST.mag, sheet = "mag")
+                        writeWorksheet(wb, localStats$ST.roc, sheet = "roc")
+                        writeWorksheet(wb, localStats$ST.tim, sheet = "tim")
+                        writeWorksheet(wb, localStats$ST.var, sheet = "var")
                         # save workbook
                         to_download$wb <- wb
                         to_download$fileName <- fileName
@@ -297,7 +291,6 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
               },
               content = function(file){
                 saveWorkbook(to_download$wb,file)
-   
               }
             ) # downloadHandler close
             

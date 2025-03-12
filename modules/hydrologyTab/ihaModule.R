@@ -258,7 +258,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             #save(Analysis.Group.1,file="IHA_group_1.RData")
             Analysis.Group.1 <- as.data.frame(Analysis.Group.1) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.1 <- Analysis.Group.1
-            localResults$IHA.group.1 <- Analysis.Group.1 %>% tibble::rownames_to_column("year")
+            localResults$IHA.group.1 <- Analysis.Group.1
             renderTables(id="display_IHA_table_1", data=Analysis.Group.1, tblTitle="Group 1: Magnitude of monthly water conditions", btnId=ns("display_IHA_plot_1"))
             
             
@@ -267,7 +267,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             #save(Analysis.Group.2,file="IHA_group_2.RData")
             Analysis.Group.2 <- as.data.frame(Analysis.Group.2) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.2 <- Analysis.Group.2
-            localResults$IHA.group.2 <- Analysis.Group.2 # LCN: I do not know why this table already has year as a column
+            localResults$IHA.group.2 <- Analysis.Group.2
             renderTables(id="display_IHA_table_2", data=Analysis.Group.2, tblTitle="Group 2: Magnitude of monthly water condition and include 12 parameters",btnId=ns("display_IHA_plot_2"))
 
             
@@ -275,7 +275,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             Analysis.Group.3 <- group3(myData.IHA, year=myYr)
             #save(Analysis.Group.3,file="IHA_group_3.RData")
             #localStats$IHA.group.3 <- Analysis.Group.3
-            localResults$IHA.group.3 <- Analysis.Group.3 %>% as.data.frame() %>% tibble::rownames_to_column("year")
+            localResults$IHA.group.3 <- Analysis.Group.3
             renderTables(id="display_IHA_table_3", data=Analysis.Group.3, tblTitle="Group 3: Timing of annual extreme water conditions", btnId=ns("display_IHA_plot_3"))
             
             
@@ -284,7 +284,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             Analysis.Group.4 <- group4(myData.IHA, year=myYr)
             #save(Analysis.Group.4,file="IHA_group_4.RData")
             #localStats$IHA.group.4 <- Analysis.Group.4
-            localResults$IHA.group.4 <- Analysis.Group.4 %>% as.data.frame() %>% tibble::rownames_to_column("year")
+            localResults$IHA.group.4 <- Analysis.Group.4
             renderTables(id="display_IHA_table_4", data=Analysis.Group.4, tblTitle="Group 4: Frequency and duration of high and low pulses", btnId=ns("display_IHA_plot_4"))
             
 
@@ -292,15 +292,14 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             Analysis.Group.5 <- group5(myData.IHA, year=myYr)
             #save(Analysis.Group.5,file="IHA_group_5.RData")
             #localStats$IHA.group.5 <- Analysis.Group.5
-            localResults$IHA.group.5 <- Analysis.Group.5 %>% as.data.frame() %>% tibble::rownames_to_column("year")
+            localResults$IHA.group.5 <- Analysis.Group.5
             Analysis.Group.5 <- as.data.frame(Analysis.Group.5) %>% mutate_if(is.numeric,round,digits=2)
-            
             renderTables(id="display_IHA_table_5", data=Analysis.Group.5, tblTitle="Group 5: Rate and frequency of water condition changes", btnId=ns("display_IHA_plot_5"))
             
 
             
-            ## create Excel Workbook 
-            require(openxlsx)
+            ## create Excel Workbook
+            require(XLConnect)
             Group.Desc <- c("Magnitude of monthly water conditions"
                             ,"Magnitude of monthly water condition and include 12 parameters"
                             ,"Timing of annual extreme water conditions"
@@ -317,36 +316,30 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             # Open/Create file
             myFile.XLSX <- paste("IHA",loaded_data$name, myYr, myDate, "xlsx", sep=".")
             Notes.Summary <- summary(localResults$myData.IHA)
-            
-            hs <- createStyle(fgFill = "#D9D9D9", textDecoration = "bold")
-            
-            wb <- createWorkbook()
-            
-            addWorksheet(wb, "AnalysisNotes")
-            addWorksheet(wb, "Summary")
-            addWorksheet(wb, "TableDescriptions")
-            addWorksheet(wb, "Group1")
-            addWorksheet(wb, "Group2")
-            addWorksheet(wb, "Group3")
-            addWorksheet(wb, "Group4")
-            addWorksheet(wb, "Group5")
-            
-            writeData(wb, "AnalysisNotes", df.Notes, headerStyle = hs)
-            writeData(wb, "Summary", Notes.Summary, headerStyle = hs)
-            writeData(wb, "TableDescriptions", df.Groups, headerStyle = hs)
-            writeData(wb, "Group1", localResults$IHA.group.1, headerStyle = hs)
-            writeData(wb, "Group2", localResults$IHA.group.2, headerStyle = hs)
-            writeData(wb, "Group3", localResults$IHA.group.3, headerStyle = hs)
-            writeData(wb, "Group4", localResults$IHA.group.4, headerStyle = hs)
-            writeData(wb, "Group5", localResults$IHA.group.5, headerStyle = hs)
-            
+            wb <- loadWorkbook(myFile.XLSX, create = TRUE) # load workbook, create if not existing
+            # create sheets
+            createSheet(wb, name = "NOTES")
+            createSheet(wb, name = "Group1")
+            createSheet(wb, name = "Group2")
+            createSheet(wb, name = "Group3")
+            createSheet(wb, name = "Group4")
+            createSheet(wb, name = "Group5")
+            # write to worksheet
+            writeWorksheet(wb, df.Notes, sheet = "NOTES", startRow=1)
+            writeWorksheet(wb, Notes.Summary, sheet = "NOTES", startRow=10)
+            writeWorksheet(wb, df.Groups, sheet="NOTES", startRow=25)
+            writeWorksheet(wb, localResults$IHA.group.1, sheet = "Group1",rownames=c("year",rownames(localResults$IHA.group.1)))
+            writeWorksheet(wb, localResults$IHA.group.2, sheet = "Group2")
+            writeWorksheet(wb, localResults$IHA.group.3, sheet = "Group3",rownames=c("year",rownames(localResults$IHA.group.3)))
+            writeWorksheet(wb, localResults$IHA.group.4, sheet = "Group4",rownames=c("year",rownames(localResults$IHA.group.4)))
+            writeWorksheet(wb, localResults$IHA.group.5, sheet = "Group5",rownames=c("year",rownames(localResults$IHA.group.5)))
             to_download$wb_IHA <- wb
             to_download$fileName_IHA <- myFile.XLSX
-
+            
             output$display_save_IHA_button <- renderUI({
               downloadButton(outputId=ns("save_IHA"), label="Save IHA results to excel",class="btn btn-primary")
             })
-
+            
           }) #observeEvent end
           
           
