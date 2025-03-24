@@ -11,50 +11,50 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
   shinyjs::useShinyjs()
   tagList(
     fluidRow(
-      column(
-        width = 12,
         radioButtons(ns("dateColumnNumsId"),
-          label = "Date and time column(s)", choices = c(
+          label = "Select date and time format", choices = c(
             "Date and time uploaded in one column" = "combined",
             "Date and time uploaded in two separate columns" = "separate"
           ), inline = FALSE,
           selected = "combined"
         )
-      )
     ),
     # fluidRow(
     #   column(width=12,uiOutput(ns("validationDivId"))),
     #   column(width=12,uiOutput(ns("extraValidationId"))),
     # ),
     fluidRow(
-      column(width = 4, selectizeInput(ns("parmToProcessId"),
-        label = "Select parameters to process",
-        choices = paramChoices,
-        multiple = TRUE,
-        options = list(hideSelected = FALSE, plugins = list("remove_button"))
+      selectizeInput(ns("parmToProcessId"),
+                     label = "Select parameters to process",
+                     choices = paramChoices,
+                     multiple = TRUE,
+                     options = list(hideSelected = FALSE, plugins = list("remove_button"))
       )),
-      column(width = 4, selectInput(ns("dateFieldNameId"), label = "Date Field Name", choices = c("", uploadedCols))),
-      tags$div(id = ns("timeFieldParentId"), style = "display:none", column(width = 4, selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols)))),
+    fluidRow(
+      selectInput(ns("dateFieldNameId"), label = "Date Field Name", choices = c("", uploadedCols))
     ),
     fluidRow(
-      column(
-        width = 4,
-        selectizeInput(
-          ns("dateFormatId"),
-          label = "Date Format",
-          choices = c(
-            c("Year, Month, Day"), c("Year, Day, Month"), c("Month, Day, Year"),
-            c("Day, Month, Year"), c("Year, Month, Day"),
-            c("Abbreviated month, Day of the month, Year")
-          ),
-          multiple = FALSE,
-          options = list(
-            hideSelected = FALSE,
-            plugins = list("remove_button")
-          )
+      tags$div(id = ns("timeFieldParentId"), style = "display:none", column(width = 4, selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols))))
+      
+    ),
+    fluidRow(
+      selectizeInput(
+        ns("dateFormatId"),
+        label = "Date Format",
+        choices = c(
+          c("Year, Month, Day"), c("Year, Day, Month"), c("Month, Day, Year"),
+          c("Day, Month, Year"), c("Year, Month, Day"),
+          c("Abbreviated month, Day of the month, Year")
+        ),
+        multiple = FALSE,
+        options = list(
+          hideSelected = FALSE,
+          plugins = list("remove_button")
         )
-      ),
-      column(width = 4, selectizeInput(
+      )
+    ),
+    fluidRow(
+      selectizeInput(
         ns("timeFormatId"),
         label = "Time Format",
         choices = c("Hour, Minute, Second", "Hour, Minute", "Hour in 12-hour format, Minute, AM/PM", "Hour in 12-hour format, Minute, Second, AM/PM", "None"),
@@ -63,8 +63,10 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
           hideSelected = FALSE,
           plugins = list("remove_button")
         )
-      )),
-      column(width = 4, selectizeInput(
+      )
+    ),
+    fluidRow(
+      selectizeInput(
         ns("timeZoneId"),
         label = "Time Zone",
         choices = c("UTC"="UTC","AKST"="US/Alaska","CST/CDT"="US/Central", "EST"="EST","EDT"="EDT","HST"="HST","MST"="MST","PST"="PST"),
@@ -73,9 +75,9 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
           hideSelected = FALSE,
           plugins = list("remove_button")
         )
-      )),
+      )
     )
-  )
+    )
 }
 
 #' Date and Time module (server side)

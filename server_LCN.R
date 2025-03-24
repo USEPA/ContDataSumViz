@@ -227,8 +227,37 @@ server <- function(input, output, session) {
       #   ) # end of mainBox
       # })
     }
-    
-    return(my_data)
+    ret_list <- list(my_data = my_data, my_colnames = my_colnames, parmsToProcess = parmsToProcess)
+    return(ret_list)
+    #return(my_data)
+  })
+  
+  observeEvent(input$displayidLeft, {
+    output$contents <- renderTable(
+      {
+        sub_df <- uploaded_data()$my_data
+        if (isolate(input$disp == "head")) {
+          return(head(sub_df))
+        } else if (isolate(input$disp == "tail")) {
+          return(tail(sub_df))
+        } else {
+          return(colnames(sub_df))
+        }
+      },
+      type = "html",
+      bordered = TRUE,
+      striped = TRUE,
+      align = "c",
+      width = "100%"
+    )
+    output$display_paramselect <- renderUI({
+      div(class="panel panel-default", style="margin:10px;",
+          div(class="panel-heading", "Step 2: Select Date and Time", style="font-weight:bold;"),
+          div(class = "panel-body", style = "margin: 10px;",
+              dateAndTimeUI(id = "homePage", paramChoices = uploaded_data()$parmsToProcess, uploadedCols = uploaded_data()$my_colnames)
+          )
+      )
+    })
   })
   
   observeEvent(uploaded_data(), {
@@ -315,34 +344,7 @@ server <- function(input, output, session) {
   
 
   
-  observeEvent(input$displayidLeft, {
-    output$contents <- renderTable(
-      {
-        sub_df <- uploaded_data()
-        if (isolate(input$disp == "head")) {
-          return(head(sub_df))
-        } else if (isolate(input$disp == "tail")) {
-          return(tail(sub_df))
-        } else {
-          return(colnames(sub_df))
-        }
-      },
-      type = "html",
-      bordered = TRUE,
-      striped = TRUE,
-      align = "c",
-      width = "100%"
-    )
-    output$display_paramselect <- renderUI({
-      div(class="panel panel-default", style="margin:10px;",
-          div(class="panel-heading", "Step 2: Select Date and Time", style="font-weight:bold;"),
-          # div(class = "panel-body", style = "margin: 10px;",
-          #     dateAndTimeUILCN(id = "homePage", paramChoices = parmsToProcess, uploadedCols = my_colnames)
-          # )
-      )
-    })
-    
-  })
+  
   
   observeEvent(input$showrawTS, {
     shinyjs::show(id = "display_all_raw_ts_div")
