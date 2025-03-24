@@ -14,10 +14,10 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
       column(
         width = 12,
         radioButtons(ns("dateColumnNumsId"),
-          label = "", choices = c(
+          label = "Date and time column(s)", choices = c(
             "Date and time uploaded in one column" = "combined",
             "Date and time uploaded in two separate columns" = "separate"
-          ), inline = TRUE,
+          ), inline = FALSE,
           selected = "combined"
         )
       )
