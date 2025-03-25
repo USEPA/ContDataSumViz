@@ -131,13 +131,10 @@ server <- function(input, output, session) {
   if (file.exists("_moved/File_Format.rds")) file.remove("_moved/File_Format.rds")
   do.call(file.remove, list(list.files("Selected_Files", full.names = TRUE)))
   
-  # Home page file upload
-  # Already has a module included in the below code so following the KISS development principle
-  # and avoiding too much nesting of modules.
+  # click upload
   uploaded_data <- eventReactive(c(input$uploaded_data_file), {
     readyForCalculation$status <- FALSE
     dailyStatusCalculated$status <- "unfinished"
-    
     
     my_data <- uploadFile(c(input$uploaded_data_file), stopExecution = FALSE, tab = "homePage")
     # drop all rows where all the columns are empty
@@ -232,6 +229,24 @@ server <- function(input, output, session) {
     #return(my_data)
   })
   
+  # Behavior on upload
+  observeEvent(uploaded_data(), {
+    output$displayFC <- renderUI({
+      data <- uploaded_data()$my_data 
+      tagList(
+        radioButtons("disp", "Display file information",
+                     choices = c(Head = "head", Tail = "tail", "Column names" = "Column names"),
+                     selected = "head"
+        ),
+        hr(),
+        actionButton(inputId = "displayidLeft", label = "Display file contents", class = "btn btn-primary")
+      )
+    })
+    
+    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
+  })
+  
+  # Click display file contents
   observeEvent(input$displayidLeft, {
     output$contents <- renderTable(
       {
@@ -254,28 +269,139 @@ server <- function(input, output, session) {
       div(class="panel panel-default", style="margin:10px;",
           div(class="panel-heading", "Step 2: Select Date and Time", style="font-weight:bold;"),
           div(class = "panel-body", style = "margin: 10px;",
-              dateAndTimeUI(id = "homePage", paramChoices = uploaded_data()$parmsToProcess, uploadedCols = uploaded_data()$my_colnames)
-          )
+              dateAndTimeUI(id = "homePage", paramChoices = uploaded_data()$parmsToProcess, uploadedCols = uploaded_data()$my_colnames)),
+          div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin: 10px;"),
+          div(actionButton(inputId = "showrawTS", label = "Display time series", class = "btn btn-primary", style = "margin: 20px;")),
+          div(id = "dateAndTimeError")
       )
     })
   })
   
-  observeEvent(uploaded_data(), {
-    output$displayFC <- renderUI({ # LCN: defines the 
-      data <- uploaded_data() ## datasetlist()
-      tagList(
-        radioButtons("disp", "Display file information",
-                     choices = c(Head = "head", Tail = "tail", "Column names" = "Column names"),
-                     selected = "head"
-        ),
-        hr(),
-        actionButton(inputId = "displayidLeft", label = "Display file contents", class = "btn btn-primary")
-      )
-    })
+  
+  # click display time series
+  observeEvent(input$showrawTS, {
+
+    # shinyjs::show(id = "display_all_raw_ts_div")
+    shinyjs::removeClass("dateAndTimeError", "alert alert-danger")
+    raw_data <- uploaded_data()$my_data
+    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
+    showRawDateAndTime <- homeDTvalues$homeDateAndTime
     
-    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
-  })
+    # display_validation_msgs dateBox
+    if (showRawDateAndTime$isTimeValid() & showRawDateAndTime$isDateAndtimeValid()) {
+      tryCatch(
+        {
+          # if error had occured then on fix reset the step
+          shinyjs::removeClass("statusWorkflow-step3", "btn-danger")
+          shinyjs::addClass("statusWorkflow-step3", "btn-primary")
+          formated_raw_data$derivedDF <- getFormattedRawData(showRawDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
+          rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data)
+          #browser()
+          workflowStatus$elementId <- "step2"
+          workflowStatus$state <- "success"
+        },
+        error = function(parsingMsg) {
+          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+          workflowStatus$elementId <- "step2"
+          workflowStatus$state <- "error"
+        },
+        warning = function(parsingMsg) {
+          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+          workflowStatus$elementId <- "step2"
+          workflowStatus$state <- "error"
+        },
+        message = function(parsingMsg) {
+          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+          workflowStatus$elementId <- "step2"
+          workflowStatus$state <- "error"
+        }
+      ) # end of tryCatch
+    } # end of validation check
+    
+    output$display_runmetasummary <-
+      renderUI({
+        div(class="panel panel-default", style="margin:10px;",
+            div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;"),
+            div(actionButton(inputId = "runQS", label = "Run meta summary", class = "btn btn-primary", style = "margin: 20px;"))
+        )
+      })
+    
+    output$ts_right <- renderUI({
+     div(id = "display_all_raw_ts_div", style = "height:100%;width:100%", rawTSModuleUI("displayRawTS") # time series
+        ) # end of div
+    })
+  }) ## observeEvent end
   
+  
+  # click Run meta summary
+  observeEvent(input$runQS, {
+    tryCatch(
+      {
+        raw_data <- uploaded_data()$my_data
+        homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
+        localHomeDateAndTime <- homeDTvalues$homeDateAndTime
+        # display_validation_msgs dateBox
+        if (localHomeDateAndTime$isTimeValid() & localHomeDateAndTime$isDateAndtimeValid()) {
+          # output$display_quick_summary_table <- renderUI({
+          #    column(12, align = "center", withSpinner(tableOutput("quick_summary_table")))
+          #  })
+          # update the reactiveValues
+          # All the variables are selected
+          workflowStatus$elementId <- "step2"
+          workflowStatus$state <- "success"
+          raw_data <- getFormattedRawData(localHomeDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
+          # now shorten the varname
+          if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
+            print("passed fun.ConvertDateFormat")
+            
+            # set dateRange for other modules
+            formated_raw_data$derivedDF <- raw_data
+            dateRange$min <- min(as.Date(raw_data$date.formatted), na.rm = TRUE)
+            dateRange$max <- max(as.Date(raw_data$date.formatted), na.rm = TRUE)
+            raw_data_columns$date_column_name <- "date.formatted"
+            
+            # now shorten the varname
+            raw_data <- formated_raw_data$derivedDF
+            metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data())
+            raw_data_columns$date_column_name <- "date.formatted"
+            output$display_fill_data <- renderUI({
+              div(style = paste0("margin-top: ", calculatePlotHeight(length(localHomeDateAndTime$parmToProcess()) * 2)+ 40, "px;"), metaDataUI("metaDataHome"))
+            })
+            
+            shinyjs::runjs("$('#dateTimeBoxButton').click()")
+            
+            if (workflowStatus$finish == FALSE) {
+              workflowStatus$elementId <- "step3"
+              workflowStatus$state <- "success"
+              readyForCalculation$status <- TRUE
+              homePageInputs$changed <- FALSE
+            }
+
+            output$display_actionButton_calculateDailyStatistics <-
+              renderUI({
+                calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation)
+              })
+          } else {
+            # shinyAlertUI("common_alert_msg" , invalidDateFormt, "ERROR")
+            print("it should have updated users on the UI")
+          }
+        }
+      },
+      error = function(parsingMsg) {
+        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+        readyForCalculation$status <- FALSE
+      },
+      warning = function(parsingMsg) {
+        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+        readyForCalculation$status <- FALSE
+      },
+      message = function(parsingMsg) {
+        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+        readyForCalculation$status <- FALSE
+      }
+    ) # end of tryCatch
+  }) ## observeEvent end
+
   #' supporting function - formats date and time based on user inputs
   #' for the uploaded files
   #'
@@ -346,43 +472,6 @@ server <- function(input, output, session) {
   
   
   
-  observeEvent(input$showrawTS, {
-    shinyjs::show(id = "display_all_raw_ts_div")
-    shinyjs::removeClass("dateAndTimeError", "alert alert-danger")
-    raw_data <- uploaded_data()
-    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
-    showRawDateAndTime <- homeDTvalues$homeDateAndTime
-    
-    # display_validation_msgs dateBox
-    if (showRawDateAndTime$isTimeValid() & showRawDateAndTime$isDateAndtimeValid()) {
-      tryCatch(
-        {
-          # if error had occured then on fix reset the step
-          shinyjs::removeClass("statusWorkflow-step3", "btn-danger")
-          shinyjs::addClass("statusWorkflow-step3", "btn-primary")
-          formated_raw_data$derivedDF <- getFormattedRawData(showRawDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
-          rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data)
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "success"
-        },
-        error = function(parsingMsg) {
-          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "error"
-        },
-        warning = function(parsingMsg) {
-          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "error"
-        },
-        message = function(parsingMsg) {
-          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "error"
-        }
-      ) # end of tryCatch
-    } # end of validation check
-  }) ## observeEvent end
   
   
   #' Supporting function to prepare error messages for display
@@ -432,72 +521,7 @@ server <- function(input, output, session) {
   }
   
   
-  observeEvent(input$runQS, {
-    tryCatch(
-      {
-        raw_data <- uploaded_data()
-        homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
-        localHomeDateAndTime <- homeDTvalues$homeDateAndTime
-        # display_validation_msgs dateBox
-        if (localHomeDateAndTime$isTimeValid() & localHomeDateAndTime$isDateAndtimeValid()) {
-          # output$display_quick_summary_table <- renderUI({
-          #    column(12, align = "center", withSpinner(tableOutput("quick_summary_table")))
-          #  })
-          # update the reactiveValues
-          # All the variables are selected
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "success"
-          raw_data <- getFormattedRawData(localHomeDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
-          # now shorten the varname
-          if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
-            print("passed fun.ConvertDateFormat")
-            
-            # set dateRange for other modules
-            formated_raw_data$derivedDF <- raw_data
-            dateRange$min <- min(as.Date(raw_data$date.formatted), na.rm = TRUE)
-            dateRange$max <- max(as.Date(raw_data$date.formatted), na.rm = TRUE)
-            raw_data_columns$date_column_name <- "date.formatted"
-            
-            # now shorten the varname
-            raw_data <- formated_raw_data$derivedDF
-            metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data())
-            raw_data_columns$date_column_name <- "date.formatted"
-            output$display_fill_data <- renderUI({
-              metaDataUI("metaDataHome")
-            })
-            
-            shinyjs::runjs("$('#dateTimeBoxButton').click()")
-            
-            if (workflowStatus$finish == FALSE) {
-              workflowStatus$elementId <- "step3"
-              workflowStatus$state <- "success"
-              readyForCalculation$status <- TRUE
-              homePageInputs$changed <- FALSE
-            }
-            output$display_actionButton_calculateDailyStatistics <-
-              renderUI({
-                calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation)
-              })
-          } else {
-            # shinyAlertUI("common_alert_msg" , invalidDateFormt, "ERROR")
-            print("it should have updated users on the UI")
-          }
-        }
-      },
-      error = function(parsingMsg) {
-        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-        readyForCalculation$status <- FALSE
-      },
-      warning = function(parsingMsg) {
-        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-        readyForCalculation$status <- FALSE
-      },
-      message = function(parsingMsg) {
-        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-        readyForCalculation$status <- FALSE
-      }
-    ) # end of tryCatch
-  }) ## observeEvent end
+  
   
   ## close the warning messages inside the above oberveEvent
   

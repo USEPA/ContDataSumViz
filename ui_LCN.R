@@ -103,6 +103,7 @@ ui <- shinyUI(fluidPage(
                                   )),
                               tagList(
                                 uiOutput("display_paramselect"),
+                                uiOutput("dt_warning"),
                                 uiOutput("display_runmetasummary"),
                                 uiOutput("display_actionButton_calculateDailyStatistics"),
                                 uiOutput("display_actionButton_saveDailyStatistics")
@@ -111,7 +112,9 @@ ui <- shinyUI(fluidPage(
                             mainPanel(
                               width = 9,
                               div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;"),
-                              uiOutput("display_raw_ts")
+                              uiOutput("ts_right"),
+                              uiOutput("display_fill_data")
+                              #uiOutput("display_raw_ts")
                             ) # mainPanel end
                           ) # sidebarLayout end
                         )# column close

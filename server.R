@@ -347,6 +347,7 @@ function(input, output, session) {
   })
 
   observeEvent(input$showrawTS, {
+
     shinyjs::show(id = "display_all_raw_ts_div")
     shinyjs::removeClass("dateAndTimeError", "alert alert-danger")
     raw_data <- uploaded_data()
@@ -358,7 +359,7 @@ function(input, output, session) {
       tryCatch(
         {
           # if error had occured then on fix reset the step
-          shinyjs::removeClass("statusWorkflow-step3", "btn-danger")
+          shinyjs::removeClass("statusWorkflow-step3", "btn-danger") # not sure why this is called first (maybe because the run meta summary appears with step 2)
           shinyjs::addClass("statusWorkflow-step3", "btn-primary")
           formated_raw_data$derivedDF <- getFormattedRawData(showRawDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
           rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data)
