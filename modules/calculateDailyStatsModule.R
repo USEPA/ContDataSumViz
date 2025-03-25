@@ -2,19 +2,41 @@ calculateDailyStatsModuleUI <- function(id, readyForCalculation) {
   ns <- NS(id)
   shinyjs::useShinyjs()
   if (readyForCalculation$status == TRUE) {
+    # tagList(
+    #   # hr(),
+    #   actionButton(
+    #     inputId = ns("calculateDailyStatistics2"),
+    #     label = "Calculate daily statistics",
+    #     class = "btn btn-primary"
+    #   ),
+    #   hr(),
+    #   downloadButton(
+    #     outputId = ns("saveDailyStatistics2"),
+    #     label = "Save daily statistics",
+    #     class = "btn btn-primary",
+    #     style = "padding-left:15px;padding-right:15px;display:none;"
+    #   )
+    # )
     tagList(
-      hr(),
-      actionButton(
-        inputId = ns("calculateDailyStatistics2"),
-        label = "Step 4: Calculate daily statistics",
-        class = "btn btn-primary"
+      div(class="panel panel-default", style="margin:10px;",
+          div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
+          div(actionButton(
+            inputId = ns("calculateDailyStatistics2"),
+            label = "Calculate daily statistics",
+            class = "btn btn-primary",
+            style="margin-left:20px;margin-right:20px;margin-top:20px;"
+          )),
+          hr(),
+          div(downloadButton(
+            outputId = ns("saveDailyStatistics2"),
+            label = "Save daily statistics",
+            class = "btn btn-primary",
+            style = "margin-left:20px;margin-right:20px;margin-bottom:20px;display:none;") #padding-left:15px;padding-right:15px;
+          )
       ),
-      hr(),
-      downloadButton(
-        outputId = ns("saveDailyStatistics2"),
-        label = "Save daily statistics",
-        class = "btn btn-primary",
-        style = "padding-left:15px;padding-right:15px;display:none;"
+      div(id = ns("step5panel"), class="panel panel-default", style = "margin:10px;display:none",
+        div(class="panel-heading", "Step 5: Visualize data", style="font-weight:bold;"),
+        p("Proceed to the above tabs to visualize your data.", style = "margin:10px")
       )
     )
   }
@@ -90,6 +112,7 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
               )
 
               shinyjs::show(id = "saveDailyStatistics2")
+              shinyjs::show(id = "step5panel")
               incProgress(1 / 1, detail = "Calculated the daily statistics")
               processed$processed_dailyStats <- dailyStats$processed
               dailyStatusCalculated$status <- "finished"

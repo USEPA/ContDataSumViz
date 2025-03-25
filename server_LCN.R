@@ -379,7 +379,14 @@ server <- function(input, output, session) {
 
             output$display_actionButton_calculateDailyStatistics <-
               renderUI({
-                calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation)
+                
+                    div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
+               
+                
+                # div(class="panel panel-default", style="margin:10px;",
+                #     div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
+                #     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation), style = "margin: 20px;")
+                # )
               })
           } else {
             # shinyAlertUI("common_alert_msg" , invalidDateFormt, "ERROR")
@@ -401,7 +408,10 @@ server <- function(input, output, session) {
       }
     ) # end of tryCatch
   }) ## observeEvent end
+  
 
+  # click Calculate Daily Statistics reveals Step 5 panel from inside the calculateDailyStatsModuleUI function
+  
   #' supporting function - formats date and time based on user inputs
   #' for the uploaded files
   #'

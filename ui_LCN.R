@@ -106,7 +106,8 @@ ui <- shinyUI(fluidPage(
                                 uiOutput("dt_warning"),
                                 uiOutput("display_runmetasummary"),
                                 uiOutput("display_actionButton_calculateDailyStatistics"),
-                                uiOutput("display_actionButton_saveDailyStatistics")
+                                uiOutput("display_actionButton_saveDailyStatistics"),
+                                uiOutput("step5")
                               )
                             ),
                             mainPanel(
