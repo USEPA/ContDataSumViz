@@ -41,19 +41,23 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data) {
 
         p <- ggplot(data = uploaded_raw_data, aes(x=as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
           geom_line(aes(colour=parameter)) +
-          labs(title="Raw data", x="Date", y="Parameters")+
+          labs(title="Raw data", x="Date", y = "")+ # y="Parameters"
           scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+
+          scale_color_discrete(name = "Parameter")+
+          facet_grid(parameter ~ ., scales = "free_y",switch = "both")+
           theme_bw()+
           theme(
              strip.background = element_blank()
             #,strip.text.y = element_blank()
             ,strip.placement = "outside"
-            ,text=element_text(size=10,face = "bold", color="cornflowerblue")
+            ,text=element_text(size=12,face = "bold", color="cornflowerblue")
+            ,strip.text.y = element_blank()
             ,plot.title = element_text(hjust=0.5)
+            ,axis.title.x = element_text(margin = margin(t = 20))
             ,legend.position="bottom"
             ,axis.text.x=element_text(angle=65, hjust=10)
           )
-        p = p + facet_grid(parameter ~ ., scales = "free_y")
+        #p = p + facet_grid(parameter ~ ., scales = "free_y",switch = "both")
         output$display_all_raw_ts <- renderPlotly({
           ggplotly(p, height = calculatePlotHeight(length(my_raw_choices) * 2))
           #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
