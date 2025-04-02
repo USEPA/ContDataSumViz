@@ -268,10 +268,11 @@ server <- function(input, output, session) {
     output$display_paramselect <- renderUI({
       div(class="panel panel-default", style="margin:10px;",
           div(class="panel-heading", "Step 2: Select Date and Time", style="font-weight:bold;"),
-          div(class = "panel-body", style = "margin: 10px;",
+          div(class = "panel-body", style = "margin-left: 10px;margin-right: 10px;margin-top: 10px",
               dateAndTimeUI(id = "homePage", paramChoices = uploaded_data()$parmsToProcess, uploadedCols = uploaded_data()$my_colnames)),
-          div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin: 10px;"),
-          div(actionButton(inputId = "showrawTS", label = "Display time series", class = "btn btn-primary", style = "margin: 20px;")),
+          div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left: 10px;margin-bottom: 10px"),
+          div(actionButton(inputId = "showrawTS", label = "Display time series", class = "btn btn-primary", style = "margin: 10px;")),
+          div("To download the plot, mouse over the plot to display the control panel in the upper righthand corner and select the camera icon.", style = "margin-left:10px;margin-bottom: 10px; margin-right:10px;"),
           div(id = "dateAndTimeError")
       )
     })
@@ -322,7 +323,7 @@ server <- function(input, output, session) {
       renderUI({
         div(class="panel panel-default", style="margin:10px;",
             div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;"),
-            div(actionButton(inputId = "runQS", label = "Run meta summary", class = "btn btn-primary", style = "margin: 20px;"))
+            div(actionButton(inputId = "runQS", label = "Run meta summary", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 20px;margin-top: 20px;"))
         )
       })
     
@@ -523,7 +524,7 @@ server <- function(input, output, session) {
     readyForCalculation$status <- FALSE
     if (grepl("All formats failed to parse. No formats found.", errorMsg[1], fixed = TRUE) |
         grepl("failed to parse", errorMsg[1], fixed = TRUE)) {
-      formattedError <- "There is a mismatch between uploaded file date format and selected date format, please correct and try again."
+      formattedError <- "There is a mismatch between uploaded file date/time format and selected date/time format, please correct and try again."
       return(formattedError)
     } else {
       return(errorMsg[1])

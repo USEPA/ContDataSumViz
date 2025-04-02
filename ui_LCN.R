@@ -59,10 +59,12 @@ ui <- shinyUI(fluidPage(
       column(
         width = 12,
         br(),
-        div(span("Please complete below steps before proceeding to 'Data Exploration' :", class="text-info", style="font-weight:bold"),
+        div(span("Please complete steps in the Upload Data Tab before proceeding to Data Exploration Tabs.", class="text-info", style="font-weight:bold"),
             span(style="float:right",
                  a(tags$button(tags$i(class="fas fa-arrow-down"), "Download Test Data", class="btn btn-primary btn-sm"), href="TestData.zip", target="_blank"))
         ),
+        br(),
+        div(span("To start over with a new dataset, refresh the page and upload the new dataset.", class="text-info", style="font-weight:bold")),
         br()
       )
     ),
@@ -182,7 +184,7 @@ ui <- shinyUI(fluidPage(
                           id = "tabset",
                           tags$head(tags$style(HTML(".radio-inline {margin-right: 40px;}"))),
                           ## DE, All Parameters ----
-                          tabPanel("All parameters",
+                          tabPanel("Any parameters",
                                    value = "all_parameters_tab", br(),
                                    tabsetPanel(
                                      id = "all_parameters_subtabs",
@@ -198,7 +200,7 @@ ui <- shinyUI(fluidPage(
                                               br(),
                                      ), # tabPanel 1 end
                                      ### DE, All, TS Plots ----
-                                     tabPanel("Time series plots",
+                                     tabPanel("Daily summary plots",
                                               value = "tab_time_series", br(),
                                               column(
                                                 width = 12,

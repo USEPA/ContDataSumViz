@@ -41,7 +41,7 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data) {
 
         p <- ggplot(data = uploaded_raw_data, aes(x=as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
           geom_line(aes(colour=parameter)) +
-          labs(title="Uploaded data", x="Date", y="Parameters")+
+          labs(title="Raw data", x="Date", y="Parameters")+
           scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+
           theme_bw()+
           theme(

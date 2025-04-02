@@ -34,8 +34,8 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
       selectInput(ns("dateFieldNameId"), label = "Date Field Name", choices = c("", uploadedCols))
     ),
     fluidRow(
-      tags$div(id = ns("timeFieldParentId"), style = "display:none", column(width = 4, selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols))))
-      
+      #tags$div(id = ns("timeFieldParentId"), style = "display:none", column(width = 4, selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols))))
+      tags$div(id = ns("timeFieldParentId"), style = "display:none", selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols)))
     ),
     fluidRow(
       selectizeInput(
