@@ -163,11 +163,14 @@ ui <- shinyUI(fluidPage(
                                     ),
                                     hr(),
                                     uiOutput("baseParameters"))
-                              )),
+                              ),
+                              div(uiOutput("discreteDateAndTimeBox"))
+                              ),
                         ),
                         mainPanel(
                           width = 9,
-                          column(width = 12, uiOutput("discreteDateAndTimeBox")),
+                          #column(width = 12, uiOutput("discreteDateAndTimeBox")),
+                          column(width = 12, uiOutput("discreteHeader")),
                           fluidRow(column(width = 12,
                                           withSpinner(plotlyOutput("display_time_series_discrete"), type=1)
                           ))

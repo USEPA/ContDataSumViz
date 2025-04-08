@@ -140,15 +140,11 @@ server <- function(input, output, session) {
     # drop all rows where all the columns are empty
     if (length(my_data) > 0) {
       my_data <- my_data[rowSums(is.na(my_data) | is.null(my_data) | my_data == "") != ncol(my_data), ]
-      #my_colnames <- colnames(my_data)
-      #shinyjs::show(id = "displayidLeft")
-      #parmsToProcess <- fun.findVariableToProcess(my_colnames, getDateCols = FALSE)
       workflowStatus$elementId <- "step1"
       workflowStatus$state <- "success"
    
     }
-    # ret_list <- list(my_data = my_data, my_colnames = my_colnames, parmsToProcess = parmsToProcess)
-    # return(ret_list)
+
     return(my_data)
   })
   
@@ -161,7 +157,6 @@ server <- function(input, output, session) {
     
     output$displayFC <- renderUI({
       data <- uploaded_data() 
-      #data <- uploaded_data()$my_data 
       tagList(
         radioButtons("disp", "Display file information",
                      choices = c(Head = "head", Tail = "tail", "Column names" = "Column names"),
@@ -173,7 +168,6 @@ server <- function(input, output, session) {
     })
     
     homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
-    #homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
   })
   
   # Click display file contents
@@ -181,7 +175,7 @@ server <- function(input, output, session) {
     output$contents <- renderTable(
       {
         sub_df <- uploaded_data()
-        #sub_df <- uploaded_data()$my_data
+        
         if (isolate(input$disp == "head")) {
           return(head(sub_df))
         } else if (isolate(input$disp == "tail")) {
@@ -216,10 +210,10 @@ server <- function(input, output, session) {
 
     # shinyjs::show(id = "display_all_raw_ts_div")
     shinyjs::removeClass("dateAndTimeError", "alert alert-danger")
-    #raw_data <- uploaded_data()$my_data
+   
     raw_data <- uploaded_data()
     homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
-    #homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
+
     showRawDateAndTime <- homeDTvalues$homeDateAndTime
     
     # display_validation_msgs dateBox
@@ -273,7 +267,7 @@ server <- function(input, output, session) {
     tryCatch(
       {
         raw_data <- uploaded_data()
-        #raw_data <- uploaded_data()$my_data
+        
         homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
         localHomeDateAndTime <- homeDTvalues$homeDateAndTime
         # display_validation_msgs dateBox
@@ -301,11 +295,10 @@ server <- function(input, output, session) {
             metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data())
             raw_data_columns$date_column_name <- "date.formatted"
             output$display_fill_data <- renderUI({
-              div(style = "margin-top:20px;", metaDataUI("metaDataHome")) # removed * 2 + 40 style = paste0("margin-top: ", calculatePlotHeight(length(localHomeDateAndTime$parmToProcess())), "px;")
+              div(style = "margin-top:20px;", metaDataUI("metaDataHome")) 
             })
 
-            # I think the margin is measured from something like the top of the page so when the scroll happens it doesn't account for the window shift
-            #style = paste0("margin-top: ", calculatePlotHeight(length(localHomeDateAndTime$parmToProcess())), "px;"), 
+            
             shinyjs::runjs("$('#dateTimeBoxButton').click()")
             
             if (workflowStatus$finish == FALSE) {
@@ -493,52 +486,93 @@ server <- function(input, output, session) {
           div(
             class = "panel-heading", style = "width:100%;",
             span("Select Date and Time for discrete data", style = "font-weight:bold;"),
-            span(
-              actionButton(
-                inputId = "dateTimeBoxButton_discrete",
-                style = "float:right;", class = "btn btn-primary btn-xs",
-                label = "Hide Selection", icon = icon("arrow-down")
-              )
-            )
+            # span(
+            #   actionButton(
+            #     inputId = "dateTimeBoxButton_discrete",
+            #     style = "float:right;", class = "btn btn-primary btn-xs",
+            #     label = "Hide Selection", icon = icon("arrow-down")
+            #   )
+            # )
           ),
-          div(uiOutput("disDateAndTimeError")),
-          box(
-            width = "100%", class = "displayed", id = "dateBox_discrete",
+          
+          # box(
+          #   width = "100%", class = "displayed", id = "dateBox_discrete",
+          #   div(
+          #     style = "margin-left:10px",
+          #     dateAndTimeUI(id = "discretePage", paramChoices = cols_avail, uploadedCols = cols_avail)
+          #   ),
+          #   hr(style = "margin:0px;padding:0px;"),
+          #   fluidRow(
+          #     div(span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")),
+          #     div(
+          #       style = "padding:2px;",
+          #       span(width = "85%", actionButton(inputId = "display_discrete_data", label = "View Discrete-Continuous Plot", class = "btn btn-primary"), style = "margin:5px 15px 5px 25px;"),
+          #       # span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")
+          #     )
+          #   )
+          #   # ,
+          #   # hr(style = "margin:0px;padding:0px;"),
+          #   # fluidRow(
+          #   #   column(
+          #   #     width = 12,
+          #   #     tags$div(
+          #   #       renderTable(
+          #   #         {
+          #   #           fileContentForDisplay
+          #   #         },
+          #   #         type = "html",
+          #   #         bordered = TRUE,
+          #   #         striped = TRUE,
+          #   #         align = "c",
+          #   #         width = "100%"
+          #   #       ),
+          #   #       style = "overflow-x:auto;"
+          #   #     ) # end of div
+          #   #   ) # end of column
+          #   # ) # end of row
+          # ) # end of box
+          div(class = "panel-body",
+            #width = "100%", class = "displayed", id = "dateBox_discrete",
             div(
               style = "margin-left:10px",
               dateAndTimeUI(id = "discretePage", paramChoices = cols_avail, uploadedCols = cols_avail)
             ),
-            hr(style = "margin:0px;padding:0px;"),
-            fluidRow(
+            hr(),
+            #fluidRow(
+            
+              div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left:10px;margin-bottom:10px"),
               div(
-                style = "padding:2px;",
-                span(width = "85%", actionButton(inputId = "display_discrete_data", label = "View Discrete-Continuous Plot", class = "btn btn-primary"), style = "margin:5px 15px 5px 25px;"),
-                span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")
-              )
-            ),
-            hr(style = "margin:0px;padding:0px;"),
-            fluidRow(
-              column(
-                width = 12,
-                tags$div(
-                  renderTable(
-                    {
-                      fileContentForDisplay
-                    },
-                    type = "html",
-                    bordered = TRUE,
-                    striped = TRUE,
-                    align = "c",
-                    width = "100%"
-                  ),
-                  style = "overflow-x:auto;"
-                ) # end of div
-              ) # end of column
-            ) # end of row
+                actionButton(inputId = "display_discrete_data", label = "View Discrete-Continuous Plot", class = "btn btn-primary"), style = "margin:10px 15px 10px 10px;"),
+                # span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")
+              #div(uiOutput("disDateAndTimeError"), style = "margin-left:10px"),
+              div(id = "disDateAndTimeError", style = "margin-top:10px; margin-left:10px;")
+            #)
           ) # end of box
         )
       )
     })
+    
+    output$discreteHeader <- renderUI({
+      fluidRow(
+          column(
+            width = 12,
+            tags$div(
+              renderTable(
+                {
+                  fileContentForDisplay
+                },
+                type = "html",
+                bordered = TRUE,
+                striped = TRUE,
+                align = "c",
+                width = "100%"
+              ),
+              style = "overflow-x:auto;"
+            ) # end of div
+          ) # end of column
+        ) # end of row
+    })
+    
     # init the module
     discreteDTvalues$disDateAndTime <- dateAndTimeServer(id = "discretePage", uploaded_discreteData(), homePageInputs)
   })
@@ -627,6 +661,7 @@ server <- function(input, output, session) {
         },
         error = function(parsingMsg) {
           processErrors(parsingMsg, elementId = "disDateAndTimeError")
+          
         },
         warning = function(parsingMsg) {
           processErrors(parsingMsg, elementId = "disDateAndTimeError")
