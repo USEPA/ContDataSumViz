@@ -89,7 +89,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
           ns <- session$ns
            observe({
             localStats <- dailyStats
-            variables_avail <- names(uploaded_data()$my_data)
+            variables_avail <- names(uploaded_data())
             if(renderThermalStats$render == TRUE) {
 
               output$thermal_input_1 <- renderUI({
@@ -155,7 +155,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         output$errorDiv <- renderUI({})
               
                         shinyjs::hide(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
-                        myData <- uploaded_data$my_data
+                        myData <- uploaded_data
                         
                         tryCatch({
                         streamThermal_exported <- Export.StreamThermal(formated_raw_data$derivedDF

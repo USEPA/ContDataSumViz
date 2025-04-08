@@ -140,99 +140,28 @@ server <- function(input, output, session) {
     # drop all rows where all the columns are empty
     if (length(my_data) > 0) {
       my_data <- my_data[rowSums(is.na(my_data) | is.null(my_data) | my_data == "") != ncol(my_data), ]
-      my_colnames <- colnames(my_data)
+      #my_colnames <- colnames(my_data)
       #shinyjs::show(id = "displayidLeft")
-      parmsToProcess <- fun.findVariableToProcess(my_colnames, getDateCols = FALSE)
+      #parmsToProcess <- fun.findVariableToProcess(my_colnames, getDateCols = FALSE)
       workflowStatus$elementId <- "step1"
       workflowStatus$state <- "success"
-      
-      #shinyjs::show(id = "dateTimeBoxButton")
-      
-      # # goes to left panel
-      # output$display_runmetasummary <-
-      #   renderUI({
-      #     tagList(
-      #       hr(),
-      #       actionButton(inputId = "runQS", label = "Step 3: Run meta summary", class = "btn btn-primary")
-      #     )
-      #   })
-      # goes to right panel
-      # output$display_raw_ts <- renderUI({
-      #   div(
-      #     id = "mainBox",
-      #     div(
-      #       class = "panel panel-default", width = "100%",
-      #       
-      #       # move to left panel
-      #       div(
-      #         class = "panel-heading",
-      #         span("Step 2: Select Date and Time", style = "font-weight:bold;"),
-      #         span(
-      #           actionButton(
-      #             inputId = "dateTimeBoxButton",
-      #             style = "float:right;", class = "btn btn-primary btn-xs",
-      #             label = "Hide Selection", icon = icon("arrow-down")
-      #           )
-      #         )
-      #       ),
-      #       # move to left panel
-      #       div(id = "dateAndTimeError"),
-      #       box(
-      #         width = "100%", class = "displayed", id = "dateBox",
-      #         div(
-      #           style = "margin-left:10px",
-      #           dateAndTimeUI(id = "homePage", paramChoices = parmsToProcess, uploadedCols = my_colnames)
-      #         ),
-      #         hr(style = "margin:0px;padding:0px;"),
-      #         fluidRow(
-      #           tagList(
-      #             div(
-      #               style = "padding:2px;",
-      #               span(actionButton(inputId = "showrawTS", label = "Display time series", class = "btn btn-primary"), style = "margin:5px 15px 5px 25px;"),
-      #               span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")
-      #             )
-      #           )
-      #         ),
-      #         
-      #         # keep in right panel
-      #         fluidRow(
-      #           div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;") # head, tail, or column names of data
-      #         ),
-      #       ) # end of box
-      #     ), # end of parent div,
-      #     
-      #     fluidRow(
-      #       tags$div(
-      #         id = "display_all_raw_ts_div", style = "height:100%;width:100%;display:none",
-      #         column(width = 12, rawTSModuleUI("displayRawTS")) # time series
-      #       ) # end of div
-      #     ),
-      #     fluidRow(column(
-      #       width = 12,
-      #       box(
-      #         width = "100%", id = "statsBox",
-      #         fluidRow(
-      #           column(
-      #             width = 12, style = "padding:20px;",
-      #             uiOutput("display_fill_data") # metadata summary table, footnote text, and options
-      #           ), # column close
-      #         ) # fluidRow end
-      #       ) # end of statsBox
-      #     ))
-      #     
-      #     # fluidRow end
-      #   ) # end of mainBox
-      # })
+   
     }
-    ret_list <- list(my_data = my_data, my_colnames = my_colnames, parmsToProcess = parmsToProcess)
-    return(ret_list)
-    #return(my_data)
+    # ret_list <- list(my_data = my_data, my_colnames = my_colnames, parmsToProcess = parmsToProcess)
+    # return(ret_list)
+    return(my_data)
   })
+  
+ 
+
+  
   
   # Behavior on upload
   observeEvent(uploaded_data(), {
+    
     output$displayFC <- renderUI({
-      data <- uploaded_data()$my_data 
+      data <- uploaded_data() 
+      #data <- uploaded_data()$my_data 
       tagList(
         radioButtons("disp", "Display file information",
                      choices = c(Head = "head", Tail = "tail", "Column names" = "Column names"),
@@ -243,14 +172,16 @@ server <- function(input, output, session) {
       )
     })
     
-    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
+    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
+    #homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
   })
   
   # Click display file contents
   observeEvent(input$displayidLeft, {
     output$contents <- renderTable(
       {
-        sub_df <- uploaded_data()$my_data
+        sub_df <- uploaded_data()
+        #sub_df <- uploaded_data()$my_data
         if (isolate(input$disp == "head")) {
           return(head(sub_df))
         } else if (isolate(input$disp == "tail")) {
@@ -269,7 +200,7 @@ server <- function(input, output, session) {
       div(class="panel panel-default", style="margin:10px;",
           div(class="panel-heading", "Step 2: Select Date and Time", style="font-weight:bold;"),
           div(class = "panel-body", style = "margin-left: 10px;margin-right: 10px;margin-top: 10px",
-              dateAndTimeUI(id = "homePage", paramChoices = uploaded_data()$parmsToProcess, uploadedCols = uploaded_data()$my_colnames)),
+              dateAndTimeUI(id = "homePage", paramChoices =  fun.findVariableToProcess(colnames(uploaded_data()), getDateCols = FALSE), uploadedCols = colnames(uploaded_data()))),
           div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left: 10px;margin-bottom: 10px"),
           div(actionButton(inputId = "showrawTS", label = "Display time series", class = "btn btn-primary", style = "margin: 10px;")),
           div("To download the plot, mouse over the plot to display the control panel in the upper righthand corner and select the camera icon.", style = "margin-left:10px;margin-bottom: 10px; margin-right:10px;"),
@@ -278,14 +209,17 @@ server <- function(input, output, session) {
     })
   })
   
+
   
   # click display time series
   observeEvent(input$showrawTS, {
 
     # shinyjs::show(id = "display_all_raw_ts_div")
     shinyjs::removeClass("dateAndTimeError", "alert alert-danger")
-    raw_data <- uploaded_data()$my_data
-    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
+    #raw_data <- uploaded_data()$my_data
+    raw_data <- uploaded_data()
+    homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
+    #homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data()$my_data, homePageInputs)
     showRawDateAndTime <- homeDTvalues$homeDateAndTime
     
     # display_validation_msgs dateBox
@@ -338,7 +272,8 @@ server <- function(input, output, session) {
   observeEvent(input$runQS, {
     tryCatch(
       {
-        raw_data <- uploaded_data()$my_data
+        raw_data <- uploaded_data()
+        #raw_data <- uploaded_data()$my_data
         homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
         localHomeDateAndTime <- homeDTvalues$homeDateAndTime
         # display_validation_msgs dateBox
