@@ -8,12 +8,22 @@ metaDataUI <- function(id) {
   tagList(
     uiOutput(outputId = ns("metaSummaryTb")),
     uiOutput(outputId = ns("meta_footnote_text")),
-    fluidRow(
-      column(width = 4, uiOutput(outputId = ns("fillMissingData"))),
-      column(width = 4, uiOutput(outputId = ns("saveStats")), ),
-      column(width = 4, uiOutput(outputId = ns("meta_exclude_checks")))
-    )
+    # fluidRow(
+    #   column(width = 4, uiOutput(outputId = ns("fillMissingData"))),
+    #   column(width = 4, uiOutput(outputId = ns("saveStats")), ),
+    #   column(width = 4, uiOutput(outputId = ns("meta_exclude_checks")))
+    # )
   ) # end of tagList
+}
+
+step4UI <- function(id){
+  ns <- NS(id)
+  shinyjs::useShinyjs()
+  tagList(
+    uiOutput(outputId = ns("fillMissingData")),
+    uiOutput(outputId = ns("saveStats")),
+    uiOutput(outputId = ns("meta_exclude_checks"))
+  )
 }
 
 #' Run Meta Summary Button (server side)

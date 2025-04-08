@@ -7,7 +7,7 @@
 rawTSModuleUI <- function(id) {
   ns <- NS(id)
   shinyjs::useShinyjs()
-      column(width = 12, plotlyOutput(ns("display_all_raw_ts")))
+  plotlyOutput(ns("display_all_raw_ts"))
 }
 
 #' Display Time Series button
@@ -17,7 +17,7 @@ rawTSModuleUI <- function(id) {
 #' @param userSelectedValues 
 #' @param formated_raw_data 
 #'
-rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data) {
+rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_data) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -59,9 +59,11 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data) {
           )
         #p = p + facet_grid(parameter ~ ., scales = "free_y",switch = "both")
         output$display_all_raw_ts <- renderPlotly({
-          ggplotly(p, height = calculatePlotHeight(length(my_raw_choices) * 2))
+          ggplotly(p, height = calculatePlotHeight(length(my_raw_choices) * 2)) %>% 
+            plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_rawTS")))
           #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
         })
+        
         shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
         # #click the button to hide the selection box
         shinyjs::runjs("$('#dateTimeBoxButton').click()")

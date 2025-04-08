@@ -144,7 +144,8 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp) {
             mainPlot <- draw_uploaded_file_ts()
             if (!is.null(mainPlot) & length(input$dailyStats_ts_variable_name) > 0) {
               output$display_time_series <- renderPlotly({
-                ggplotly(mainPlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2))
+                ggplotly(mainPlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2)) %>% 
+                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(input$uploaded_data_file, "_rawTS")))
                 # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
               })
             }
@@ -152,7 +153,8 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp) {
             basePlot <- draw_uploaded_file_stats()
             if (!is.null(basePlot)) {
               output$display_time_series <- renderPlotly({
-                ggplotly(basePlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2))
+                ggplotly(basePlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2)) %>% 
+                  plotly::config(toImageButtonOptions = list(format = "png", filename = "custom"))
                 # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
               })
             }
@@ -236,7 +238,7 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp) {
         }
 
         mainPlot <- ggplot(data = tsData, dynamicTicks = TRUE, aes(x=as.POSIXct(Date))) +
-          labs(title = mapTitle, x = "Date", y = "Parameters")
+          labs(title = mapTitle, x = "Date", y = "")
         if (isMissingDate == TRUE) {
           mainPlot <- mainPlot +
             geom_line(aes(y=upper_col, color=factor(upperBoundgrp)))+
@@ -251,15 +253,16 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp) {
         mainPlot <- mainPlot +
           scale_x_datetime(date_labels = xDateLabel, date_breaks = xDateBrakes) +
           theme_bw() +
-          scale_color_discrete(name = "") +
+          scale_color_discrete(name = "Parameter") +
           facet_grid(df ~ ., scales = "free_y") +
           theme(
             strip.background = element_blank(),
-            legend.title = element_blank()
-            # ,strip.text.y = element_blank()
+            #legend.title = element_blank()
+             ,strip.text.y = element_blank()
             , strip.placement = "outside",
             text = element_text(size = 10, face = "bold", color = "cornflowerblue"),
             plot.title = element_text(hjust = 0.5),
+            axis.title.x = element_text(margin = margin(t = 10)),
             axis.text.x = element_text(angle = 65, hjust = 1, vjust = 1)
           )
         return(mainPlot)
@@ -302,8 +305,9 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp) {
           geom_line(aes(colour = parameter)) +
           # scale_x_datetime(date_labels="%Y-%m-%d",date_breaks=paste0(1," month"))+
           scale_x_datetime(date_labels = main_x_date_label, date_breaks = mainBreaks) +
-          labs(title = mainMapTitle, x = "Date", y = "Parameters") +
+          labs(title = mainMapTitle, x = "Date", y = "") +
           theme_bw() +
+          scale_color_discrete(name = "Parameter")+
           facet_grid(parameter ~ ., scales = "free_y") +
           theme(
             strip.background = element_blank(),
@@ -313,6 +317,7 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp) {
             text = element_text(size = 10, face = "bold", color = "cornflowerblue"),
             plot.title = element_text(hjust = 0.5),
             legend.position = "bottom",
+            axis.title.x = element_text(margin = margin(t = 10)),
             axis.text.x = element_text(angle = 65, hjust = 10)
           )
         return(basePlot)

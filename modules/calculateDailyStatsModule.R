@@ -2,48 +2,87 @@ calculateDailyStatsModuleUI <- function(id, readyForCalculation) {
   ns <- NS(id)
   shinyjs::useShinyjs()
   if (readyForCalculation$status == TRUE) {
-    # tagList(
-    #   # hr(),
-    #   actionButton(
-    #     inputId = ns("calculateDailyStatistics2"),
-    #     label = "Calculate daily statistics",
-    #     class = "btn btn-primary"
-    #   ),
-    #   hr(),
-    #   downloadButton(
-    #     outputId = ns("saveDailyStatistics2"),
-    #     label = "Save daily statistics",
-    #     class = "btn btn-primary",
-    #     style = "padding-left:15px;padding-right:15px;display:none;"
-    #   )
-    # )
+    
     tagList(
-      div(class="panel panel-default", style="margin:10px;",
-          div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
-          div(actionButton(
-            inputId = ns("calculateDailyStatistics2"),
-            label = "Calculate daily statistics",
-            class = "btn btn-primary",
-            style="margin-left:10px;margin-right:10px;margin-top:20px;"
-          )),
-          # div(id = ns("calcsuccess"),  style = "margin:10px",
-          #     p("Calculation successful")),
-          p(id = ns("calcsuccess"), "Calculation successful", style = "margin:10px;display:none"),
-          hr(),
-          div(downloadButton(
-            outputId = ns("saveDailyStatistics2"),
-            label = "Save daily statistics",
-            class = "btn btn-primary",
-            style = "margin-left:10px;margin-right:10px;margin-bottom:20px;display:none;") #padding-left:15px;padding-right:15px;
-          )
-      ),
-      div(id = ns("step5panel"), class="panel panel-default", style = "margin:10px;display:none",
-        div(class="panel-heading", "Step 5: Visualize data", style="font-weight:bold;"),
-        p("Proceed to the tabs at the top of the page to visualize your data.", style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;font-weight:bold")
+      
+      div(actionButton(
+        inputId = ns("calculateDailyStatistics2"),
+        label = "Calculate daily statistics",
+        class = "btn btn-primary",
+        style="margin-left:10px;margin-right:10px;margin-top:20px;"
+      )),
+      # div(id = ns("calcsuccess"),  style = "margin:10px",
+      #     p("Calculation successful")),
+      p(id = ns("calcsuccess"), "Calculation successful", style = "margin:10px;display:none"),
+      hr(),
+      div(downloadButton(
+        outputId = ns("saveDailyStatistics2"),
+        label = "Save daily statistics",
+        class = "btn btn-primary",
+        style = "margin-left:10px;margin-right:10px;margin-bottom:20px;display:none;") #padding-left:15px;padding-right:15px;
       )
+      
+      
     )
   }
 }
+
+step5ui <- function(id){
+  ns <- NS(id)
+  div(id = ns("step5panel"), class="panel panel-default", style = "margin:10px;display:none",
+      div(class="panel-heading", "Step 5: Visualize data", style="font-weight:bold;"),
+      p("Proceed to the tabs at the top of the page to visualize your data.", style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;font-weight:bold")
+  )
+}
+  
+# ORIGINAL
+# calculateDailyStatsModuleUI <- function(id, readyForCalculation) {
+#    ns <- NS(id)
+#    shinyjs::useShinyjs()
+#    if (readyForCalculation$status == TRUE) {
+#      # tagList(
+#      #   # hr(),
+#      #   actionButton(
+#      #     inputId = ns("calculateDailyStatistics2"),
+#      #     label = "Calculate daily statistics",
+#      #     class = "btn btn-primary"
+#      #   ),
+#      #   hr(),
+#      #   downloadButton(
+#      #     outputId = ns("saveDailyStatistics2"),
+#      #     label = "Save daily statistics",
+#      #     class = "btn btn-primary",
+#     #     style = "padding-left:15px;padding-right:15px;display:none;"
+#      #   )
+#      # )
+#      tagList(
+# 
+#        div(actionButton(
+#          inputId = ns("calculateDailyStatistics2"),
+#          label = "Calculate daily statistics",
+#          class = "btn btn-primary",
+#          style="margin-left:10px;margin-right:10px;margin-top:20px;"
+#        )),
+#        # div(id = ns("calcsuccess"),  style = "margin:10px",
+#        #     p("Calculation successful")),
+#        p(id = ns("calcsuccess"), "Calculation successful", style = "margin:10px;display:none"),
+#        hr(),
+#        div(downloadButton(
+#          outputId = ns("saveDailyStatistics2"),
+#          label = "Save daily statistics",
+#          class = "btn btn-primary",
+#          style = "margin-left:10px;margin-right:10px;margin-bottom:20px;display:none;") #padding-left:15px;padding-right:15px;
+#        )
+#        ,
+#        div(id = ns("step5panel"), class="panel panel-default", style = "margin:10px;display:none",
+#            div(class="panel-heading", "Step 5: Visualize data", style="font-weight:bold;"),
+#            p("Proceed to the tabs at the top of the page to visualize your data.", style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;font-weight:bold")
+#        )
+#      )
+#    }
+#  }
+
+
 
 calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues, metaHomeValues, loaded_data, dailyStatusCalculated, processed, readyForCalculation) {
   moduleServer(

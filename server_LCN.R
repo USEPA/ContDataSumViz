@@ -296,7 +296,7 @@ server <- function(input, output, session) {
           shinyjs::removeClass("statusWorkflow-step3", "btn-danger")
           shinyjs::addClass("statusWorkflow-step3", "btn-primary")
           formated_raw_data$derivedDF <- getFormattedRawData(showRawDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
-          rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data)
+          rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data, loaded_data)
           #browser()
           workflowStatus$elementId <- "step2"
           workflowStatus$state <- "success"
@@ -328,7 +328,7 @@ server <- function(input, output, session) {
       })
     
     output$ts_right <- renderUI({
-     div(id = "display_all_raw_ts_div", style = "height:100%;width:100%", rawTSModuleUI("displayRawTS") # time series
+     div(id = "display_all_raw_ts_div", style = paste0("height:", calculatePlotHeight(length(showRawDateAndTime$parmToProcess()))), rawTSModuleUI("displayRawTS") #"height:100%;width:100%" # time series calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2)
         ) # end of div
     })
   }) ## observeEvent end
@@ -366,9 +366,11 @@ server <- function(input, output, session) {
             metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data())
             raw_data_columns$date_column_name <- "date.formatted"
             output$display_fill_data <- renderUI({
-              div(style = paste0("margin-top: ", calculatePlotHeight(length(localHomeDateAndTime$parmToProcess()) * 2)+ 40, "px;"), metaDataUI("metaDataHome"))
+              div(style = "margin-top:20px;", metaDataUI("metaDataHome")) # removed * 2 + 40 style = paste0("margin-top: ", calculatePlotHeight(length(localHomeDateAndTime$parmToProcess())), "px;")
             })
-            
+
+            # I think the margin is measured from something like the top of the page so when the scroll happens it doesn't account for the window shift
+            #style = paste0("margin-top: ", calculatePlotHeight(length(localHomeDateAndTime$parmToProcess())), "px;"), 
             shinyjs::runjs("$('#dateTimeBoxButton').click()")
             
             if (workflowStatus$finish == FALSE) {
@@ -380,14 +382,16 @@ server <- function(input, output, session) {
 
             output$display_actionButton_calculateDailyStatistics <-
               renderUI({
-                
+                div(class="panel panel-default", style="margin:10px;",
+                    div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
+                    div(step4UI("metaDataHome"), style = "margin:10px; margin-top:30px"),
                     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
-               
-                
-                # div(class="panel panel-default", style="margin:10px;",
-                #     div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
-                #     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation), style = "margin: 20px;")
-                # )
+                )
+
+              })
+            output$step5 <-
+              renderUI({
+                div(step5ui("calculateDailyStats"))
               })
           } else {
             # shinyAlertUI("common_alert_msg" , invalidDateFormt, "ERROR")

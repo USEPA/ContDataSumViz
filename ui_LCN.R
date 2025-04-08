@@ -78,9 +78,9 @@ ui <- shinyUI(fluidPage(
                     title="Upload Data",
                     value="uploadData",
                     fluidPage(
-                      fluidRow(
-                        column(
-                          width = 12,
+                      #fluidRow(
+                        #column(
+                          #width = 12,
                           sidebarLayout(
                             sidebarPanel(
                               width = 3,
@@ -115,13 +115,14 @@ ui <- shinyUI(fluidPage(
                             mainPanel(
                               width = 9,
                               div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;"),
-                              uiOutput("ts_right"),
-                              uiOutput("display_fill_data")
+                              div(uiOutput("ts_right"), style = "margin-top:20px;height:700px;overflow-y:auto"), #; overflow-y:auto;
+                              br(),
+                              div(uiOutput("display_fill_data"))
                               #uiOutput("display_raw_ts")
                             ) # mainPanel end
                           ) # sidebarLayout end
-                        )# column close
-                      )
+                        #)# column close
+                      #)
                     ) # fluidPage close
                   ), # tabPanel end
                   tabPanel(
