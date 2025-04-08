@@ -38,7 +38,7 @@ SummaryTablesModuleUI <- function(id) {
 #' @param dailyStats 
 #' @param renderSummaryTables 
 #'
-SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables) {
+SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables, loaded_data) { # added loaded_data
 
   localStats <- reactiveValues(stats=list())
   variables_avail <- reactiveValues(params=list())
@@ -118,7 +118,24 @@ SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables) {
                   buttons = list(
                     list(extend='copy', text='Copy', className="btn btn-primary"),
                     list(extend='print', text='Print', className="btn btn-primary"),
-                    list(extend='collection', buttons = c('csv','excel','pdf'), text='Download', className="btn btn-primary")
+                    #list(extend='collection', buttons = c('csv','excel','pdf'), text='Download', className="btn btn-primary")
+                    list(extend='collection', buttons = 
+                           list(
+                             list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
+                                                                    input$summarise_variable_name,"_summary_",
+                                                                    input$summarise_by, "_",
+                                                                    input$summarise_metrics)),
+                             list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
+                                                                      input$summarise_variable_name,"_summary_",
+                                                                      input$summarise_by, "_",
+                                                                      input$summarise_metrics)),
+                             list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
+                                                                               input$summarise_variable_name,"_summary_",
+                                                                               input$summarise_by, "_",
+                                                                               input$summarise_metrics))
+                           ),
+                         
+                         text='Download', className="btn btn-primary")
                   ),
                   columnDefs = list(list(className="dt-center",targets="_all")),
                   initComplete = JS(

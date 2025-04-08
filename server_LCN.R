@@ -88,10 +88,10 @@ server <- function(input, output, session) {
   ############ Continuous Data Exploration >>  All parameters ############
   
   # Continuous Data Exploration > All Parameters >  Summary tables tab
-  SummaryTablesModuleServer(id = "DataExpSummaryTbls", dailyStats = processed, renderSummaryTables)
+  SummaryTablesModuleServer(id = "DataExpSummaryTbls", dailyStats = processed, renderSummaryTables, loaded_data)
   
   # Continuous Data Exploration > All Parameters >  Time Series plots tab
-  DataExplorationTSModuleServer(id = "dataExpTS", dailyStats = processed, renderDataExp)
+  DataExplorationTSModuleServer(id = "dataExpTS", dailyStats = processed, renderDataExp, loaded_data)
   
   # Continuous Data Exploration > All Parameters >  Time series - Annual overlays tab
   TsOverlayModuleServer(id = "tsOverlayTab", dailyStats = processed, renderTSOverlay)
