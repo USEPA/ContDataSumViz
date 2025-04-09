@@ -15,6 +15,7 @@ GageAndDaymetModuleUI <- function(id) {
     mainPanel(
       width = 9,
       column(width = 12,
+            
              div(style="width:100%", uiOutput(ns("gageDayMetError"))),
              withSpinner(plotlyOutput(ns("display_downloaded_data"))),type=1)
     ) # mainPanel end
@@ -140,16 +141,22 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               fun.myTZ = defaultTimeZone #ContData.env$myTZ
             )
             }, error = function(err){
-              print("Error while dowonloading data from USGS gage")
+              print("Error while downloading data from USGS gage")
               print(err$message)
               renderErrorMsg(err$message)
+              
             })
+            
+            if(class(gageRawData$gagedata)=="character"){
+              renderErrorMsg(paste0("Error downloading USGS gage data. Check user guide for guidance on the following error: ", gageRawData$gagedata, ". Correct before proceeding."))
+            }
+            
             message("USGS data retrieved")
             #Fills in the progress bar once the operation is complete
             incProgress(1/1, detail = paste("Retrieved records for site ", input$gage_id))
             Sys.sleep(1)
           })
-         
+         #browser()
           #print(gageRawData$gagedata)
           allVars <- colnames(gageRawData$gagedata)
           varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
@@ -280,6 +287,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         totalH <- 0L
         if(length(input$dailyStats_ts_variable_name2) > 0) {
           clearContents()
+        
           #test all row data
           if (!is.null(dayMetRawData$dayMetData) & length(input$daymet_params) > 0) {
             daymet_data_raw  <- dayMetRawData$dayMetData %>%
@@ -294,7 +302,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             mergedList[["DayMet"]] <- daymet_data_raw
           }
           
-          if(input$gaze_params != "" && length(input$gaze_params) > 0) {
+          if(paste0(input$gaze_params, collapse = "") != "" && length(input$gaze_params) > 0) {
             #gageGroup <- paste(input$gage_params, "Gage", sep=".")
             gage_data_raw  <- gageRawData$gagedata %>%
               select(all_of(input$gaze_params), all_of("GageID"), 'Date'=all_of("Date.Time")) %>%

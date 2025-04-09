@@ -22,24 +22,12 @@ noAnnualOverlayData <- "No data available to plot for the selected variable."
 noRasterData <- "No data available to plot for the selected variable."
 airvswaterMsg <- "We need both of air temperature and water temperature data to run thermal sensitivity. Please check."
 
-Desc.freq <- "Frequency metrics indicate numbers of days in months or seasons
-              that key events exceed user-defined temperatures. "
+Desc.freq <- "Frequency metrics indicate numbers of days in months or seasons that key events exceed user-defined temperatures. "
 
-Desc.mag <- "Magnitude metrics characterize monthly and seasonal averages and
-              the maximum and minimum from daily temperatures as well as 3-, 7-, 14-, 21-,
-              and 30-day moving averages for mean and maximum daily temperatures."
+Desc.mag <- "Magnitude metrics characterize monthly and seasonal averages and the maximum and minimum from daily temperatures as well as 3-, 7-, 14-, 21-, and 30-day moving averages for mean and maximum daily temperatures."
 
-Desc.roc <- "Rate of change metrics include monthly and seasonal rate of
-              change, which indicates the difference in magnitude of maximum and minimum
-              temperatures divided by number of days between these events."
+Desc.roc <- "Rate of change metrics include monthly and seasonal rate of change, which indicates the difference in magnitude of maximum and minimum temperatures divided by number of days between these events."
 
-Desc.tim <- "Timing metrics indicate Julian days of key events including
-              mean, maximum, and minimum temperatures; they also indicate Julian days of
-              mean, maximum, and minimum values over moving windows of specified size."
+Desc.tim <- "Timing metrics indicate Julian days of key events including mean, maximum, and minimum temperatures; they also indicate Julian days of mean, maximum, and minimum values over moving windows of specified size."
 
-Desc.var <- "Variability metrics summarize monthly and seasonal range in
-              daily mean temperatures as well as monthly coefficient of variation of daily
-              mean, maximum, and minimum temperatures. Variability metrics also include
-              moving averages for daily ranges and moving variability in extreme
-              temperatures, calculated from differences in average high and low
-              temperatures over various time periods"
+Desc.var <- "Variability metrics summarize monthly and seasonal range in daily mean temperatures as well as monthly coefficient of variation of daily mean, maximum, and minimum temperatures. Variability metrics also include moving averages for daily ranges and moving variability in extreme temperatures, calculated from differences in average high and low temperatures over various time periods"
