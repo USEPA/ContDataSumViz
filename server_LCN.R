@@ -94,13 +94,13 @@ server <- function(input, output, session) {
   DataExplorationTSModuleServer(id = "dataExpTS", dailyStats = processed, renderDataExp, loaded_data)
   
   # Continuous Data Exploration > All Parameters >  Time series - Annual overlays tab
-  TsOverlayModuleServer(id = "tsOverlayTab", dailyStats = processed, renderTSOverlay)
+  TsOverlayModuleServer(id = "tsOverlayTab", dailyStats = processed, renderTSOverlay, loaded_data)
   
   # Continuous Data Exploration > All Parameters > Box plots tab
-  TsBoxPlotModuleServer(id = "tsBoxPlot", dailyStats = processed, renderTSBoxPlot)
+  TsBoxPlotModuleServer(id = "tsBoxPlot", dailyStats = processed, renderTSBoxPlot, loaded_data)
   
   # Continuous Data Exploration > All Parameters > CDFs tab
-  TsCDFPlotModuleServer(id = "tsCDFPlot", dailyStats = processed, renderCDFPlot)
+  TsCDFPlotModuleServer(id = "tsCDFPlot", dailyStats = processed, renderCDFPlot, loaded_data)
   
   # Continuous Data Exploration > All Parameters > Raster graphs tab
   TsRasterPlotModuleServer(id = "tsRasterPlot", dailyStats = processed, renderRasterPlot)
@@ -115,7 +115,7 @@ server <- function(input, output, session) {
   GrowingDegreeModuleServer("growingDegree", renderGrowingDegree)
   
   # Continuous Data Exploration >  Temperature > Thermal Classification tab
-  ThermalClassificationModuleServer("thermalClassification", dailyStats = processed, uploaded_data, renderThermalClassification)
+  ThermalClassificationModuleServer("thermalClassification", dailyStats = processed, uploaded_data, renderThermalClassification, loaded_data)
   
   # Continuous Data Exploration >  Hydrology > IHA tab
   IHAModuleServer("IHATab", dailyStats = processed, loaded_data, uploaded_data, to_download, renderIHA)

@@ -90,7 +90,7 @@ TsOverlayModuleUI <- function(id) {
 #' @param dailyStats 
 #' @param renderTSOverlay 
 #'
-TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay) {
+TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) {
  
   localStats <- reactiveValues(stats=list())
   variables_avail <- reactiveValues(params=list())
@@ -195,7 +195,12 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay) {
                           ,plot.background = element_rect(color="grey20",size=2)
                           ,legend.position = "right"
                           ,axis.text.x=element_text(angle=45, hjust=1))
-                  ggplotly(p1,dynamicTicks = FALSE)
+                  ggplotly(p1,dynamicTicks = FALSE) %>% 
+                    plotly::config(toImageButtonOptions = list(format = "png", 
+                                                               filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),"_", 
+                                                                                 input$dailyStats_ts_overlay_metrics, "_",
+                                                                                 input$overlay_shading, 
+                                                                                 "_annual-overlay-TS")))
                   print(p1)
                 })
               }) # renderPlot close
@@ -235,7 +240,12 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay) {
                                   ,plot.background = element_rect(color="grey20",size=2)
                                   ,legend.position = "right"
                                   ,axis.text.x=element_text(angle=45, hjust=1))
-                            ggplotly(p1,dynamicTicks = FALSE) %>% plotly::layout()
+                            ggplotly(p1,dynamicTicks = FALSE) %>% plotly::layout()%>% 
+                              plotly::config(toImageButtonOptions = list(format = "png", 
+                                                                         filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),"_", 
+                                                                                           input$dailyStats_ts_overlay_metrics, "_",
+                                                                                           input$overlay_shading, 
+                                                                                           "_annual-overlay-TS")))
                         })  # renderPlot close
       
                     }else{

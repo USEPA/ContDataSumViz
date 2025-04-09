@@ -375,7 +375,21 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               buttons = list(
                              list(extend='copy', text='Copy', className="btn btn-primary"),
                              list(extend='print', text='Print', className="btn btn-primary"),
-                             list(extend='collection', buttons = c('csv','excel','pdf'), text='Download', className="btn btn-primary"),
+                             
+                             list(extend='collection', buttons = 
+                                    list(
+                                      list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                             "_", str_sub(tblTitle, 1, 7),
+                                                                             "_iha")),
+                                      list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                               "_", str_sub(tblTitle, 1, 7),
+                                                                               "_iha")),
+                                      list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
+                                                                             "_", str_sub(tblTitle, 1, 7),
+                                                                             "_iha")) 
+                                    ),text='Download', className="btn btn-primary"),
+                             
+                             
                              list(extend='collection', text='Show/Hide Plot',action = DT::JS(tempStr), className="btn btn-primary")
               ),
               columnDefs = list(list(className="dt-center",targets="_all")),

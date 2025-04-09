@@ -186,10 +186,25 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                             stateSave = FALSE,
                             pageLength = 15,
                             dom = 'Bt',
+                            
+                            
                             buttons = list(
                               list(extend='copy', text='Copy', className="btn btn-primary"),
                               list(extend='print', text='Print', className="btn btn-primary"),
-                              list(extend='collection', buttons = c('csv','excel','pdf'), text='Download', className="btn btn-primary")
+                              list(extend='collection', buttons = 
+                                     list(
+                                       list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
+                                                                              input$thermal_Temp_name,"_thermal-statistics_",
+                                                                              tblTitle)),
+                                       list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
+                                                                                input$thermal_Temp_name,"_thermal-statistics_",
+                                                                                tblTitle)),
+                                       list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
+                                                                              input$input$thermal_Temp_name,"_thermal-statistics_",
+                                                                              tblTitle))
+                                     ),
+                                   
+                                   text='Download', className="btn btn-primary")
                             ),
                             columnDefs = list(list(className="dt-center",targets="_all")),
                             initComplete = JS(

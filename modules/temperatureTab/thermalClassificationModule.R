@@ -67,7 +67,7 @@ ThermalClassificationModuleUI <- function(id) {
 #' @param uploaded_data 
 #' @param renderThermalClassification 
 #'
-ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, renderThermalClassification) {
+ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, renderThermalClassification, loaded_data) {
   localStats <- reactiveValues(stats=list())
   variables_avail <- reactiveValues()
   moduleServer(
@@ -205,7 +205,15 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
                    buttons = list(
                      list(extend='copy', text='Copy', className="btn btn-primary"),
                      list(extend='print', text='Print', className="btn btn-primary"),
-                     list(extend='collection', buttons = c('csv','excel','pdf'), text='Download', className="btn btn-primary")
+                     list(extend='collection', buttons = 
+                            list(
+                              list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),  
+                                                                     "_water-thermal-classification")),
+                              list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),  
+                                                                       "_water-thermal-classification")),
+                              list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),  
+                                                                               "_water-thermal-classification"))
+                            ),text='Download', className="btn btn-primary")
                    ),
                    columnDefs = list(list(className="dt-center",targets="_all")),
                    initComplete = JS(
