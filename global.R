@@ -67,6 +67,7 @@ library("qpcR")
 library("readr")
 library("padr")
 library("openxlsx") #LCN
+library(tidyr)
 #library("ggh4x")
 plan(multisession)
 #options(scipen=999) 
