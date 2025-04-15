@@ -132,11 +132,11 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                                 ,plot.title = element_text(hjust=0.5)
                                 ,axis.text.x = element_text(angle=0, hjust=1))
                         p2 <- ggplotly(p2) %>% 
-                          plotly::config(toImageButtonOptions = list(format = "png", 
-                                                                     filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
-                                                                                       input$boxplot_variable_name, "_",
-                                                                                       input$boxplot_metrics, "_",
-                                                                                       input$box_group, "_",
+                          plotly::config(toImageButtonOptions = list(format = "png",
+                                                                     filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                                       isolate(input$boxplot_variable_name), "_",
+                                                                                       isolate(input$boxplot_metrics), "_",
+                                                                                       isolate(input$box_group), "_",
                                                                                        "boxplot")))
                         print(p2)
                       })
@@ -150,13 +150,15 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                           theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                                 ,plot.title = element_text(hjust=0.5)
                                 ,axis.text.x = element_text(angle=0, hjust=1))
-                        ggplotly(p2) %>% plotly::layout(boxmode="group") %>% 
-                          plotly::config(toImageButtonOptions = list(format = "png", 
-                                                                     filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
-                                                                                       input$boxplot_variable_name, "_",
-                                                                                       input$boxplot_metrics, "_",
-                                                                                       input$box_group, "_",
+                        #p2 <- 
+                          ggplotly(p2) %>% plotly::layout(boxmode="group") %>% 
+                          plotly::config(toImageButtonOptions = list(format = "png",
+                                                                     filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                                       isolate(input$boxplot_variable_name), "_",
+                                                                                       isolate(input$boxplot_metrics), "_",
+                                                                                       isolate(input$box_group), "_",
                                                                                        "boxplot")))
+                        # print(p2)
                       })
                     } else if(!all(is.na(data_to_plot[,mean_col]))&input$box_group=="season2"){
                       output$display_box_plots <- renderPlotly({
@@ -168,13 +170,15 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                           theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                                 ,plot.title = element_text(hjust=0.5)
                                 ,axis.text.x = element_text(angle=0, hjust=1))
-                        ggplotly(p2) %>% plotly::layout(boxmode="group") %>% 
-                          plotly::config(toImageButtonOptions = list(format = "png", 
-                                                                     filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
-                                                                                       input$boxplot_variable_name, "_",
-                                                                                       input$boxplot_metrics, "_",
-                                                                                       input$box_group, "_",
+                        #p2<- 
+                          ggplotly(p2) %>% plotly::layout(boxmode="group") %>% 
+                          plotly::config(toImageButtonOptions = list(format = "png",
+                                                                     filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                                       isolate(input$boxplot_variable_name), "_",
+                                                                                       isolate(input$boxplot_metrics), "_",
+                                                                                       isolate(input$box_group), "_",
                                                                                        "boxplot")))
+                        #print(p2)
                       })
                     }else{
                       renderErrorMsg(noBoxPlotDataFound)

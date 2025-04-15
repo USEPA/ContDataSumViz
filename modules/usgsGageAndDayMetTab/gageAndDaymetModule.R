@@ -225,10 +225,14 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               print("error while downloading dayMet data from NWIS system")
               renderErrorMsg(err$message)
             })
+            #browser()
             dayMetRawData$dayMetData <- rawResult$dayMetData
             daymetCols <- rawResult$daymetColumns
-            dayMetRawData$daymetColumns <- rawResult$daymetColumns
-            updateSelectizeInput(session, 'daymet_params', choices = daymetCols, selected = daymetCols[1])
+            
+            dayMetRawData$daymetColumns <- rawResult$daymetColumns #
+            updateSelectizeInput(session, 'daymet_params', choices = daymetCols %>% setNames(c("Precipitation (mm)", "Shortwave radiation (W m^-2)", "Snow water equivalent (kg m^-2)",
+                                                                                              "Maximum air temperature (degrees C)", "Minimum air temperature (degrees C)", 
+                                                                                              "Water vapor pressure (Pa)")), selected = daymetCols[1])
             
             shinyjs::show(id="daymetVarsDiv")
             
