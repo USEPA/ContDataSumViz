@@ -145,7 +145,10 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
             if (!is.null(mainPlot) & length(input$dailyStats_ts_variable_name) > 0) {
               output$display_time_series <- renderPlotly({
                 ggplotly(mainPlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2)) %>% 
-                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_dailySummary_", input$dailyStats_ts_metrics, "_", input$dailyStats_shading, "_TS")))
+                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
+                                                                                               "_dailySummary_", 
+                                                                                               isolate(input$dailyStats_ts_metrics), "_", 
+                                                                                               isolate(input$dailyStats_shading), "_TS")))
                 # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
               })
             }
@@ -154,7 +157,10 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
             if (!is.null(basePlot)) {
               output$display_time_series <- renderPlotly({
                 ggplotly(basePlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2)) %>% 
-                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_dailySummary_", input$dailyStats_ts_metrics, "_", input$dailyStats_shading, "_TS")))
+                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
+                                                                                               "_dailySummary_", 
+                                                                                               isolate(input$dailyStats_ts_metrics), "_", 
+                                                                                               isolate(input$dailyStats_shading), "_TS")))
                 # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
               })
             }

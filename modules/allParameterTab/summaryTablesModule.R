@@ -122,17 +122,17 @@ SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables, loade
                     list(extend='collection', buttons = 
                            list(
                              list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
-                                                                    input$summarise_variable_name,"_summary_",
-                                                                    input$summarise_by, "_",
-                                                                    input$summarise_metrics)),
+                                                                    isolate(input$summarise_variable_name),"_summary_",
+                                                                    isolate(input$summarise_by), "_",
+                                                                    isolate(input$summarise_metrics))),
                              list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
-                                                                      input$summarise_variable_name,"_summary_",
-                                                                      input$summarise_by, "_",
-                                                                      input$summarise_metrics)),
+                                                                      isolate(input$summarise_variable_name),"_summary_",
+                                                                      isolate(input$summarise_by), "_",
+                                                                      isolate(input$summarise_metrics))),
                              list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_", 
-                                                                               input$summarise_variable_name,"_summary_",
-                                                                               input$summarise_by, "_",
-                                                                               input$summarise_metrics))
+                                                                               isolate(input$summarise_variable_name),"_summary_",
+                                                                               isolate(input$summarise_by), "_",
+                                                                               isolate(input$summarise_metrics)))
                            ),
                          
                          text='Download', className="btn btn-primary")

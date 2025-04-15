@@ -181,9 +181,9 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
                 CDF_plot <- ggplotly(CDF_plot, height = 800) %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3)) %>% 
                   plotly::config(toImageButtonOptions = list(format = "png", 
                                                              filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_",
-                                                                               input$CDF_variable_name, "_",
-                                                                               input$CDF_shading, "_",
-                                                                               input$CDF_select_season, "_",
+                                                                               isolate(input$CDF_variable_name), "_",
+                                                                               isolate(input$CDF_shading), "_",
+                                                                               isolate(input$CDF_select_season), "_",
                                                                                "CDF")))
                 #CDF_plot <- ggplotly(CDF_plot, height = 900) %>% plotly::layout( yaxis = list(scaleanchor = "x", scaleratio = isolate(input$cdf_plot_aspect_ratio)), legend = list(orientation = "h", x = 0.4, y = -0.3))
               }

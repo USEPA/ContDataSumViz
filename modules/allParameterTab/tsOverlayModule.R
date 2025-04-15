@@ -243,8 +243,8 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
                             ggplotly(p1,dynamicTicks = FALSE) %>% plotly::layout()%>% 
                               plotly::config(toImageButtonOptions = list(format = "png", 
                                                                          filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),"_", 
-                                                                                           input$dailyStats_ts_overlay_metrics, "_",
-                                                                                           input$overlay_shading, 
+                                                                                           isolate(input$dailyStats_ts_overlay_metrics), "_",
+                                                                                           isolate(input$overlay_shading), 
                                                                                            "_annual-overlay-TS")))
                         })  # renderPlot close
                         
