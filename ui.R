@@ -74,6 +74,8 @@ ui <- shinyUI(fluidPage(
     fluidRow(
       p(),
       tabsetPanel(id="mainTabs",
+                  
+                  
                   tabPanel(
                     title="Upload Data",
                     value="uploadData",
@@ -125,6 +127,17 @@ ui <- shinyUI(fluidPage(
                       #)
                     ) # fluidPage close
                   ), # tabPanel end
+                  
+                  
+                  tabPanel(
+                    title="User Guide",
+                    value="userguide",
+                    fluidPage(
+                      div(a(tags$button(tags$i(class="fas fa-arrow-down"), "Download Full User Guide", class="btn btn-primary btn-sm"), href="ContDataSumViz User Guide.docx", target="_blank")),
+                        includeHTML("Guidance_Tab.html")
+                    ) # page
+                  ),
+                  
                   tabPanel(
                     title="USGS & Daymet Exploration",
                     value="downloadData",
