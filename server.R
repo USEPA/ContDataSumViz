@@ -112,7 +112,7 @@ server <- function(input, output, session) {
   AirVsWaterModuleServer("airVsWater", uploaded_data, dailyStats = processed, renderAirVsWater)
   
   # Continuous Data Exploration >  Temperature > Growing Degree days tab
-  GrowingDegreeModuleServer("growingDegree", renderGrowingDegree)
+  GrowingDegreeModuleServer("growingDegree", uploaded_data, dailyStats = processed, renderGrowingDegree, loaded_data)
   
   # Continuous Data Exploration >  Temperature > Thermal Classification tab
   ThermalClassificationModuleServer("thermalClassification", dailyStats = processed, uploaded_data, renderThermalClassification, loaded_data)
