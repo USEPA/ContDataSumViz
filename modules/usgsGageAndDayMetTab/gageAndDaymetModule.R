@@ -59,7 +59,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 ),
                 div(style="padding:5px;",
                     textInput(inputId=ns("gage_id"), label="Gage Id",value=""),
-                    actionButton(inputId=ns("display_gage_ts"), label="Download USGS gage data",class="btn btn-primary")
+                    div(div(dateInput(ns("gage_date_start"),"Date Start:",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                        div(dateInput(ns("gage_date_end"),"Date End:",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
+                    actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
                 ),
                 div(id=ns("gageVarsDiv") , style="padding:5px;display:none",
                     selectizeInput(ns("gaze_params"), label ="Select USGS gage variables",
@@ -81,7 +83,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site Latitude",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site Longitude",value=""),
-                    actionButton(inputId=ns("get_daymet_data"), label="Download Daymet data",class="btn btn-primary")
+                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:2100)),
+                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:2100))),
+                    actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary")
                 ),
                 div(id=ns("daymetVarsDiv"), style="padding:5px;display:none",
                     selectizeInput(ns("daymet_params"), label ="Select Daymet variables",
@@ -135,8 +139,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             gageRawData$gagedata <- fun.GageData(
               myData.SiteID           <- input$gage_id,
               myData.Type             <- "Gage",
-              myData.DateRange.Start  <- as.character(dateRange$min),
-              myData.DateRange.End    <- as.character(dateRange$max),
+              myData.DateRange.Start  <- as.character(input$gage_date_start),#as.character(dateRange$min),
+              myData.DateRange.End    <- as.character(input$gage_date_end), #as.character(dateRange$max),
               myDir.export            <- file.path(".", "data"),
               fun.myTZ = defaultTimeZone #ContData.env$myTZ
             )
@@ -217,8 +221,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             rawResult <- fun.dayMetData(
               fun.lat <- input$daymet_lat,
               fun.lon <- input$daymet_long,
-              fun.year.start <-  as.numeric(startYear),
-              fun.year.end <-  as.numeric(endYear),
+              fun.year.start <-  input$daymet_date_start, #as.numeric(startYear),
+              fun.year.end <-  input$daymet_date_end, #as.numeric(endYear),
               fun.internal <-  TRUE
             )
             }, error = function(err){
