@@ -101,7 +101,7 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
               })
               
               output$base_input <- renderUI({
-                numericInput(ns("base_temp"), label = "Select Base", value = 5, step = 0.1)
+                numericInput(ns("base_temp"), label = "Select Base Temperature", value = 5, step = 0.1)
               })
               
               output$display_gdd_button <- renderUI({

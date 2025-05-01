@@ -225,7 +225,7 @@ server <- function(input, output, session) {
           shinyjs::addClass("statusWorkflow-step3", "btn-primary")
           formated_raw_data$derivedDF <- getFormattedRawData(showRawDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
           rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data, loaded_data)
-          #browser()
+
           workflowStatus$elementId <- "step2"
           workflowStatus$state <- "success"
         },
@@ -247,6 +247,17 @@ server <- function(input, output, session) {
       ) # end of tryCatch
     } # end of validation check
     
+
+    output$display_subsetTS <- 
+      renderUI({
+        div(class="panel panel-default", style="margin:10px;",
+            div(class="panel-heading", "Step 2b: Subset Time Series (optional)", style="font-weight:bold;"),
+            div(div(dateInput("date_start","Date Start:",value = min(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2030-01-01",format="yyyy-mm-dd")),
+                div(dateInput("date_end","Date End:",value =max(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2030-01-01",format="yyyy-mm-dd")), style="margin:10px;"),
+            div(actionButton(inputId = "updateTS", label = "Subset data and update time series", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 20px;margin-top: 20px;"))
+        )
+      })
+    
     output$display_runmetasummary <-
       renderUI({
         div(class="panel panel-default", style="margin:10px;",
@@ -261,6 +272,15 @@ server <- function(input, output, session) {
     })
   }) ## observeEvent end
   
+  observeEvent(input$updateTS,{
+    # Updated formated_raw_data
+    formated_raw_data$derivedDF <- formated_raw_data$derivedDF %>% dplyr::filter(date.formatted >= input$date_start & date.formatted <= input$date_end)
+    
+    showRawDateAndTime <- homeDTvalues$homeDateAndTime
+    rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data, loaded_data)
+    
+
+  })
   
   # click Run meta summary
   observeEvent(input$runQS, {
@@ -280,6 +300,8 @@ server <- function(input, output, session) {
           workflowStatus$elementId <- "step2"
           workflowStatus$state <- "success"
           raw_data <- getFormattedRawData(localHomeDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
+          raw_data <- raw_data %>% dplyr::filter(date.formatted >= input$date_start & date.formatted <= input$date_end)
+
           # now shorten the varname
           if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
             print("passed fun.ConvertDateFormat")
