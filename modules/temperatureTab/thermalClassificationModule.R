@@ -26,10 +26,6 @@ ThermalClassificationModuleUI <- function(id) {
         shinydashboard::box(id=ns("display_help_text_water_temp_class"), style="display:none;", width=12, class="well",
                             h4("Temperature – Thermal classification"),
                             br(),
-                            div(style="width:100%;","COMING LATER ..."),
-                            br(),
-                            div(style="width:100%;", "When resources permit, we will add in functions that assign sites to thermal classes based on the national classification schemes in Maheu et al. (2015) and McManamay & DeRolph (2018)."),
-                            br(),
                             div(style="width:100%;", "The Maheu et al. (2015) scheme has six annual thermal regime classes: stable cold, stable cool, variable cold, variable cool, highly variable cool and variable warm.
                                                       McManamay & DeRolph (2018) used two schemes: one based on Maheu et al. (2015) and the other based on the following ranges of mean July-August stream temperature:"),
                             tags$ul(

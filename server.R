@@ -128,7 +128,7 @@ server <- function(input, output, session) {
   GageAndDaymetModuleServer("gageDaymetAndBase", homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet)
   
   # Temperature Not to Exceed tab
-  TempNotToExceedServer("tempNTE", uploaded_data, dailyStats = processed, renderTempNTE, loaded_data)
+  TempNotToExceedServer("tempNTE", uploaded_data, formated_raw_data, renderTempNTE, loaded_data)
   
   #  Upload Data##############################
   if (file.exists("_moved/File_Format.rds")) file.remove("_moved/File_Format.rds")

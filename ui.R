@@ -548,7 +548,7 @@ ui <- shinyUI(fluidPage(
                                               value = "sb5", br(),
                                               br(),
                                               column(
-                                                width = 12,ThermalClassificationModuleUI(id="tempNTE")
+                                                width = 12,TempNotToExceedUI(id="tempNTE")
                                               ) # column close
                                      ) # Temp nte class, end
                                    )
