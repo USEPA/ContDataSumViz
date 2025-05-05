@@ -32,6 +32,17 @@ TempNotToExceedUI <- function(id) {
     ),
     mainPanel(
       width = 9,
+      shinydashboard::box(id=ns("display_help_text_not_to_exceed"), style="display:none;", width=12, class="well",
+                          h4("Temperature – Temperature not to exceed"),
+                          div(style="width:100%;", "This module was developed to support 4T3 and 6T3 calculations used in New Mexico water quality criteria."),
+                          div(style="width:100%;", "4T3 Temperature = temperature not to be exceeded for four or more consecutive hours in a 24-hour period, on more than three consecutive days."),
+                          div(style="width:100%;", "6T3 Temperature = temperature not to be exceeded for six or more consecutive hours in a 24-hour period, on more than three consecutive days"),
+                          div(style="width:100%;", "This module allows the user to select the hour window and number of consecutive days used in the calculation. 
+                              Note that times are included in the hour summary if times >= start time & times <= start time + # hours, while days are included if days >= start day & days =< start day + # days + 1"),
+                          br(),
+                          div(style = "width:100%", "For more information about the 4T3 and 6T3 calculations visit:"),
+                          a('https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', href='https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', target='_blank')
+      ), 
       DT::dataTableOutput(ns("tempExceed_table"))
     ))
   
@@ -60,6 +71,8 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
         
         if(renderTempNotToExceed$render == TRUE) {
           
+          shinyjs::show(id=ns("display_help_text_not_to_exceed"), asis=TRUE)
+          
           output$temp_input <- renderUI({
             selectizeInput(ns("temp_name"),label ="Select Temperature Column",
                            choices=variables_avail,
@@ -81,7 +94,7 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
           
           observeEvent(input$display_tempExceed, {
             output$errorDiv <- renderUI({})
-            
+            shinyjs::hide(id=ns("display_help_text_not_to_exceed"), asis=TRUE)
             
             tryCatch({
               # using data.table for faster processing
@@ -121,7 +134,7 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
               
               cont_data_hr_sum$min_temp_day <- min_temp_day
               
-              # Step 4
+              # Step 4: Summarize by year
               cont_data_hr_sum$year <- lubridate::year(cont_data_hr_sum$date.fm)
               
               ret_table <- cont_data_hr_sum %>% 
