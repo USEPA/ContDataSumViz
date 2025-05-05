@@ -67,6 +67,7 @@ server <- function(input, output, session) {
   renderGrowingDegree <- reactiveValues(render = FALSE)
   renderThermalClassification <- reactiveValues(render = FALSE)
   renderUsgsAndDaymet <- reactiveValues(render = FALSE)
+  renderTempNTE <- reactiveValues(render = FALSE)
   
   # Hydrology Tab
   renderIHA <- reactiveValues(render = FALSE)
@@ -121,11 +122,13 @@ server <- function(input, output, session) {
   IHAModuleServer("IHATab", dailyStats = processed, loaded_data, uploaded_data, to_download, renderIHA)
   
   # Continuous Data Exploration >  Hydrology > Flashiness tab
-  FlashinessModuleServer("flashinessTab", renderFlashiness)
+  FlashinessModuleServer("flashinessTab", uploaded_data, dailyStats = processed, renderFlashiness, loaded_data)
   
   # USGS & Daymet Exploration tab
   GageAndDaymetModuleServer("gageDaymetAndBase", homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet)
   
+  # Temperature Not to Exceed tab
+  TempNotToExceedServer("tempNTE", uploaded_data, dailyStats = processed, renderTempNTE, loaded_data)
   
   #  Upload Data##############################
   if (file.exists("_moved/File_Format.rds")) file.remove("_moved/File_Format.rds")
@@ -864,6 +867,9 @@ server <- function(input, output, session) {
     } else if (input$temp_subtabs == "sb4") {
       renderThermalClassification$render <- TRUE
     }
+     else if(input$temp_subtabs == "sb5"){
+       renderTempNTE$render <- TRUE
+     }
   })
   
   # All Parameters subtabs

@@ -543,7 +543,14 @@ ui <- shinyUI(fluidPage(
                                               column(
                                                 width = 12,ThermalClassificationModuleUI(id="thermalClassification")
                                               ) # column close
-                                     ) # Termal class, end
+                                     ), # Termal class, end
+                                     tabPanel("Temperature not to exceed",
+                                              value = "sb5", br(),
+                                              br(),
+                                              column(
+                                                width = 12,ThermalClassificationModuleUI(id="tempNTE")
+                                              ) # column close
+                                     ) # Temp nte class, end
                                    )
                           ), # outer tabPanel end temperature
                           
