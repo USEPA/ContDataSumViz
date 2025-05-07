@@ -99,47 +99,56 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
             tryCatch({
               # using data.table for faster processing
               # Step 1: Calculate the minimum temperature for every # consecutive hours
+              
               metric_nm <- paste0(input$hour_num, "T", input$day_num)  
               
               cont_temp_dt <- as.data.table(cont_temp_df %>% rename("temp_var" = input$temp_name))
-              min_temp_hr <- numeric(nrow(cont_temp_dt))
               
-              for(i in 1:nrow(cont_temp_dt)){
-                start_time <- cont_temp_dt$date.formatted[i]
-                end_time <- start_time + hours(input$hour_num)
+              index_time <- cont_temp_dt$date.formatted[1] + hours(input$hour_num)
+              df_start <- cont_temp_dt %>% dplyr::filter(date.formatted < index_time) %>% nrow()
+              
+              min_temp_hr <- NULL
+              
+              for(i in df_start:nrow(cont_temp_dt)){
                 
-                min_temp_hr[i] <- cont_temp_dt[date.formatted >= start_time & date.formatted <= end_time, 
+                end_time <-  cont_temp_dt$date.formatted[i]
+                start_time <- end_time - hours(input$hour_num)
+                
+                temp <- cont_temp_dt[date.formatted > start_time & date.formatted <= end_time, 
                                                min(temp_var, na.rm = TRUE)]
+                
+                min_temp_hr <- c(min_temp_hr, temp)
               }
               
-              cont_temp_dt$min_temp_hr <- min_temp_hr
+              cont_temp_dt$min_temp_hr <- c(rep(NA, df_start-1), min_temp_hr) 
               
               # Step 2: Calculate the maximum of the # hour minimum temperature for each calendar day
               cont_data_hr_sum <- cont_temp_dt %>% 
                 mutate(date.fm = lubridate::date(date.formatted)) %>% 
                 group_by(date.fm) %>% 
-                summarize(window_max = max(min_temp_hr)) 
+                summarize(window_max = max(min_temp_hr, na.rm = TRUE)) 
               
               cont_data_hr_sum <- as.data.table(cont_data_hr_sum)
               
               # Step 3: Calculate the minimum temperature every # +1  days
-              min_temp_day <- numeric(nrow(cont_data_hr_sum))
+              min_temp_day <- NULL
               
-              for(j in 1:nrow(cont_data_hr_sum)){
-                start_date <- cont_data_hr_sum$date.fm[j]
-                end_date <- start_date + days(input$day_num + 1)
+              for(j in (input$day_num + 1):nrow(cont_data_hr_sum)){
+                end_date <- cont_data_hr_sum$date.fm[j]
+                start_date <- end_date - days(input$day_num)
                 
-                min_temp_day[j] <- cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date, min(window_max, na.rm = TRUE)]
+                temp <- cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date, min(window_max, na.rm = TRUE)]
+                min_temp_day <- c(min_temp_day, temp)
               }
               
-              cont_data_hr_sum$min_temp_day <- min_temp_day
+              cont_data_hr_sum$min_temp_day <- c(rep(NA, input$day_num), min_temp_day)
               
               # Step 4: Summarize by year
               cont_data_hr_sum$year <- lubridate::year(cont_data_hr_sum$date.fm)
               
               ret_table <- cont_data_hr_sum %>% 
                 group_by(year) %>% 
-                summarize(year_max = max(min_temp_day), num_days = n()) %>% 
+                summarize(year_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
                 rename("Year" = "year", !!metric_nm := "year_max", "Number of days" = "num_days")
               
               

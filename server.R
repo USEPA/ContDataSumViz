@@ -277,7 +277,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$updateTS,{
     # Updated formated_raw_data
-    formated_raw_data$derivedDF <- formated_raw_data$derivedDF %>% dplyr::filter(date.formatted >= input$date_start & date.formatted <= input$date_end)
+    formated_raw_data$derivedDF <- formated_raw_data$derivedDF %>% dplyr::filter(date.formatted >= input$date_start & date.formatted < (input$date_end + days(1)))
     
     showRawDateAndTime <- homeDTvalues$homeDateAndTime
     rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data, loaded_data)
@@ -303,7 +303,7 @@ server <- function(input, output, session) {
           workflowStatus$elementId <- "step2"
           workflowStatus$state <- "success"
           raw_data <- getFormattedRawData(localHomeDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
-          raw_data <- raw_data %>% dplyr::filter(date.formatted >= input$date_start & date.formatted <= input$date_end)
+          raw_data <- raw_data %>% dplyr::filter(date.formatted >= input$date_start & date.formatted < (input$date_end + days(1))) #needed to add one day because otherwise automatically assigns time as 00:00
 
           # now shorten the varname
           if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
