@@ -37,6 +37,9 @@ ThermalClassificationModuleUI <- function(id) {
                               tags$li("Warm >24°C")
                              ),
                             br(),
+                            div(style="width:100%;", "The current version of ContDataSumViz calculates thermal classifications based on the above July-August temperature classifications.
+                                Additional classifications (e.g., Maheu et al. 2015) are forthcoming."),
+                            br(),
                             div(style="width:100%", "Citations:
                                 Maheu, Audrey & Poff, N. & St-Hilaire, André. 2015. A Classification of Stream Water Temperature Regimes in the Conterminous USA. River Research and Applications. 32. 10.1002/rra.2906."),
                             br(),
