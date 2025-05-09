@@ -25,6 +25,7 @@ TempNotToExceedUI <- function(id) {
               uiOutput(ns("temp_input")),
               uiOutput(ns("hour_input")),
               uiOutput(ns("day_input")),
+              uiOutput(ns("summary_window")),
               uiOutput(ns("display_tempExceed_button")),
               uiOutput(ns("errorDiv"))
           )
@@ -88,6 +89,15 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
             numericInput(ns("day_num"), label = "Select number of days for the time window calculation", value = 3, min = 1, max = 365, step = 1)
           })
           
+          output$summary_window <- renderUI({
+            radioButtons(ns("summarise_by"), "Summarise by", choices = c("year/month"="year/month"
+                                                                         ,"year"="year"
+                                                                         ,"year/season"="year/season"
+                                                                         ,"season"="season"),
+                         selected = "year/month")
+          })
+          
+          
           output$display_tempExceed_button <- renderUI({
             actionButton(inputId=ns("display_tempExceed"), label="Display temperature not to exceed",class="btn btn-primary")
           })
@@ -146,11 +156,42 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
               # Step 4: Summarize by year
               cont_data_hr_sum$year <- lubridate::year(cont_data_hr_sum$date.fm)
               
-              ret_table <- cont_data_hr_sum %>% 
-                group_by(year) %>% 
-                summarize(year_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
-                rename("Year" = "year", !!metric_nm := "year_max", "Number of days" = "num_days")
+              cont_data_hr_sum <- cont_data_hr_sum %>% mutate(year = lubridate::year(date.fm),
+                                                              month = lubridate::month(date.fm), 
+                                                              season = case_when(
+                                                                month %in% c(12,1,2) ~ "Winter",
+                                                                month %in% c(3:5) ~ "Spring",
+                                                                month %in% c(6:8) ~ "Summer",
+                                                                month %in% c(9:11) ~ "Fall"
+                                                              ))
               
+              if(input$summarise_by == "year/month"){
+                ret_table <- cont_data_hr_sum %>% 
+                  group_by(year, month) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  rename("Year" = "year", "Month" = "month", !!metric_nm := "sum_max", "Number of days" = "num_days")
+              }
+              
+              if(input$summarise_by == "year"){
+                ret_table <- cont_data_hr_sum %>% 
+                  group_by(year) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  rename("Year" = "year", !!metric_nm := "sum_max", "Number of days" = "num_days")
+              }
+             
+              if(input$summarise_by == "year/season"){
+                ret_table <- cont_data_hr_sum %>% 
+                  group_by(year, season) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  rename("Year" = "year", "Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
+              }
+              
+              if(input$summarise_by == "season"){
+                ret_table <- cont_data_hr_sum %>% 
+                  group_by(season) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  rename("Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
+              }
               
               output$tempExceed_table <- DT::renderDataTable({
                 myTable <- DT::datatable(
@@ -171,17 +212,23 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
                                                                       "_",
                                                                       input$temp_name,
                                                                       "_",
-                                                                      metric_nm)),
+                                                                      metric_nm, 
+                                                                      "_",
+                                                                      input$summarise_by)),
                                list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
                                                                         "_",
                                                                         input$temp_name,
                                                                         "_",
-                                                                        metric_nm)),
+                                                                        metric_nm,
+                                                                        "_",
+                                                                        input$summarise_by)),
                                list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
                                                                       "_",
                                                                       input$temp_name,
                                                                       "_",
-                                                                      metric_nm))
+                                                                      metric_nm,
+                                                                      "_",
+                                                                      input$summarise_by))
                              ),text='Download', className="btn btn-primary")
                     ),
                     columnDefs = list(list(className="dt-center",targets="_all")),
