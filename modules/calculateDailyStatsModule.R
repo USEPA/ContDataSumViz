@@ -17,7 +17,7 @@ calculateDailyStatsModuleUI <- function(id, readyForCalculation) {
       hr(),
       div(downloadButton(
         outputId = ns("saveDailyStatistics2"),
-        label = "Save daily statistics",
+        label = "Save daily statistics (optional)",
         class = "btn btn-primary",
         style = "margin-left:10px;margin-right:10px;margin-bottom:20px;display:none;") #padding-left:15px;padding-right:15px;
       )
