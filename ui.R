@@ -31,6 +31,7 @@ app_jscode <-
     // $(tab).show();
   }"
 
+
 # Define UI for application
 options(spinner.color.background = "#ffffff", spinner.size = 1)
 ui <- shinyUI(fluidPage(
@@ -118,6 +119,9 @@ ui <- shinyUI(fluidPage(
         .tab-content {
             margin-right: 30px;
             margin-left: 30px;
+        }
+      *{
+          transition-duration: unset !important;
         }'
     ))
   ),
@@ -263,8 +267,7 @@ ui <- shinyUI(fluidPage(
         <article class="article">'
   ),
   
-  
-  
+
   mainPanel(
     width = 12,
     # spacing

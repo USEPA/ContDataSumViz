@@ -64,7 +64,7 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_
           #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
         })
         
-        shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
+        #shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
         # #click the button to hide the selection box
         shinyjs::runjs("$('#dateTimeBoxButton').click()")
       } else {

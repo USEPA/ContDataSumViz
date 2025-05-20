@@ -1,2 +1,0 @@
-shinyApp(ui, server)
-
