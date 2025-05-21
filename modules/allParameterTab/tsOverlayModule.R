@@ -74,7 +74,7 @@ TsOverlayModuleUI <- function(id) {
 
       fluidRow(column(width = 12, 
                       div(style="width:100%", uiOutput(ns("tsOverlayError"))),
-                      div(plotlyOutput(ns("display_time_series_overlay"))),
+                      div(plotlyOutput(ns("display_time_series_overlay"))) ,
                       div(plotOutput(ns("display_time_series_overlay_1")))
                       
                )#end of columns
@@ -90,7 +90,7 @@ TsOverlayModuleUI <- function(id) {
 #' @param dailyStats 
 #' @param renderTSOverlay 
 #'
-TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay) {
+TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) {
  
   localStats <- reactiveValues(stats=list())
   variables_avail <- reactiveValues(params=list())
@@ -178,27 +178,32 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay) {
               #save(merged_overlay,file="test_overall_min_max_overlay.RData")
               
 
-              output$display_time_series_overlay <- renderPlotly({  
-                isolate({
-                  p1 <- ggplot(data_to_plot)+
-                    geom_line(aes(x=as.Date(yday(Date),"2000-01-01"),y=isolate(!!sym(mean_col)),colour=year),size=0.8)+
-                    geom_ribbon(data=merged_overlay,aes(x=as.Date(yday(paste0("2000","-",MonthDay)),"2000-01-01"),
-                                                        ymin=min,ymax=max,
-                                                        fill="overall minimum and maximum" ),alpha=0.5)+
-                    scale_x_date(date_breaks="1 month",limits=c(as.Date("2000-01-01"),as.Date("2000-12-31")),date_labels = "%m%d")+
-                    scale_fill_manual(" ",labels="overall minimum and maximum",values=c("grey80"="grey80"))+
-                    labs(title=isolate(input$dailyStats_ts_overlay_title),x = "MonthDay",y =mean_col)+
-                    theme_classic()+
-                    theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
-                          ,panel.border = element_rect(colour="black",fill=NA, size=0.5)
-                          ,plot.title = element_text(hjust=0.5)
-                          ,plot.background = element_rect(color="grey20",size=2)
-                          ,legend.position = "right"
-                          ,axis.text.x=element_text(angle=45, hjust=1))
-                  ggplotly(p1,dynamicTicks = FALSE)
-                  print(p1)
-                })
-              }) # renderPlot close
+              # output$display_time_series_overlay <- renderPlotly({  
+              #   isolate({
+              #     p1 <- ggplot(data_to_plot)+
+              #       geom_line(aes(x=as.Date(yday(Date),"2000-01-01"),y=isolate(!!sym(mean_col)),colour=year),size=0.8)+
+              #       geom_ribbon(data=merged_overlay,aes(x=as.Date(yday(paste0("2000","-",MonthDay)),"2000-01-01"),
+              #                                           ymin=min,ymax=max,
+              #                                           fill="overall minimum and maximum" ),alpha=0.5)+
+              #       scale_x_date(date_breaks="1 month",limits=c(as.Date("2000-01-01"),as.Date("2000-12-31")),date_labels = "%m%d")+
+              #       scale_fill_manual(" ",labels="overall minimum and maximum",values=c("grey80"="grey80"))+
+              #       labs(title=isolate(input$dailyStats_ts_overlay_title),x = "MonthDay",y =mean_col)+
+              #       theme_classic()+
+              #       theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
+              #             ,panel.border = element_rect(colour="black",fill=NA, size=0.5)
+              #             ,plot.title = element_text(hjust=0.5)
+              #             ,plot.background = element_rect(color="grey20",size=2)
+              #             ,legend.position = "right"
+              #             ,axis.text.x=element_text(angle=45, hjust=1))
+              #     ggplotly(p1,dynamicTicks = FALSE) %>% 
+              #       plotly::config(toImageButtonOptions = list(format = "png", 
+              #                                                  filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),"_", 
+              #                                                                    input$dailyStats_ts_overlay_metrics, "_",
+              #                                                                    input$overlay_shading, 
+              #                                                                    "_annual-overlay-TS")))
+              #     print(p1)
+              #   })
+              # }) # renderPlot close
 
               output$display_time_series_overlay_1 <- renderPlot({
                 isolate({
@@ -235,8 +240,14 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay) {
                                   ,plot.background = element_rect(color="grey20",size=2)
                                   ,legend.position = "right"
                                   ,axis.text.x=element_text(angle=45, hjust=1))
-                            ggplotly(p1,dynamicTicks = FALSE) %>% plotly::layout()
+                            ggplotly(p1,dynamicTicks = FALSE) %>% plotly::layout()%>% 
+                              plotly::config(toImageButtonOptions = list(format = "png", 
+                                                                         filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),"_", 
+                                                                                           isolate(input$dailyStats_ts_overlay_metrics), "_",
+                                                                                           isolate(input$overlay_shading), 
+                                                                                           "_annual-overlay-TS")))
                         })  # renderPlot close
+                        
       
                     }else{
                       renderErrorMsg(noAnnualOverlayData)

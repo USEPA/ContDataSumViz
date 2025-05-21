@@ -239,6 +239,7 @@ fun.GageData <- function(fun.myData.SiteID
   }, error = function(error){
      print("error while downloading from https://nwis.waterdata.usgs.gov/usa/nwis/pmcodes")
      print(error$message)
+     return(error$message)
   })
 
 }##FUN.fun.GageData.END

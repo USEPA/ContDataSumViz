@@ -368,7 +368,21 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               buttons = list(
                              list(extend='copy', text='Copy', className="btn btn-primary"),
                              list(extend='print', text='Print', className="btn btn-primary"),
-                             list(extend='collection', buttons = c('csv','excel','pdf'), text='Download', className="btn btn-primary"),
+                             
+                             list(extend='collection', buttons = 
+                                    list(
+                                      list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                             "_", str_sub(tblTitle, 1, 7),
+                                                                             "_iha")),
+                                      list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                               "_", str_sub(tblTitle, 1, 7),
+                                                                               "_iha")),
+                                      list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
+                                                                             "_", str_sub(tblTitle, 1, 7),
+                                                                             "_iha")) 
+                                    ),text='Download', className="btn btn-primary"),
+                             
+                             
                              list(extend='collection', text='Show/Hide Plot',action = DT::JS(tempStr), className="btn btn-primary")
               ),
               columnDefs = list(list(className="dt-center",targets="_all")),
@@ -398,23 +412,19 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
 
             if(buttonState$btn1 == FALSE) {
                 shinyjs::show(ns("IHA_plot_1_panel"),asis=TRUE)
-                # print(localStats$IHA.group.1)
-                # print(data.frame(localStats$IHA.group.1,row.names = NULL))
                 buttonState$btn1 <- TRUE
                 
-                #data_to_plot <- cbind(rownames(localStats$IHA.group.1),data.frame(localStats$IHA.group.1,row.names = NULL))
-                data_to_plot <- cbind(rownames(localResults$IHA.group.1),data.frame(localResults$IHA.group.1,row.names = NULL))
-                colnames(data_to_plot)[1]<-'Year'
-                data_for_plot_1 <- data_to_plot %>% gather(key,value,-Year) ## convert into long format
-                data_for_plot_1$Year <- as.numeric(as.character(data_for_plot_1$Year))
-                data_for_plot_1$key <- factor(data_for_plot_1$key, levels = c("January","February","March","April","May",
-                                                                              "June","July","August","September","October","November","December"))
+                data_for_plot_1 <- data.frame(localResults$IHA.group.1,row.names = NULL) %>% 
+                  rename("Year" = "year") %>%  
+                  pivot_longer(cols = -Year, names_to = "Month", values_to = "Values") %>% 
+                  mutate(Year = as.numeric(Year),
+                         Month = as.factor(Month) %>% fct_relevel(c("January","February","March","April","May","June","July","August","September","October","November","December")))
+                
                 output$IHA_plot_1 <- renderPlot({
-                  p1 <- ggplot(data_for_plot_1)+
-                    geom_line(aes(x=Year,y=value,colour=key),size=0.8,linetype="dashed")+
-                    labs(x = "Year",y = paste0("Magnitude of monthly water conditions"),color="Month")+
+                  p1 <- ggplot(data_for_plot_1, aes(x=Year,y=Values, color = Month))+
+                    geom_line(size=0.8,linetype="dashed")+
+                    labs(x = "Year",y = paste0("Magnitude of monthly water conditions"))+
                     theme_minimal()+
-                    scale_x_continuous(breaks=unique(data_for_plot_1$Year),labels = unique(data_for_plot_1$Year))+
                     theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                           ,plot.background = element_rect(color="grey20",size=2)
                           ,legend.position = "right"
@@ -447,7 +457,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               output$IHA_plot_2a <- renderPlot({
                 p1 <- ggplot(data_for_plot_2a,aes(x=year,y=value,fill=key))+
                   geom_bar(stat="identity",position="dodge")+
-                  labs(x = "Year",y = paste0("Magnitude of water condition"),fill="parameters")+
+                  labs(x = "Year",y = paste0("Magnitude of water condition"),fill="Parameters")+
                   theme_minimal()+
                   scale_x_continuous(breaks=unique(data_for_plot_2a$year),labels = unique(data_for_plot_2a$year))+
                   theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
@@ -461,7 +471,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               output$IHA_plot_2b <- renderPlot({
                 p2 <- ggplot(data_for_plot_2b,aes(x=year,y=value,fill=key))+
                   geom_bar(stat="identity",position="dodge")+
-                  labs(x = "Year",y = paste0("Magnitude of water condition"),fill="parameters")+
+                  labs(x = "Year",y = paste0("Magnitude of water condition"),fill="Parameters")+
                   theme_minimal()+
                   scale_x_continuous(breaks=unique(data_for_plot_2b$year),labels = unique(data_for_plot_2b$year))+
                   theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
@@ -485,14 +495,15 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
          buttonState$btn3 <- TRUE
          data_to_plot <- cbind(rownames(localResults$IHA.group.3),data.frame(localResults$IHA.group.3,row.names = NULL))
          colnames(data_to_plot)[1]<-'year'
-         data_for_plot_3 <- data_to_plot %>% gather(key,value,-year) ## convert into long format
-         data_for_plot_3$year <- as.numeric(as.character(data_for_plot_3$year))
+         
+         data_for_plot_3 <- data.frame(localResults$IHA.group.3,row.names = NULL)%>% rename("Year" = "year") %>% 
+           pivot_longer(cols = -Year, names_to = "Parameters", values_to = "Values")
+         
          output$IHA_plot_3 <- renderPlot({
-           p1 <- ggplot(data_for_plot_3,aes(x=year,y=value,fill=key))+
+           p1 <- ggplot(data_for_plot_3,aes(x=Year,y=Values,fill=Parameters))+
              geom_bar(stat="identity",position="dodge")+
-             labs(x = "Year",y = paste0("Julian days"),fill="parameters")+
+             labs(x = "Year",y = paste0("Julian days"))+
              theme_minimal()+
-             scale_x_continuous(breaks=unique(data_for_plot_3$year),labels = unique(data_for_plot_3$year))+
              theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                    ,plot.background = element_rect(color="grey20",size=2)
                    ,legend.position = "right"
@@ -509,7 +520,6 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
      observeEvent(input$display_IHA_plot_4, {
 
        if(buttonState$btn4 == FALSE){
-         
          shinyjs::show(ns("IHA_plot_4_panel"), asis=TRUE)
          buttonState$btn4 <- TRUE
          data_to_plot <- cbind(rownames(localResults$IHA.group.4),data.frame(localResults$IHA.group.4,row.names = NULL))
@@ -524,12 +534,22 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
          data_for_plot_4a$year <- as.numeric(as.character(data_for_plot_4a$year))
          data_for_plot_4b$year <- as.numeric(as.character(data_for_plot_4b$year))
          
+         data_for_plot_4a <- data.frame(localResults$IHA.group.4,row.names = NULL) %>% 
+           select(year, Low.pulse.number, High.pulse.number) %>% 
+           rename("Year" = "year", "High pulse number" = "High.pulse.number", "Low pulse number" = "Low.pulse.number") %>% 
+           pivot_longer(-Year, names_to = "Parameters", values_to = "Values") %>% 
+           mutate(Year = as.numeric(Year))
+         data_for_plot_4b <- data.frame(localResults$IHA.group.4,row.names = NULL) %>% 
+           select(year, Low.pulse.length, High.pulse.length) %>% 
+           rename("Year" = "year", "High pulse length" = "High.pulse.length", "Low pulse length" = "Low.pulse.length") %>% 
+           pivot_longer(-Year, names_to = "Parameters", values_to = "Values") %>% 
+           mutate(Year = as.numeric(Year))
+         
          output$IHA_plot_4a <- renderPlot({
-           p1 <- ggplot(data_for_plot_4a,aes(x=year,y=value,fill=key))+
+           p1 <- ggplot(data_for_plot_4a,aes(x=Year,y=Values,fill=Parameters))+
              geom_bar(stat="identity",position="dodge")+
-             labs(x = "Year",y = paste0("Frequency"),fill="parameters")+
+             labs(x = "Year",y = paste0("Frequency"),fill="Parameters")+
              theme_minimal()+
-             scale_x_continuous(breaks=unique(data_for_plot_4a$year),labels = unique(data_for_plot_4a$year))+
              theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                    ,plot.background = element_rect(color="grey20",size=2)
                    ,legend.position = "right"
@@ -538,11 +558,10 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
            
          }) # renderPlot end
              output$IHA_plot_4b <- renderPlot({
-               p2 <- ggplot(data_for_plot_4b,aes(x=year,y=value,fill=key))+
+               p2 <- ggplot(data_for_plot_4b,aes(x=Year,y=Values,fill=Parameters))+
                  geom_bar(stat="identity",position="dodge")+
-                 labs(x = "Year",y = paste0("Duration"),fill="parameters")+
+                 labs(x = "Year",y = paste0("Duration"),fill="Parameters")+
                  theme_minimal()+
-                 scale_x_continuous(breaks=unique(data_for_plot_4b$year),labels = unique(data_for_plot_4b$year))+
                  theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                        ,plot.background = element_rect(color="grey20",size=2)
                        ,legend.position = "right"
@@ -563,17 +582,22 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
          shinyjs::show(ns("IHA_plot_5_panel"),asis=TRUE)
          data_to_plot <- cbind(rownames(localResults$IHA.group.5),data.frame(localResults$IHA.group.5,row.names = NULL))
          colnames(data_to_plot)[1]<-'Year'
+         
+         data_for_plot_5 <- data.frame(localResults$IHA.group.5,row.names = NULL) %>% select(-Reversals) %>% 
+           rename("Year" = "year") %>% 
+           pivot_longer(cols = -Year, names_to = "Parameters", values_to = "Values") %>% 
+           mutate(Year = as.numeric(Year))
+         
          data_to_plot <- data_to_plot[,1:3]
          data_for_plot_1 <- data_to_plot %>% gather(key,value,-Year) ## convert into long format
          data_for_plot_1$Year <- as.numeric(as.character(data_for_plot_1$Year))
          buttonState$btn5 <- TRUE
          
          output$IHA_plot_5 <- renderPlot({
-           p1 <- ggplot(data_for_plot_1)+
-             geom_line(aes(x=Year,y=value,colour=key),size=0.8,linetype="dashed")+
-             labs(x = "Year",y = paste0("Rate"),color="Month")+
+           p1 <- ggplot(data_for_plot_5, aes(x=Year,y=Values,colour=Parameters))+
+             geom_line(size=0.8,linetype="dashed")+
+             labs(x = "Year",y = paste0("Rate"))+
              theme_minimal()+
-             scale_x_continuous(breaks=unique(data_for_plot_1$Year),labels = unique(data_for_plot_1$Year))+
              theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                    ,plot.background = element_rect(color="grey20",size=2)
                    ,legend.position = "right"

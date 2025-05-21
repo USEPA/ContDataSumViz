@@ -22,7 +22,8 @@ AirVsWaterModuleUI <- function(id) {
                     uiOutput(ns("air_vs_water_input_4"))
                 ), # div end
               hr(),
-              uiOutput(ns("display_thermal_sensitivity_button"))
+              uiOutput(ns("display_thermal_sensitivity_button")),
+              div("To download the plot, mouse over the plot, right click, and select Save image as.")
           )#end of panel body
       ) #end of panel
     ),

@@ -15,6 +15,7 @@ GageAndDaymetModuleUI <- function(id) {
     mainPanel(
       width = 9,
       column(width = 12,
+            
              div(style="width:100%", uiOutput(ns("gageDayMetError"))),
              withSpinner(plotlyOutput(ns("display_downloaded_data"))),type=1)
     ) # mainPanel end
@@ -58,7 +59,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 ),
                 div(style="padding:5px;",
                     textInput(inputId=ns("gage_id"), label="Gage Id",value=""),
-                    actionButton(inputId=ns("display_gage_ts"), label="Download USGS gage data",class="btn btn-primary")
+                    div(div(dateInput(ns("gage_date_start"),"Date Start:",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                        div(dateInput(ns("gage_date_end"),"Date End:",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
+                    actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
                 ),
                 div(id=ns("gageVarsDiv") , style="padding:5px;display:none",
                     selectizeInput(ns("gaze_params"), label ="Select USGS gage variables",
@@ -80,7 +83,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site Latitude",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site Longitude",value=""),
-                    actionButton(inputId=ns("get_daymet_data"), label="Download Daymet data",class="btn btn-primary")
+                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:2100)),
+                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:2100))),
+                    actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary")
                 ),
                 div(id=ns("daymetVarsDiv"), style="padding:5px;display:none",
                     selectizeInput(ns("daymet_params"), label ="Select Daymet variables",
@@ -134,22 +139,28 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             gageRawData$gagedata <- fun.GageData(
               myData.SiteID           <- input$gage_id,
               myData.Type             <- "Gage",
-              myData.DateRange.Start  <- as.character(dateRange$min),
-              myData.DateRange.End    <- as.character(dateRange$max),
+              myData.DateRange.Start  <- as.character(input$gage_date_start),#as.character(dateRange$min),
+              myData.DateRange.End    <- as.character(input$gage_date_end), #as.character(dateRange$max),
               myDir.export            <- file.path(".", "data"),
               fun.myTZ = defaultTimeZone #ContData.env$myTZ
             )
             }, error = function(err){
-              print("Error while dowonloading data from USGS gage")
+              print("Error while downloading data from USGS gage")
               print(err$message)
               renderErrorMsg(err$message)
+              
             })
+            
+            if(class(gageRawData$gagedata)=="character"){
+              renderErrorMsg(paste0("Error downloading USGS gage data. Check user guide for guidance on the following error: ", gageRawData$gagedata, ". Correct before proceeding."))
+            }
+            
             message("USGS data retrieved")
             #Fills in the progress bar once the operation is complete
             incProgress(1/1, detail = paste("Retrieved records for site ", input$gage_id))
             Sys.sleep(1)
           })
-         
+         #browser()
           #print(gageRawData$gagedata)
           allVars <- colnames(gageRawData$gagedata)
           varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
@@ -172,7 +183,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                          fun.internal = TRUE)
           
           output$display_downloaded_data <- renderPlotly({
-            ggplotly(gageRawPlot, height = calculatePlotHeight(length(isolate(input$gaze_params)) * 2)) 
+            ggplotly(gageRawPlot, height = calculatePlotHeight(length(isolate(input$gaze_params)) * 2)) %>% 
+              plotly::config(toImageButtonOptions = list(format = "png", 
+                                                         filename = paste0("USGS_gage_", input$gage_id, "_TS")))
             #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
           })
         } else {
@@ -208,18 +221,22 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             rawResult <- fun.dayMetData(
               fun.lat <- input$daymet_lat,
               fun.lon <- input$daymet_long,
-              fun.year.start <-  as.numeric(startYear),
-              fun.year.end <-  as.numeric(endYear),
+              fun.year.start <-  input$daymet_date_start, #as.numeric(startYear),
+              fun.year.end <-  input$daymet_date_end, #as.numeric(endYear),
               fun.internal <-  TRUE
             )
             }, error = function(err){
               print("error while downloading dayMet data from NWIS system")
               renderErrorMsg(err$message)
             })
+            #browser()
             dayMetRawData$dayMetData <- rawResult$dayMetData
             daymetCols <- rawResult$daymetColumns
-            dayMetRawData$daymetColumns <- rawResult$daymetColumns
-            updateSelectizeInput(session, 'daymet_params', choices = daymetCols, selected = daymetCols[1])
+            
+            dayMetRawData$daymetColumns <- rawResult$daymetColumns #
+            updateSelectizeInput(session, 'daymet_params', choices = daymetCols %>% setNames(c("Precipitation (mm)", "Shortwave radiation (W m^-2)", "Snow water equivalent (kg m^-2)",
+                                                                                              "Maximum air temperature (degrees C)", "Minimum air temperature (degrees C)", 
+                                                                                              "Water vapor pressure (Pa)")), selected = daymetCols[1])
             
             shinyjs::show(id="daymetVarsDiv")
             
@@ -239,7 +256,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         if (!is.null(dayMetPlotRaw) & length(input$daymet_params) > 0) {
           #output$display_time_series_3 <- renderPlotly({
           output$display_downloaded_data <- renderPlotly({
-            ggplotly(dayMetPlotRaw, height = calculatePlotHeight(length(isolate(input$daymet_params)) * 2)) 
+            ggplotly(dayMetPlotRaw, height = calculatePlotHeight(length(isolate(input$daymet_params)) * 2)) %>% 
+              plotly::config(toImageButtonOptions = list(format = "png", filename = paste0("Daymet_", input$daymet_lat, "_", input$daymet_long, "_TS")))
             #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
           })
         } else {
@@ -277,6 +295,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         totalH <- 0L
         if(length(input$dailyStats_ts_variable_name2) > 0) {
           clearContents()
+        
           #test all row data
           if (!is.null(dayMetRawData$dayMetData) & length(input$daymet_params) > 0) {
             daymet_data_raw  <- dayMetRawData$dayMetData %>%
@@ -291,7 +310,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             mergedList[["DayMet"]] <- daymet_data_raw
           }
           
-          if(input$gaze_params != "" && length(input$gaze_params) > 0) {
+          if(paste0(input$gaze_params, collapse = "") != "" && length(input$gaze_params) > 0) {
             #gageGroup <- paste(input$gage_params, "Gage", sep=".")
             gage_data_raw  <- gageRawData$gagedata %>%
               select(all_of(input$gaze_params), all_of("GageID"), 'Date'=all_of("Date.Time")) %>%
@@ -349,7 +368,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           
           
           output$display_downloaded_data <- renderPlotly({
-            ggplotly(allCom, height = calculatePlotHeight(totalH*2)) 
+            ggplotly(allCom, height = calculatePlotHeight(totalH*2)) %>% 
+              plotly::config(toImageButtonOptions = list(format = "png", filename = paste0("Base_USGS_", input$gage_id, "_Daymet_",input$daymet_lat, "_", input$daymet_long, "_TS")))
             #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
           }) 
           #overridePotlyStyle("display_downloaded_data")

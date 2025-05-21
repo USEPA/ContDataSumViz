@@ -35,7 +35,7 @@ TsCDFPlotModuleUI <- function(id) {
 #' @param dailyStats 
 #' @param renderCDFPlot 
 #'
-TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot) {
+TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
 
   localStats <- reactiveValues(stats=list())
   variables_avail <- reactiveValues(params=list())
@@ -178,7 +178,13 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot) {
                 renderErrorMsg(paste("Process failed due to invalid data, error: " , CDF_plot))
                 clearPlot()
               } else {
-                CDF_plot <- ggplotly(CDF_plot, height = 800) %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
+                CDF_plot <- ggplotly(CDF_plot, height = 800) %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3)) %>% 
+                  plotly::config(toImageButtonOptions = list(format = "png", 
+                                                             filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_",
+                                                                               isolate(input$CDF_variable_name), "_",
+                                                                               isolate(input$CDF_shading), "_",
+                                                                               isolate(input$CDF_select_season), "_",
+                                                                               "CDF")))
                 #CDF_plot <- ggplotly(CDF_plot, height = 900) %>% plotly::layout( yaxis = list(scaleanchor = "x", scaleratio = isolate(input$cdf_plot_aspect_ratio)), legend = list(orientation = "h", x = 0.4, y = -0.3))
               }
               print(CDF_plot)
