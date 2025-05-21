@@ -21,7 +21,6 @@ library(ggthemes)
 library(DT)
 library(plotly)
 library(xts)
-#library(shinycustomloader)
 library(shinycssloaders)
 library("shinyjqui")
 #
@@ -29,16 +28,10 @@ library("shinyjqui")
 library("readxl")        # to read excel files
 library("writexl")
 library("data.table")
-#library("DT")
 library("tidyverse") # fails without dplyr, stringr
 library("tibbletime")
-#library("shiny")
-#library("shinydashboard")
-#library("shinyjs")
 library("shinyBS")
 library("shinyvalidate")
-#library("shinythemes")
-#library("shinyalert")
 library("conflicted") # fails without it
 library("dataRetrieval")
 library("doBy")
@@ -48,33 +41,24 @@ library("rmarkdown")
 library("highr")
 library("survival")
 library("shinyFiles")
-#library("plotly")
 library("zip")
 library("reshape2")
 library("ContDataQC")
 library("ContDataSumViz")
 library("StreamThermal")
 library("IHA")
-library("XLConnect")
 library("daymetr")
 library("lubridate")
 library("promises")
 library("future")
 library("tinytex")
 library("purrr")
-#library("ggtext")
 library("qpcR")
 library("readr")
 library("padr")
 library("openxlsx") #LCN
-library(tidyr)
-#library("ggh4x")
+
 plan(multisession)
-#options(scipen=999) 
-
-
-
-# fails without dplyr and stringr from tidyverse
 
 # Functions ----
 source("_moved/import_raw_data.R")
@@ -87,6 +71,11 @@ source("update_ContDataQC/build_summary_updated.R")
 
 source("update_ContDataQC/fun.ConvertDateFormat.R")
 source("constants.R")
+source("head_tag.R")
+source("custom_header.R")
+source("custom_footer.R")
+source("page_header.R")
+source("page_footer.R")
 
 list.files("modules", recursive = TRUE) %>%
 purrr::map(~ source(paste0("modules/", .)))
