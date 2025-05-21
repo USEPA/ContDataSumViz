@@ -1,24 +1,7 @@
-#
 # This is the user-interface definition of ContDataSumViz Shiny web application. You can
 # run the application by clicking 'Run App' above.
 #
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
-## Moved to Global ***
-# library(shiny)
-# library(shinyjs)
-# library(shinyalert)
-# library(shinythemes)
-# library(shinydashboard)
-# library(ggplot2)
-# library(ggthemes)
-# library(DT)
-# library(plotly)
-# #library(shinycustomloader)
-# library(shinycssloaders)
 app_jscode <-
   "shinyjs.disableTab = function(name) {
     var tab = $('.nav li a[data-value=' + name + ']');
@@ -58,7 +41,6 @@ ui <- shinyUI(fluidPage(
     ),
     tags$meta(charset="utf-8"),
     tags$meta(property="og:site_name", content="US EPA"),
-    #tags$link(rel = "stylesheet", type = "text/css", href = "css/uswds.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "https://cdnjs.cloudflare.com/ajax/libs/uswds/3.0.0-beta.3/css/uswds.min.css", integrity="sha512-ZKvR1/R8Sgyx96aq5htbFKX84hN+zNXN73sG1dEHQTASpNA8Pc53vTbPsEKTXTZn9J4G7R5Il012VNsDEReqCA==", crossorigin="anonymous", referrerpolicy="no-referrer"),
     tags$meta(property="og:url", content="https://www.epa.gov/themes/epa_theme/pattern-lab/.markup-only.html"),
     tags$link(rel="canonical", href="https://www.epa.gov/themes/epa_theme/pattern-lab/.markup-only.html"),
@@ -108,6 +90,7 @@ ui <- shinyUI(fluidPage(
     tags$link(rel="stylesheet", media="all", href="https://www.epa.gov/themes/epa_theme/css-lib/colorbox.min.css?r6lsex"),
     
     tags$script(src = 'https://cdnjs.cloudflare.com/ajax/libs/uswds/3.0.0-beta.3/js/uswds-init.min.js'),
+    
     #fix container-fluid that boostrap RShiny uses
     tags$style(HTML(
       '.container-fluid {
@@ -261,7 +244,7 @@ ui <- shinyUI(fluidPage(
             <div class="web-area-title"></div>
           </div>
           <div class="l-page__header-last">
-            <a href="#" class="header-link">Contact Us</a>
+            <a href="https://www.epa.gov/rmn/forms/contact-us-about-regional-monitoring-networks-rmns" class="header-link">Contact Us</a>
           </div>
         </div>
         <article class="article">'
@@ -297,7 +280,7 @@ ui <- shinyUI(fluidPage(
     ),
     fluidRow(
       column(width = 12, 
-             div(progressWorkflowModuleUI("statusWorkflow"), style = "margin-bottom: 20px")) # LCN added div
+             div(progressWorkflowModuleUI("statusWorkflow"), style = "margin-bottom: 20px")) 
     ),
     fluidRow(
       p(),
@@ -308,9 +291,6 @@ ui <- shinyUI(fluidPage(
                     title="Upload Data",
                     value="uploadData",
                     fluidPage(
-                      #fluidRow(
-                      #column(
-                      #width = 12,
                       sidebarLayout(
                         sidebarPanel(
                           width = 3,
@@ -346,14 +326,11 @@ ui <- shinyUI(fluidPage(
                         mainPanel(
                           width = 9,
                           div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;"),
-                          div(uiOutput("ts_right"), style = "margin-top:20px;height:700px;overflow-y:auto"), #; overflow-y:auto;
+                          div(uiOutput("ts_right"), style = "margin-top:20px;height:700px;overflow-y:auto"), 
                           br(),
                           div(uiOutput("display_fill_data"))
-                          #uiOutput("display_raw_ts")
                         ) # mainPanel end
                       ) # sidebarLayout end
-                      #)# column close
-                      #)
                     ) # fluidPage close
                   ), # tabPanel end
                   
@@ -411,7 +388,6 @@ ui <- shinyUI(fluidPage(
                         ),
                         mainPanel(
                           width = 9,
-                          #column(width = 12, uiOutput("discreteDateAndTimeBox")),
                           column(width = 12, uiOutput("discreteHeader")),
                           fluidRow(column(width = 12,
                                           withSpinner(plotlyOutput("display_time_series_discrete"), type=1)
@@ -487,29 +463,7 @@ ui <- shinyUI(fluidPage(
                                               column(
                                                 width = 12, TsRasterPlotModuleUI(id="tsRasterPlot")
                                               ), # column close
-                                     ), # tabPanel 6 end Raste
-                                     
-                                     ### DE, All, Climate Spiral ----
-                                     # tabPanel("Climate spiral", value="tab_climate",br(),
-                                     #          column(width = 12,
-                                     #                 sidebarLayout(
-                                     #                   sidebarPanel(width=3,
-                                     #                                hr(),
-                                     #                                uiOutput("climate_input_1"),
-                                     #                                hr(),
-                                     #                                uiOutput("climate_input_2"),
-                                     #
-                                     #                   ),
-                                     #                   mainPanel(width=9,
-                                     #                             column(width=9,uiOutput("display_climate_spiral"))
-                                     #
-                                     #                   ) # mainPanel end
-                                     #
-                                     #                 ) # sidebarLayout end
-                                     #
-                                     #          ), #column close
-                                     #
-                                     # ), #tabPanel 7 end Climate Spiral
+                                     ) # tabPanel 6 end Raste
                                    ) # inner tabsetPanel end
                           ), # tabPanel end
                           
@@ -584,65 +538,7 @@ ui <- shinyUI(fluidPage(
                       ) # fluidRow close
                     ) # fluidPage close
                   )# tabPanel end Data exploration
-                  # Create Report----
-                  # tabPanel(
-                  #   title="Create Report",
-                  #   value="CreateReport",
-                  #   fluidPage(
-                  #     fluidRow(
-                  #       tabsetPanel(
-                  #         id = "report_subtabs",
-                  #         ### CR, Single ----
-                  #         tabPanel("SingleSite",
-                  #           value = "SingleSite_tab", br(),
-                  #           column(
-                  #             width = 12,
-                  #             sidebarLayout(
-                  #               sidebarPanel(
-                  #                 width = 3,
-                  #                 hr(),
-                  #                 radioButtons("report_format",
-                  #                   "Select report format",
-                  #                   choices = c("pdf" = "pdf", "html" = "html", "word" = "docx"),
-                  #                   selected = "html"
-                  #                 ),
-                  #                 hr(),
-                  #                 textInput(
-                  #                   inputId = "report_name",
-                  #                   label = "Report file name",
-                  #                   value = "myReport"
-                  #                 ),
-                  #                 hr(),
-                  #                 actionButton("createReport", "Create report"),
-                  #                 hr(),
-                  #                 downloadButton("downloadReport", "Download Report")
-                  #               ),
-                  #               mainPanel(
-                  #                 width = 9,
-                  #                 column(
-                  #                   width = 12,
-                  #                   uiOutput("display_report_content_1"),
-                  #                   br(),
-                  #                   uiOutput("display_report_content_2")
-                  #                 )
-                  #               ) # mainPanel end
-                  #             ) # sidebarLayout end
-                  #           ), # column close
-                  #           br(),
-                  #           column(width = 12, uiOutput("display_table_single_site"))
-                  #         ), # tabPanel close singlesite
-                  # 
-                  #         ### CR, Multi----
-                  #         tabPanel("MultiSites",
-                  #           value = "MultiSites_tab", br(),
-                  #           br(),
-                  #           fluidPage(h4(id = "big-heading", "Coming later")),
-                  #           column(width = 12, uiOutput("display_table_multiple_sites"))
-                  #         ) # tabPanel Multi close
-                  #       ) # tabsetPanel end
-                  #     ) # fluidRow end
-                  #   ) # fluidPage end
-                  # ) # tabPanel end Create Report
+                  
       ) # tabsetPanel close
     ),
     fluidRow(column(width=12))
@@ -652,7 +548,7 @@ ui <- shinyUI(fluidPage(
     </div>
     <div class="l-page__footer">
       <div class="l-constrain">
-        <p><a href="#">Contact Us</a> to ask a question, provide feedback, or report a problem.</p>
+        <p><a href="https://www.epa.gov/rmn/forms/contact-us-about-regional-monitoring-networks-rmns">Contact Us</a> to ask a question, provide feedback, or report a problem.</p>
       </div>
     </div>
   </div>'
