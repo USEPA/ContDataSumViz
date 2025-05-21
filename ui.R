@@ -23,16 +23,16 @@ ui <- shinyUI(fluidPage(
   tags$head( tags$link(rel="stylesheet", type="text/css", href="app.css")),
   tags$head(tags$link(rel="icon", type="mage/x-icon", href="https://www.epa.gov/themes/epa_theme/images/favicon.ico")),
   tags$head(tags$link(rel="icon", type="mage/x-icon", href="favicon.ico")),
-  
+
   # Start EPA formatting
   tags$html(class = "no-js", lang="en"),
   head_tag(),
   tags$body(class="path-themes not-front has-wide-template", id="top",
             tags$script(src = 'https://cdnjs.cloudflare.com/ajax/libs/uswds/3.0.0-beta.3/js/uswds.min.js')),
-  
+
   # Site Header
   custom_header(),
-  
+
   # Individual Page Header
   page_header(),
 
@@ -64,14 +64,14 @@ ui <- shinyUI(fluidPage(
       )
     ),
     fluidRow(
-      column(width = 12, 
-             div(progressWorkflowModuleUI("statusWorkflow"), style = "margin-bottom: 20px")) 
+      column(width = 12,
+             div(progressWorkflowModuleUI("statusWorkflow"), style = "margin-bottom: 20px"))
     ),
     fluidRow(
       p(),
       tabsetPanel(id="mainTabs",
-                  
-                  
+
+
                   tabPanel(
                     title="Upload Data",
                     value="uploadData",
@@ -83,7 +83,7 @@ ui <- shinyUI(fluidPage(
                               div(class="panel-heading", "Step 1: Upload File", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="fileHelp")),
                               div(class="panel-body",
                                   tagList(
-                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names.</br></br>  Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"), 
+                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names.</br></br>  Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
                                               placement = "right", trigger = "hover"),
                                     fileInput("uploaded_data_file",
                                               label = HTML("<b>Upload your data in .csv format</b>"),
@@ -96,7 +96,7 @@ ui <- shinyUI(fluidPage(
                                               )
                                     )),
                                   uiOutput("displayFC")
-                                  
+
                               )),
                           tagList(
                             uiOutput("display_paramselect"),
@@ -111,15 +111,15 @@ ui <- shinyUI(fluidPage(
                         mainPanel(
                           width = 9,
                           div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;"),
-                          div(uiOutput("ts_right"), style = "margin-top:20px;height:700px;overflow-y:auto"), 
+                          div(uiOutput("ts_right"), style = "margin-top:20px;height:700px;overflow-y:auto"),
                           br(),
                           div(uiOutput("display_fill_data"))
                         ) # mainPanel end
                       ) # sidebarLayout end
                     ) # fluidPage close
                   ), # tabPanel end
-                  
-                  
+
+
                   tabPanel(
                     title="User Guide",
                     value="userguide",
@@ -128,7 +128,7 @@ ui <- shinyUI(fluidPage(
                         includeHTML("Guidance_Tab.html")
                     ) # page
                   ),
-                  
+
                   tabPanel(
                     title="USGS & Daymet Exploration",
                     value="downloadData",
@@ -163,7 +163,7 @@ ui <- shinyUI(fluidPage(
                                                 "text/comma-separated-values,text/plain",
                                                 ".csv"
                                               ),
-                                              
+
                                     ),
                                     hr(),
                                     uiOutput("baseParameters"))
@@ -213,9 +213,9 @@ ui <- shinyUI(fluidPage(
                                                 width = 12,
                                                 DataExplorationTSModuleUI(id="dataExpTS")
                                               ), # column close
-                                              
+
                                      ), # tabPanel 2 end
-                                     
+
                                      ### DE, All, TS Annual----
                                      tabPanel("Time series - Annual overlays",
                                               value = "tab_time_series_overlay", br(),
@@ -224,7 +224,7 @@ ui <- shinyUI(fluidPage(
                                                 TsOverlayModuleUI(id="tsOverlayTab")
                                               ), # column close
                                      ), # tabPanel 3 end
-                                     
+
                                      ### DE, All, Box Plots----
                                      tabPanel("Box plots",
                                               value = "tab_box", br(),
@@ -232,7 +232,7 @@ ui <- shinyUI(fluidPage(
                                                 width = 12, TsBoxPlotModuleUI(id="tsBoxPlot")
                                               ), # column close
                                      ), # tabPanel 4 end
-                                     
+
                                      ### DE, All, CDFs ----
                                      tabPanel("CDFs",
                                               value = "tab_CDF", br(),
@@ -241,7 +241,7 @@ ui <- shinyUI(fluidPage(
                                               ), # column close
                                               br(),
                                      ), # tabPanel 5 end
-                                     
+
                                      ### DE, All, Raster Graphs ----
                                      tabPanel("Raster graphs",
                                               value = "tab_raster", br(),
@@ -251,8 +251,8 @@ ui <- shinyUI(fluidPage(
                                      ) # tabPanel 6 end Raste
                                    ) # inner tabsetPanel end
                           ), # tabPanel end
-                          
-                          
+
+
                           # DE, Temperature ----
                           tabPanel("Temperature",
                                    value = "temp_tab",br(),
@@ -272,7 +272,7 @@ ui <- shinyUI(fluidPage(
                                                 width = 12, AirVsWaterModuleUI("airVsWater")
                                               ) # column close
                                      ), # AW end
-                                     
+
                                      ### DE, Temp, GDD ----
                                      tabPanel("Growing degree days",
                                               value = "sb3", br(),
@@ -295,20 +295,20 @@ ui <- shinyUI(fluidPage(
                                      ) # Temp nte class, end
                                    )
                           ), # outer tabPanel end temperature
-                          
+
                           ## DE, Hydrology ----
                           tabPanel("Hydrology",
                                    value = "hydro_tab",br(),
                                    tabsetPanel(
                                      id = "hydro_subtabs",
                                      ### DE, Hydro, IHA----
-                                     tabPanel("IHA", 
+                                     tabPanel("IHA",
                                               value = "IHA_tab", br(),
                                               column(
                                                 width = 12, IHAModuleUI("IHATab")
                                               ) # column close
                                      ), # tabpanel, end, IHA
-                                     
+
                                      ### DE, Hydro, Flashiness ----
                                      tabPanel("Flashiness",
                                               value = "Flashiness_tab", br(),
@@ -327,10 +327,10 @@ ui <- shinyUI(fluidPage(
     ),
     fluidRow(column(width=12))
   ),
-  
+
   # Page Footer
   page_footer(),
-  
+
   # Site Footer
   custom_footer(),
 ))

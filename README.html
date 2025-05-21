@@ -357,21 +357,20 @@ display: none;
 <div id="getting-started" class="section level2">
 <h2>Getting started</h2>
 <p>Checkout main branch from <a href="https://github.com/USEPA/dmap-ContDataQCSumViz.git" class="uri">https://github.com/USEPA/dmap-ContDataQCSumViz.git</a> OR
-downlaod the zip from this URL <a href="https://github.com/USEPA/dmap-ContDataQCSumViz.git" class="uri">https://github.com/USEPA/dmap-ContDataQCSumViz.git</a></p>
+download the zip from this URL <a href="https://github.com/USEPA/dmap-ContDataQCSumViz.git" class="uri">https://github.com/USEPA/dmap-ContDataQCSumViz.git</a></p>
 <p>Install R, R tools and Rstudio and configure it for the github
-repository. Open the checked out code and run
-C:-ContDataQCSumViz_moved_packages_for_app.R Open server.R file in the
-Rstudio and click the run app button located on the right side top.
-server comes up. start using the application.</p>
-<p>Before committing, make sure you have install rsconnect library. On
-the console run rsconnect::writeManifest() from the root of the
-application folder</p>
-<p>Along with changes, commit the updated manifest.json file generated
-by rsconnect::writeManifest()</p>
-<p>Github will deploy the project to EPA test enviornment. If you need
-to deploy the changes right away, login into rstudioconnect. From the
-info tab, click ‘Update Now’ button. This action will deploy the changes
-from github if new changes are found.</p>
+repository. Open the checked out code and run the following code to
+access the required libraries</p>
+<pre><code>if(!require(renv)){install.packages(&quot;renv&quot;)}
+renv::restore()</code></pre>
+<p>Open the ui.R file in the Rstudio and click the run app button
+located on the upper right to start the application</p>
+</div>
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+</div>
+<div id="help" class="section level2">
+<h2>Help</h2>
 </div>
 </div>
 
