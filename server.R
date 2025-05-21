@@ -18,7 +18,6 @@ server <- function(input, output, session) {
     plotly_empty()
   })
   
-  
   currentOutPutId <- reactiveValues()
   selected_to_plot <- reactiveValues(all_selected = data.frame())
   processed <- reactiveValues(
@@ -29,7 +28,6 @@ server <- function(input, output, session) {
     ST.tim = data.frame(),
     ST.var = data.frame()
   )
-  
   
   formated_raw_data <- reactiveValues(
     derivedDF = data.frame(),
@@ -151,10 +149,6 @@ server <- function(input, output, session) {
     return(my_data)
   })
   
-  
-  
-  
-  
   # Behavior on upload
   observeEvent(uploaded_data(), {
     
@@ -206,12 +200,9 @@ server <- function(input, output, session) {
     })
   })
   
-  
-  
   # click display time series
   observeEvent(input$showrawTS, {
     
-    # shinyjs::show(id = "display_all_raw_ts_div")
     shinyjs::removeClass("dateAndTimeError", "alert alert-danger")
     
     raw_data <- uploaded_data()
@@ -298,9 +289,6 @@ server <- function(input, output, session) {
         localHomeDateAndTime <- homeDTvalues$homeDateAndTime
         # display_validation_msgs dateBox
         if (localHomeDateAndTime$isTimeValid() & localHomeDateAndTime$isDateAndtimeValid()) {
-          # output$display_quick_summary_table <- renderUI({
-          #    column(12, align = "center", withSpinner(tableOutput("quick_summary_table")))
-          #  })
           # update the reactiveValues
           # All the variables are selected
           workflowStatus$elementId <- "step2"
@@ -325,7 +313,6 @@ server <- function(input, output, session) {
             output$display_fill_data <- renderUI({
               div(style = "margin-top:20px;", metaDataUI("metaDataHome")) 
             })
-            
             
             shinyjs::runjs("$('#dateTimeBoxButton').click()")
             
@@ -440,11 +427,6 @@ server <- function(input, output, session) {
   }
   
   
-  
-  
-  
-  
-  
   #' Supporting function to prepare error messages for display
   #'
   #' @param errorMsg 
@@ -491,9 +473,6 @@ server <- function(input, output, session) {
     }
   }
   
-  
-  
-  
   ## close the warning messages inside the above oberveEvent
   
   # Discrete Data Exploration
@@ -513,68 +492,19 @@ server <- function(input, output, session) {
           class = "panel panel-default", width = "100%",
           div(
             class = "panel-heading", style = "width:100%;",
-            span("Select Date and Time for discrete data", style = "font-weight:bold;"),
-            # span(
-            #   actionButton(
-            #     inputId = "dateTimeBoxButton_discrete",
-            #     style = "float:right;", class = "btn btn-primary btn-xs",
-            #     label = "Hide Selection", icon = icon("arrow-down")
-            #   )
-            # )
+            span("Select Date and Time for discrete data", style = "font-weight:bold;")
           ),
           
-          # box(
-          #   width = "100%", class = "displayed", id = "dateBox_discrete",
-          #   div(
-          #     style = "margin-left:10px",
-          #     dateAndTimeUI(id = "discretePage", paramChoices = cols_avail, uploadedCols = cols_avail)
-          #   ),
-          #   hr(style = "margin:0px;padding:0px;"),
-          #   fluidRow(
-          #     div(span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")),
-          #     div(
-          #       style = "padding:2px;",
-          #       span(width = "85%", actionButton(inputId = "display_discrete_data", label = "View Discrete-Continuous Plot", class = "btn btn-primary"), style = "margin:5px 15px 5px 25px;"),
-          #       # span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")
-          #     )
-          #   )
-          #   # ,
-          #   # hr(style = "margin:0px;padding:0px;"),
-          #   # fluidRow(
-          #   #   column(
-          #   #     width = 12,
-          #   #     tags$div(
-          #   #       renderTable(
-          #   #         {
-          #   #           fileContentForDisplay
-          #   #         },
-          #   #         type = "html",
-          #   #         bordered = TRUE,
-          #   #         striped = TRUE,
-          #   #         align = "c",
-          #   #         width = "100%"
-          #   #       ),
-          #   #       style = "overflow-x:auto;"
-          #   #     ) # end of div
-          #   #   ) # end of column
-          #   # ) # end of row
-          # ) # end of box
           div(class = "panel-body",
-              #width = "100%", class = "displayed", id = "dateBox_discrete",
               div(
                 style = "margin-left:10px",
                 dateAndTimeUI(id = "discretePage", paramChoices = cols_avail, uploadedCols = cols_avail)
               ),
               hr(),
-              #fluidRow(
-              
               div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left:10px;margin-bottom:10px"),
               div(
                 actionButton(inputId = "display_discrete_data", label = "View Discrete-Continuous Plot", class = "btn btn-primary"), style = "margin:10px 15px 10px 10px;"),
-              # span("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;")
-              #div(uiOutput("disDateAndTimeError"), style = "margin-left:10px"),
               div(id = "disDateAndTimeError", style = "margin-top:10px; margin-left:10px;")
-              #)
           ) # end of box
         )
       )
@@ -650,9 +580,11 @@ server <- function(input, output, session) {
                   step1 <- step1 %>%
                     mutate(Date = as.POSIXct(Date)) %>%
                     tidyr::complete(Date = seq(min(Date, na.rm = TRUE), max(Date, na.rm = TRUE), by = timediff))
-                  # write.csv(step1,"step1.csv",row.names=FALSE)
                   
-                  tempdf <- as.data.frame(qpcR:::cbind.na(step1, step2))
+                  num_fill_na <- nrow(step1)-nrow(step2)
+                  step2[nrow(step2) + num_fill_na,] <- NA
+                  tempdf <- cbind(step1, step2)
+                  
                   mergedData[[varName]] <- tempdf
                 }
                 combinded_df <- bind_rows(mergedData, .id = "df")
@@ -675,7 +607,6 @@ server <- function(input, output, session) {
                   shinyjs::runjs("$('#dateTimeBoxButton_discrete').click()")
                   output$display_time_series_discrete <- renderPlotly({
                     ggplotly(mainPlot, height = calculatePlotHeight(length(variable_to_plot) * 2))
-                    # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
                   })
                 }
               }
@@ -894,8 +825,6 @@ server <- function(input, output, session) {
   
   observe({
     if (homePageInputs$changed == TRUE & workflowStatus$finish == TRUE) {
-      # print("I am listening and work flow status is")
-      # print(workflowStatus$finish)
       workflowStatus$finish <- FALSE
       workflowStatus$elementId <- "step3"
       workflowStatus$state <- "error"
