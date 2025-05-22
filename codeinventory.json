@@ -1,0 +1,14 @@
+﻿{
+  "name": "ContDataSumViz",
+  "description": "ContDataSumViz is an R Shiny application to summarize and visualize continuous water quality sensor data. ",
+  "license": "https://github.com/USEPA/ContDataSumViz/blob/main/LICENSE",
+  "openSourceProject": 1,
+  "governmentWideReuseProject": 1,
+  "tags": [
+    "EPA",
+    "opensource"
+  ],
+  "contact": {
+    "email": "Naslund.Laura@epa.gov"
+  }
+}
