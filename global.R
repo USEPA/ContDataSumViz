@@ -53,7 +53,6 @@ library("promises")
 library("future")
 library("tinytex")
 library("purrr")
-#library("qpcR")
 library("readr")
 library("padr")
 library("openxlsx") #LCN

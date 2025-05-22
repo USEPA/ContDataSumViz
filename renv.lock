@@ -174,30 +174,6 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
-    "DEoptimR": {
-      "Package": "DEoptimR",
-      "Version": "1.1-3-1",
-      "Source": "Repository",
-      "Date": "2024-11-23",
-      "Title": "Differential Evolution Optimization in Pure R",
-      "Authors@R": "c( person(c(\"Eduardo\", \"L. T.\"), \"Conceicao\", role = c(\"aut\", \"cre\"), email = \"mail@eduardoconceicao.org\"), person(\"Martin\", \"Maechler\", role = \"ctb\", email = \"maechler@stat.math.ethz.ch\", comment = c(ORCID = \"0000-0002-8685-9910\")) )",
-      "URL": "svn://svn.r-forge.r-project.org/svnroot/robustbase/pkg/DEoptimR",
-      "Description": "Differential Evolution (DE) stochastic heuristic algorithms for global optimization of problems with and without general constraints. The aim is to curate a collection of its variants that (1) do not sacrifice simplicity of design, (2) are essentially tuning-free, and (3) can be efficiently implemented directly in the R language. Currently, it provides implementations of the algorithms 'jDE' by Brest et al. (2006) <doi:10.1109/TEVC.2006.872133> for single-objective optimization and 'NCDE' by Qu et al. (2012) <doi:10.1109/TEVC.2011.2161873> for multimodal optimization (single-objective problems with multiple solutions).",
-      "Imports": [
-        "stats"
-      ],
-      "Enhances": [
-        "robustbase"
-      ],
-      "License": "GPL (>= 2)",
-      "Author": "Eduardo L. T. Conceicao [aut, cre], Martin Maechler [ctb] (<https://orcid.org/0000-0002-8685-9910>)",
-      "Maintainer": "Eduardo L. T. Conceicao <mail@eduardoconceicao.org>",
-      "Repository": "CRAN",
-      "Repository/R-Forge/Project": "robustbase",
-      "Repository/R-Forge/Revision": "1008",
-      "Repository/R-Forge/DateTimeStamp": "2024-11-23 19:13:45",
-      "NeedsCompilation": "no"
-    },
     "DT": {
       "Package": "DT",
       "Version": "0.33",
@@ -512,38 +488,6 @@
       "RemoteRef": "HEAD",
       "RemoteSha": "c19577f4fbfb7533f0890c72ec2691bdd1bd305c",
       "NeedsCompilation": "no"
-    },
-    "XLConnect": {
-      "Package": "XLConnect",
-      "Version": "1.2.0",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Excel Connector for R",
-      "Authors@R": "c(person(\"Mirai Solutions GmbH\", role = \"aut\", email = \"xlconnect@mirai-solutions.com\"), person(\"Martin\", \"Studer\", role = \"cre\", email = \"martin.studer@mirai-solutions.com\"), person(\"The Apache Software Foundation\", role = c(\"ctb\", \"cph\"), comment = \"Apache POI\"), person(\"Graph Builder\", role = c(\"ctb\", \"cph\"), comment = \"Curvesapi Java library\"), person(\"Brett Woolridge\", role = c(\"ctb\", \"cph\"), comment = \"SparseBitSet Java library\"))",
-      "URL": "https://mirai-solutions.ch https://github.com/miraisolutions/xlconnect",
-      "BugReports": "https://github.com/miraisolutions/xlconnect/issues",
-      "SystemRequirements": "Java (>= 8)",
-      "Depends": [
-        "R (>= 3.6.0)"
-      ],
-      "Imports": [
-        "methods",
-        "rJava (>= 1.0-1)"
-      ],
-      "Suggests": [
-        "RUnit",
-        "lattice",
-        "ggplot2 (>= 0.9.3)",
-        "zoo"
-      ],
-      "Description": "Provides comprehensive functionality to read, write and format Excel data.",
-      "License": "GPL-3",
-      "Copyright": "See file COPYRIGHTS",
-      "LazyData": "yes",
-      "NeedsCompilation": "no",
-      "Author": "Mirai Solutions GmbH [aut], Martin Studer [cre], The Apache Software Foundation [ctb, cph] (Apache POI), Graph Builder [ctb, cph] (Curvesapi Java library), Brett Woolridge [ctb, cph] (SparseBitSet Java library)",
-      "Maintainer": "Martin Studer <martin.studer@mirai-solutions.com>",
-      "Repository": "CRAN"
     },
     "askpass": {
       "Package": "askpass",
@@ -3936,22 +3880,6 @@
       "Maintainer": "Joe Cheng <joe@rstudio.com>",
       "Repository": "CRAN"
     },
-    "minpack.lm": {
-      "Package": "minpack.lm",
-      "Version": "1.2-4",
-      "Source": "Repository",
-      "Title": "R Interface to the Levenberg-Marquardt Nonlinear Least-Squares Algorithm Found in MINPACK, Plus Support for Bounds",
-      "Author": "Timur V. Elzhov, Katharine M. Mullen, Andrej-Nikolai Spiess, Ben Bolker",
-      "Maintainer": "Katharine M. Mullen <mullenkate@gmail.com>",
-      "Description": "The nls.lm function provides an R interface to lmder and lmdif from the MINPACK library, for solving nonlinear least-squares problems by a modification of the Levenberg-Marquardt algorithm, with support for lower and upper parameter bounds.  The implementation can be used via nls-like calls using the nlsLM function.",
-      "Suggests": [
-        "MASS"
-      ],
-      "License": "GPL-3",
-      "Copyright": "inst/COPYRIGHTS",
-      "NeedsCompilation": "yes",
-      "Repository": "CRAN"
-    },
     "modelr": {
       "Package": "modelr",
       "Version": "0.1.11",
@@ -4906,52 +4834,6 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
-    "qpcR": {
-      "Package": "qpcR",
-      "Version": "1.4-1",
-      "Source": "Repository",
-      "Type": "Package",
-      "LazyLoad": "yes",
-      "LazyData": "yes",
-      "Title": "Modelling and Analysis of Real-Time PCR Data",
-      "Date": "2018-05-29",
-      "Author": "Andrej-Nikolai Spiess <a.spiess@uke.uni-hamburg.de>",
-      "Maintainer": "Andrej-Nikolai Spiess <a.spiess@uke.uni-hamburg.de>",
-      "Description": "Model fitting, optimal model selection and calculation of various features that are essential in the analysis of quantitative real-time polymerase chain reaction (qPCR).",
-      "License": "GPL (>= 2)",
-      "Depends": [
-        "R (>= 2.13.0)",
-        "MASS",
-        "minpack.lm",
-        "rgl",
-        "robustbase",
-        "Matrix"
-      ],
-      "NeedsCompilation": "yes",
-      "Imports": [
-        "methods"
-      ],
-      "Repository": "CRAN"
-    },
-    "rJava": {
-      "Package": "rJava",
-      "Version": "1.0-11",
-      "Source": "Repository",
-      "Title": "Low-Level R to Java Interface",
-      "Author": "Simon Urbanek <simon.urbanek@r-project.org>",
-      "Maintainer": "Simon Urbanek <simon.urbanek@r-project.org>",
-      "Depends": [
-        "R (>= 3.6.0)",
-        "methods"
-      ],
-      "Description": "Low-level interface to Java VM very much like .C/.Call and friends. Allows creation of objects, calling methods and accessing fields.",
-      "License": "LGPL-2.1",
-      "URL": "http://www.rforge.net/rJava/",
-      "SystemRequirements": "Java JDK 1.2 or higher (for JRI/REngine JDK 1.4 or higher), GNU make",
-      "BugReports": "https://github.com/s-u/rJava/issues",
-      "NeedsCompilation": "yes",
-      "Repository": "CRAN"
-    },
     "ragg": {
       "Package": "ragg",
       "Version": "1.3.3",
@@ -5386,73 +5268,6 @@
       "NeedsCompilation": "yes",
       "Repository": "CRAN"
     },
-    "rgl": {
-      "Package": "rgl",
-      "Version": "1.3.17",
-      "Source": "Repository",
-      "Title": "3D Visualization Using OpenGL",
-      "Authors@R": "c(person(\"Duncan\", \"Murdoch\", role = c(\"aut\", \"cre\"), email = \"murdoch.duncan@gmail.com\"), person(\"Daniel\", \"Adler\", role = \"aut\", email = \"dadler@dyncall.org\"), person(\"Oleg\", \"Nenadic\", role = \"ctb\"), person(\"Simon\", \"Urbanek\", role = \"ctb\"), person(\"Ming\", \"Chen\", role = \"ctb\"), person(\"Albrecht\", \"Gebhardt\", role = \"ctb\"), person(\"Ben\", \"Bolker\", role = \"ctb\"), person(\"Gabor\", \"Csardi\", role = \"ctb\"), person(\"Adam\", \"Strzelecki\", role = \"ctb\"), person(\"Alexander\", \"Senger\", role = \"ctb\"), person(\"The R Core Team\", role = c(\"ctb\", \"cph\")), person(\"Dirk\",\"Eddelbuettel\", role = \"ctb\"), person(\"The authors of Shiny\", role = \"cph\"), person(\"The authors of knitr\", role = \"cph\"), person(\"Jeroen\", \"Ooms\", role = \"ctb\"), person(\"Yohann\", \"Demont\", role = \"ctb\"), person(\"Joshua\", \"Ulrich\", role = \"ctb\"), person(\"Xavier\", \"Fernandez i Marin\", role = \"ctb\"), person(\"George\", \"Helffrich\", role = \"ctb\"), person(\"Ivan\", \"Krylov\", role = \"ctb\"), person(\"Michael\", \"Sumner\", role = \"ctb\"), person(\"Mike\", \"Stein\", role = \"ctb\"), person(\"Jonathon\", \"Love\", role = \"ctb\"), person(\"Mapbox team\", role = c(\"ctb\", \"cph\")))",
-      "Depends": [
-        "R (>= 3.6.0)"
-      ],
-      "Suggests": [
-        "MASS",
-        "markdown (>= 1.12)",
-        "rmarkdown (>= 2.16)",
-        "deldir (>= 1.0-4)",
-        "orientlib",
-        "lattice",
-        "misc3d",
-        "magick",
-        "plotrix (>= 3.7-3)",
-        "tripack",
-        "interp",
-        "alphashape3d",
-        "tcltk",
-        "js (>= 1.2)",
-        "webshot2 (>= 0.1.0)",
-        "downlit (>= 0.4.0)",
-        "pkgdown (>= 2.0.0)",
-        "extrafont",
-        "shiny",
-        "manipulateWidget (>= 0.9.0)",
-        "testthat",
-        "crosstalk",
-        "V8",
-        "chromote",
-        "jpeg",
-        "png"
-      ],
-      "Imports": [
-        "graphics",
-        "grDevices",
-        "stats",
-        "utils",
-        "htmlwidgets (>= 1.6.0)",
-        "htmltools",
-        "knitr (>= 1.33)",
-        "jsonlite (>= 0.9.20)",
-        "magrittr",
-        "R6",
-        "base64enc",
-        "mime"
-      ],
-      "Enhances": [
-        "waldo"
-      ],
-      "Description": "Provides medium to high level functions for 3D interactive graphics, including functions modelled on base graphics (plot3d(), etc.) as well as functions for constructing representations of geometric objects (cube3d(), etc.).  Output may be on screen using OpenGL, or to various standard 3D file formats including WebGL, PLY, OBJ, STL as well as 2D image formats, including PNG, Postscript, SVG, PGF.",
-      "License": "GPL",
-      "URL": "https://github.com/dmurdoch/rgl, https://dmurdoch.github.io/rgl/",
-      "SystemRequirements": "OpenGL and GLU Library (Required for display in R. See \"Installing OpenGL support\" in README.md. Not needed if only browser displays using rglwidget() are wanted.), zlib (optional), libpng (>=1.2.9, optional), FreeType (optional)",
-      "BugReports": "https://github.com/dmurdoch/rgl/issues",
-      "VignetteBuilder": "knitr",
-      "Biarch": "true",
-      "RoxygenNote": "7.2.3",
-      "NeedsCompilation": "yes",
-      "Author": "Duncan Murdoch [aut, cre], Daniel Adler [aut], Oleg Nenadic [ctb], Simon Urbanek [ctb], Ming Chen [ctb], Albrecht Gebhardt [ctb], Ben Bolker [ctb], Gabor Csardi [ctb], Adam Strzelecki [ctb], Alexander Senger [ctb], The R Core Team [ctb, cph], Dirk Eddelbuettel [ctb], The authors of Shiny [cph], The authors of knitr [cph], Jeroen Ooms [ctb], Yohann Demont [ctb], Joshua Ulrich [ctb], Xavier Fernandez i Marin [ctb], George Helffrich [ctb], Ivan Krylov [ctb], Michael Sumner [ctb], Mike Stein [ctb], Jonathon Love [ctb], Mapbox team [ctb, cph]",
-      "Maintainer": "Duncan Murdoch <murdoch.duncan@gmail.com>",
-      "Repository": "CRAN"
-    },
     "rlang": {
       "Package": "rlang",
       "Version": "1.1.5",
@@ -5555,64 +5370,6 @@
       "NeedsCompilation": "no",
       "Author": "JJ Allaire [aut], Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>), Christophe Dervieux [aut] (<https://orcid.org/0000-0003-4474-2498>), Jonathan McPherson [aut], Javier Luraschi [aut], Kevin Ushey [aut], Aron Atkins [aut], Hadley Wickham [aut], Joe Cheng [aut], Winston Chang [aut], Richard Iannone [aut] (<https://orcid.org/0000-0003-3925-190X>), Andrew Dunning [ctb] (<https://orcid.org/0000-0003-0464-5036>), Atsushi Yasumoto [ctb, cph] (<https://orcid.org/0000-0002-8335-495X>, Number sections Lua filter), Barret Schloerke [ctb], Carson Sievert [ctb] (<https://orcid.org/0000-0002-4958-2844>), Devon Ryan [ctb] (<https://orcid.org/0000-0002-8549-0971>), Frederik Aust [ctb] (<https://orcid.org/0000-0003-4900-788X>), Jeff Allen [ctb], JooYoung Seo [ctb] (<https://orcid.org/0000-0002-4064-6012>), Malcolm Barrett [ctb], Rob Hyndman [ctb], Romain Lesur [ctb], Roy Storey [ctb], Ruben Arslan [ctb], Sergio Oller [ctb], Posit Software, PBC [cph, fnd], jQuery UI contributors [ctb, cph] (jQuery UI library; authors listed in inst/rmd/h/jqueryui/AUTHORS.txt), Mark Otto [ctb] (Bootstrap library), Jacob Thornton [ctb] (Bootstrap library), Bootstrap contributors [ctb] (Bootstrap library), Twitter, Inc [cph] (Bootstrap library), Alexander Farkas [ctb, cph] (html5shiv library), Scott Jehl [ctb, cph] (Respond.js library), Ivan Sagalaev [ctb, cph] (highlight.js library), Greg Franko [ctb, cph] (tocify library), John MacFarlane [ctb, cph] (Pandoc templates), Google, Inc. [ctb, cph] (ioslides library), Dave Raggett [ctb] (slidy library), W3C [cph] (slidy library), Dave Gandy [ctb, cph] (Font-Awesome), Ben Sperry [ctb] (Ionicons), Drifty [cph] (Ionicons), Aidan Lister [ctb, cph] (jQuery StickyTabs), Benct Philip Jonsson [ctb, cph] (pagebreak Lua filter), Albert Krewinkel [ctb, cph] (pagebreak Lua filter)",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
-      "Repository": "CRAN"
-    },
-    "robustbase": {
-      "Package": "robustbase",
-      "Version": "0.99-4-1",
-      "Source": "Repository",
-      "VersionNote": "Released 0.99-4 on 2024-08-19, 0.99-3 on 2024-07-01 and 0.99-2 on 2024-01-27 to CRAN",
-      "Date": "2024-09-24",
-      "Title": "Basic Robust Statistics",
-      "Authors@R": "c(person(\"Martin\",\"Maechler\", role=c(\"aut\",\"cre\"), email=\"maechler@stat.math.ethz.ch\", comment = c(ORCID = \"0000-0002-8685-9910\")) , person(\"Peter\", \"Rousseeuw\", role=\"ctb\", comment = \"Qn and Sn\") , person(\"Christophe\", \"Croux\", role=\"ctb\", comment = \"Qn and Sn\") , person(\"Valentin\", \"Todorov\", role = \"aut\", email = \"valentin.todorov@chello.at\", comment = \"most robust Cov\") , person(\"Andreas\", \"Ruckstuhl\", role = \"aut\", email = \"andreas.ruckstuhl@zhaw.ch\", comment = \"nlrob, anova, glmrob\") , person(\"Matias\", \"Salibian-Barrera\", role = \"aut\", email = \"matias@stat.ubc.ca\", comment = \"lmrob orig.\") , person(\"Tobias\", \"Verbeke\", role = c(\"ctb\",\"fnd\"), email = \"tobias.verbeke@openanalytics.eu\", comment = \"mc, adjbox\") , person(\"Manuel\", \"Koller\", role = \"aut\", email = \"koller.manuel@gmail.com\", comment = \"mc, lmrob, psi-func.\") , person(c(\"Eduardo\", \"L. T.\"), \"Conceicao\", role = \"aut\", email = \"mail@eduardoconceicao.org\", comment = \"MM-, tau-, CM-, and MTL- nlrob\") , person(\"Maria\", \"Anna di Palma\", role = \"ctb\", comment = \"initial version of Comedian\") )",
-      "URL": "https://robustbase.R-forge.R-project.org/, https://R-forge.R-project.org/R/?group_id=59, https://R-forge.R-project.org/scm/viewvc.php/pkg/robustbase/?root=robustbase, svn://svn.r-forge.r-project.org/svnroot/robustbase/pkg/robustbase",
-      "BugReports": "https://R-forge.R-project.org/tracker/?atid=302&group_id=59",
-      "Description": "\"Essential\" Robust Statistics. Tools allowing to analyze data with robust methods.  This includes regression methodology including model selections and multivariate statistics where we strive to cover the book \"Robust Statistics, Theory and Methods\" by 'Maronna, Martin and Yohai'; Wiley 2006.",
-      "Depends": [
-        "R (>= 3.5.0)"
-      ],
-      "Imports": [
-        "stats",
-        "graphics",
-        "utils",
-        "methods",
-        "DEoptimR"
-      ],
-      "Suggests": [
-        "grid",
-        "MASS",
-        "lattice",
-        "boot",
-        "cluster",
-        "Matrix",
-        "robust",
-        "fit.models",
-        "MPV",
-        "xtable",
-        "ggplot2",
-        "GGally",
-        "RColorBrewer",
-        "reshape2",
-        "sfsmisc",
-        "catdata",
-        "doParallel",
-        "foreach",
-        "skewt"
-      ],
-      "SuggestsNote": "mostly only because of vignette graphics and simulation",
-      "Enhances": [
-        "robustX",
-        "rrcov",
-        "matrixStats",
-        "quantreg",
-        "Hmisc"
-      ],
-      "EnhancesNote": "linked to in man/*.Rd",
-      "LazyData": "yes",
-      "NeedsCompilation": "yes",
-      "License": "GPL (>= 2)",
-      "Author": "Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>), Peter Rousseeuw [ctb] (Qn and Sn), Christophe Croux [ctb] (Qn and Sn), Valentin Todorov [aut] (most robust Cov), Andreas Ruckstuhl [aut] (nlrob, anova, glmrob), Matias Salibian-Barrera [aut] (lmrob orig.), Tobias Verbeke [ctb, fnd] (mc, adjbox), Manuel Koller [aut] (mc, lmrob, psi-func.), Eduardo L. T. Conceicao [aut] (MM-, tau-, CM-, and MTL- nlrob), Maria Anna di Palma [ctb] (initial version of Comedian)",
-      "Maintainer": "Martin Maechler <maechler@stat.math.ethz.ch>",
       "Repository": "CRAN"
     },
     "roxygen2": {
