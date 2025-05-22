@@ -4,6 +4,7 @@ server <- function(input, output, session) {
   conflict_prefer("dataTableOutput", "DT")
   conflict_prefer("yday", "data.table")
   conflict_prefer("select", "dplyr")
+  conflict_prefer("isolate", "shiny")
   
   loaded_data <- reactiveValues()
   raw_data_columns <- reactiveValues()
