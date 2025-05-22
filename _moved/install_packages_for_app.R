@@ -32,6 +32,7 @@ packages <- c("devtools"        # install helper for non CRAN libraries
          , "shinydashboard"
          , "shinyjs"
          , "shinyBS"
+		     , "shinyvalidate"
          , "shinyalert"
          , "conflicted"     # deal with package conflicts 
          , "survival"
@@ -39,6 +40,8 @@ packages <- c("devtools"        # install helper for non CRAN libraries
          , "shinythemes"    # more Shiny
          , "XLConnect"      # read Excel files
          , "zip"            # read/save zip files
+         , "logr"
+         , "padr"
          
 )
 
