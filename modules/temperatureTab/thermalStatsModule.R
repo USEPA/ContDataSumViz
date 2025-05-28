@@ -34,7 +34,7 @@ ThermalStatsModuleUI <- function(id) {
                             h4("Temperature – Thermal Statistics"),
                             div(style="width:100%;", "The output from this Shiny app is derived from the StreamThermal R package on GitHub (",
                             a('https://github.com/tsangyp/StreamThermal', href='https://github.com/tsangyp/StreamThermal', target='_blank'),
-                                                      " ). It generates over 200 different thermal metrics that cover five categories of stream thermal regimes: magnitude, variability, frequency, timing, and rate of change."),
+                                                      " ). It generates over 200 different thermal metrics that cover five categories of stream thermal regimes: magnitude, variability, frequency, timing, and rate of change. Critical temperature refers to the cutoff temperature for the frequency calculation, which sums the number of observations greater than the cutoff."),
                             br(),
                             div(style="width:100%;", "Citation:
                                                       Tsang, Yin-Phan & Infante, Dana & Stewart, Jana & Wang, Lizhu & Tingly, Ralph & Thornbrugh, Darren & Cooper, Arthur & Daniel, Wesley. 2016. 
@@ -107,6 +107,10 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                                options = list(hideSelected = FALSE))
               })
               
+              output$thermal_input_2 <- renderUI({
+                numericInput(ns("critical_temp"), label = "Select Critical Temperature (°C)", value = 16)
+              })
+              
               output$thermal_input_3 <- renderUI({
                 temp_keys_in_favor_order <- c("Water.Temp.C","WATER.TEMP.C","Water_Temp_C",
                                               "WATER_TEMP_C","Air.Temp.C","AIR.TEMP.C","Air_Temp_C","AIR_TEMP_C")
@@ -166,7 +170,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         print("passed Export.StreamThermal")
                         
                         ##save(streamThermal_exported, file="test_streamThermal_exported.RData")
-                        ST.freq <- T_frequency(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
+                        ST.freq <- T_frequency(streamThermal_exported, cT = input$critical_temp) %>% mutate_if(is.numeric,round,digits=2)
                         ST.mag  <- T_magnitude(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
                         ST.roc  <- T_rateofchange(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
                         ST.tim  <- T_timing(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
