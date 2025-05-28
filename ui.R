@@ -36,6 +36,8 @@ ui <- shinyUI(fluidPage(
   # Individual Page Header
   page_header(),
 
+  titlePanel("ContDataSumViz: Visualization and Summary Statistics for Continuous Monitoring Data"),
+  
   mainPanel(
     width = 12,
     # spacing
@@ -44,12 +46,7 @@ ui <- shinyUI(fluidPage(
     fluidRow(
       div(id = "customBusy", class = "loading-modal")
     ),
-    fluidRow(
-      column(
-        width = 12,
-        div(img(src="headerImage.png", class="headerImgRes"), style="display: flex;justify-content:center; height: auto")
-      )
-    ),
+    
     fluidRow(
       column(
         width = 12,

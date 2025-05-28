@@ -209,6 +209,27 @@ server <- function(input, output, session) {
     raw_data <- uploaded_data()
     homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
     
+    # handle rows with no date time
+    if(homeDTvalues$homeDateAndTime$dateColumnNums() == "separate"){
+      temp <- raw_data %>% dplyr::filter(get(homeDTvalues$homeDateAndTime$dateFieldName()) != "",  
+                                         get(homeDTvalues$homeDateAndTime$timeFieldName()) != "",  
+                                         is.na(get(homeDTvalues$homeDateAndTime$dateFieldName())) == FALSE,  
+                                         is.na(get(homeDTvalues$homeDateAndTime$timeFieldName())) == FALSE)
+    }
+    
+    if(homeDTvalues$homeDateAndTime$dateColumnNums() == "combined"){
+      temp <- raw_data %>% dplyr::filter(get(homeDTvalues$homeDateAndTime$dateFieldName()) != "",  
+                                         is.na(get(homeDTvalues$homeDateAndTime$dateFieldName())) == FALSE)
+    }
+    
+    if(nrow(temp)!= nrow(raw_data)){
+      rows_missing_data <- nrow(raw_data) - nrow(temp)
+      shinyAlertUI("removed_rows_msg", paste0("Number of rows removed with missing date/time: ", rows_missing_data), "Warning")
+      print(paste0("Number of rows removed with missing date/time: ", rows_missing_data))
+    }
+    
+    raw_data <- temp
+    
     showRawDateAndTime <- homeDTvalues$homeDateAndTime
     
     # display_validation_msgs dateBox
@@ -284,9 +305,7 @@ server <- function(input, output, session) {
   observeEvent(input$runQS, {
     tryCatch(
       {
-        raw_data <- uploaded_data()
-        
-        homeDTvalues$homeDateAndTime <- dateAndTimeServer(id = "homePage", uploaded_data(), homePageInputs)
+
         localHomeDateAndTime <- homeDTvalues$homeDateAndTime
         # display_validation_msgs dateBox
         if (localHomeDateAndTime$isTimeValid() & localHomeDateAndTime$isDateAndtimeValid()) {
@@ -294,9 +313,8 @@ server <- function(input, output, session) {
           # All the variables are selected
           workflowStatus$elementId <- "step2"
           workflowStatus$state <- "success"
-          raw_data <- getFormattedRawData(localHomeDateAndTime, raw_data, tabName = "homePage", errorDivId = "dateAndTimeError")
-          raw_data <- raw_data %>% dplyr::filter(date.formatted >= input$date_start & date.formatted < (input$date_end + days(1))) #needed to add one day because otherwise automatically assigns time as 00:00
 
+          raw_data <- formated_raw_data$derivedDF
           # now shorten the varname
           if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
             print("passed fun.ConvertDateFormat")
