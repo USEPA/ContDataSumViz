@@ -10,7 +10,8 @@ FlashinessModuleUI <- function(id) {
       div(class="panel panel-default",style="margin:10px;",
           div(class="panel-heading"),
           div(class="panel-body",
-              uiOutput(ns("flash_input")),
+              uiOutput(ns("flash_input_1")),
+              uiOutput(ns("flash_input_2")),
               uiOutput(ns("display_flash_button")),
               uiOutput(ns("errorDiv"))
           )
@@ -50,7 +51,7 @@ FlashinessModuleUI <- function(id) {
 #' @param dailyStats 
 #' @param renderFlashiness 
 #'
-FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness, loaded_data) {
+FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness, loaded_data, gageDailyRawData) {
   
   localStats <- reactiveValues(stats=list())
   variables_avail <- reactiveVal()
@@ -68,33 +69,72 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
         if(renderFlashiness$render == TRUE) {
           shinyjs::show(id=ns("display_help_text_flashiness"), asis=TRUE)
           
-          output$flash_input <- renderUI({
-            selectizeInput(ns("flash_name"),label ="Select Variable",
-                           choices=variables_avail,
-                           multiple = FALSE,
-                           options = list(hideSelected = FALSE))
+          output$flash_input_1 <- renderUI({
+            radioButtons(ns("flash_data_source"), label = "Select flow data source", 
+                         choices = c("Uploaded data", "Downloaded USGS gage data"),
+                         selected = "Uploaded data")
           })
           
+          observeEvent(input$flash_data_source,{
+            if(input$flash_data_source == "Uploaded data"){
+              variables_avail <- names(localStats$processed_dailyStats)
+              parameter_to_select <- variables_avail[grep('Discharge',variables_avail,ignore.case=TRUE)][1]
+              
+              output$flash_input_2 <- renderUI({ 
+                selectizeInput(ns("flash_name"),label ="Select uploaded flow parameter",
+                               choices=variables_avail,
+                               multiple = FALSE,
+                               selected= parameter_to_select,
+                               options = list(hideSelected = FALSE))
+              })
+            }
+            if(input$flash_data_source == "Downloaded USGS gage data"){
+              if(identical(gageDailyRawData$gageColName, character(0))){
+                shinyalert("Download USGS Data", "Please download data in the Download USGS daily flow tab to access this feature.", "warning")
+              } 
+              output$flash_input_2 <- renderUI({selectizeInput(ns("flash_name"), label = "Select downloaded USGS flow parameter",
+                                                             choices = gageDailyRawData$gageColName,
+                                                             multiple = FALSE)})
+              
+            }
+            
+          })
           
           output$display_flash_button <- renderUI({
             actionButton(inputId=ns("display_RBindex"), label="Display RB Index",class="btn btn-primary")
           })
           
-          
+
             observeEvent(input$display_RBindex, {
             output$errorDiv <- renderUI({})
             shinyjs::hide(id=ns("display_help_text_flashiness"), asis=TRUE)
 
-            daily_Value <- localStats$processed_dailyStats[[input$flash_name]]
-            years_available <- unique(lubridate::year(daily_Value$Date))
-
-           
-            tryCatch({
-              
-              DailyChange_df <- daily_Value %>% 
+            if(input$flash_data_source == "Uploaded data"){
+              daily_Value <- localStats$processed_dailyStats[[input$flash_name]]%>% 
                 select(Date, paste0(input$flash_name, ".mean")) %>% 
                 mutate(Year = lubridate::year(Date)) %>% 
-                rename("mean" = paste0(input$flash_name, ".mean")) %>% 
+                rename("mean" = paste0(input$flash_name, ".mean"))
+              years_available <- unique(daily_Value$Year)
+              
+              flash_output_file_str <- paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                        "_",
+                                        input$flash_name,
+                                        "_RB-Index")
+            }
+            
+            if(input$flash_data_source == "Downloaded USGS gage data"){
+              daily_Value <- gageDailyRawData$gagedata %>% 
+                dplyr::select(Date.Time, input$flash_name) %>% 
+                dplyr::rename("Date" = "Date.Time", "mean" = input$flash_name) %>% 
+                mutate(Year = lubridate::year(Date))
+              years_available <- unique(daily_Value$Year)
+              
+              flash_output_file_str <- paste0("USGS_gage_", unique(unique(gageDailyRawData$gagedata$GageID)), "_", input$flash_name, "_RB-Index")
+            }
+            
+            tryCatch({
+              
+              DailyChange_df <- daily_Value  %>% 
                 mutate(DailyChangeValue = abs(mean - dplyr::lag(mean))) %>% 
                 mutate(DailyChangeValue = replace_na(DailyChangeValue, 0))
               
@@ -102,6 +142,7 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
                 group_by(Year) %>% 
                 summarize(RB_Index = (sum(DailyChangeValue)/sum(mean)) %>% round(3))
 
+              
               output$flash_table <- DT::renderDataTable({
                 myTable <- DT::datatable(
                   RB_df,
@@ -117,18 +158,9 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
                       list(extend='print', text='Print', className="btn btn-primary"),
                       list(extend='collection', buttons =
                              list(
-                               list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                      "_",
-                                                                      input$flash_name,
-                                                                      "_RB-Index")),
-                               list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                        "_",
-                                                                        input$flash_name,
-                                                                        "_RB-Index")),
-                               list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                      "_",
-                                                                      input$flash_name,
-                                                                      "_RB-Index"))
+                               list(extend = "csv", filename = flash_output_file_str),
+                               list(extend = "excel", filename = flash_output_file_str),
+                               list(extend = "pdf", filename = flash_output_file_str)
                              ),text='Download', className="btn btn-primary")
                     ),
                     columnDefs = list(list(className="dt-center",targets="_all")),

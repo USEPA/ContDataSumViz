@@ -69,11 +69,14 @@ server <- function(input, output, session) {
   renderTempNTE <- reactiveValues(render = FALSE)
   
   # Hydrology Tab
+  renderUSGSDaily <- reactiveValues(render = FALSE)
   renderIHA <- reactiveValues(render = FALSE)
   renderFlashiness <- reactiveValues(render = FALSE)
   renderDiscrete <- reactiveValues(render = FALSE)
   homePageInputs <- reactiveValues(changed = FALSE)
   
+  gageDailyRawData <- reactiveValues(gagedata = data.frame(),
+                                     gageColName = as.character())
   
   ##############################
   # init shiny modules
@@ -118,16 +121,19 @@ server <- function(input, output, session) {
   ThermalClassificationModuleServer("thermalClassification", dailyStats = processed, uploaded_data, renderThermalClassification, loaded_data)
   
   # Continuous Data Exploration >  Hydrology > IHA tab
-  IHAModuleServer("IHATab", dailyStats = processed, loaded_data, uploaded_data, to_download, renderIHA)
+  IHAModuleServer("IHATab", dailyStats = processed, loaded_data, uploaded_data, to_download, renderIHA, gageDailyRawData)
   
   # Continuous Data Exploration >  Hydrology > Flashiness tab
-  FlashinessModuleServer("flashinessTab", uploaded_data, dailyStats = processed, renderFlashiness, loaded_data)
+  FlashinessModuleServer("flashinessTab", uploaded_data, dailyStats = processed, renderFlashiness, loaded_data, gageDailyRawData)
   
   # USGS & Daymet Exploration tab
   GageAndDaymetModuleServer("gageDaymetAndBase", homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet)
   
   # Temperature Not to Exceed tab
   TempNotToExceedServer("tempNTE", uploaded_data, formated_raw_data, renderTempNTE, loaded_data)
+  
+  # USGS Daily Flow Download tab
+  USGSDailyModuleServer("USGSDailyTab",dateRange, uploaded_data, dailyStats = processed, renderUSGSDaily, loaded_data, gageDailyRawData)
   
   #  Upload Data##############################
   if (file.exists("_moved/File_Format.rds")) file.remove("_moved/File_Format.rds")
@@ -802,7 +808,9 @@ server <- function(input, output, session) {
   
   # hydrology subtabs
   observe({
-    if (input$hydro_subtabs == "IHA_tab") {
+    if(input$hydro_subtabs == "USGSDaily_tab"){
+      renderUSGSDaily$render <- TRUE
+    } else if (input$hydro_subtabs == "IHA_tab") {
       renderIHA$render <- TRUE
     } else if (input$hydro_subtabs == "Flashiness_tab") {
       renderFlashiness$render <- TRUE

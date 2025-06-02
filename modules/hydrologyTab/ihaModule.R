@@ -11,7 +11,7 @@ IHAModuleUI <- function(id) {
       div(class="panel panel-default",style="margin:10px;",
           div(class="panel-heading"),
           div(class="panel-body",
-              #uiOutput(ns("IHA_input_1")),
+              uiOutput(ns("IHA_input_1")),
               uiOutput(ns("IHA_input_2")),
               uiOutput(ns("display_IHA_button")),
               hr(),
@@ -129,7 +129,7 @@ IHAModuleUI <- function(id) {
 #' @param to_download 
 #' @param renderIHA 
 #'
-IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_download, renderIHA) {
+IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_download, renderIHA, gageDailyRawData) {
  
   localStats <- reactiveValues(stats=list(),myData.IHA=NULL,IHA.group.1=NULL)
   
@@ -162,6 +162,8 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             
             observe({
             localStats <- dailyStats
+            
+            #gageData <- gageDailyRawData
             if(renderIHA$render == TRUE) {
               # This dropdown value is not used anywhere so commenting it out
               # output$IHA_input_1 <- renderUI({
@@ -179,16 +181,43 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               #                  selected=possible_date_columns[1],
               #                  options = list(hideSelected = FALSE))
               # })
-
-              output$IHA_input_2 <- renderUI({
-                variables_avail <- names(localStats$processed_dailyStats)
-                parameter_to_select <- variables_avail[grep('Discharge',variables_avail,ignore.case=TRUE)][1]
-                selectizeInput(ns("parameter_name"),label ="Select Parameter Column",
-                               choices=variables_avail,
-                               multiple = FALSE,
-                               selected= parameter_to_select,
-                               options = list(hideSelected = FALSE))
+              output$IHA_input_1 <- renderUI({
+                radioButtons(ns("select_data_source"), label = "Select flow data source", 
+                             choices = c("Uploaded data", "Downloaded USGS gage data"),
+                             selected = "Uploaded data")
               })
+
+
+              observeEvent(input$select_data_source, {
+                # clear output
+                output$IHA_input_2 <- renderUI({})
+                variables_avail <- NULL
+                
+                  if(input$select_data_source == "Uploaded data"){
+                    variables_avail <- names(localStats$processed_dailyStats)
+                    parameter_to_select <- variables_avail[grep('Discharge',variables_avail,ignore.case=TRUE)][1]
+                    
+                   output$IHA_input_2 <- renderUI({ 
+                     selectizeInput(ns("parameter_name"),label ="Select uploaded flow parameter",
+                                   choices=variables_avail,
+                                   multiple = FALSE,
+                                   selected= parameter_to_select,
+                                   options = list(hideSelected = FALSE))
+                  })
+
+                  }
+                  if(input$select_data_source == "Downloaded USGS gage data"){
+                    if(identical(gageDailyRawData$gageColName, character(0))){
+                      shinyalert("Download USGS Data", "Please download data in the Download USGS daily flow tab to access this feature.", "warning")
+                      } 
+                      output$IHA_input_2 <- renderUI({selectizeInput(ns("parameter_name"), label = "Select downloaded USGS flow parameter",
+                                     choices = gageDailyRawData$gageColName,
+                                     multiple = FALSE)})
+                      
+                  }
+              })
+              
+
 
               output$display_IHA_button <- renderUI({
                 actionButton(inputId=ns("display_IHA"), label="Display IHA tables",class="btn btn-primary")
@@ -237,65 +266,84 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               dataTableOutput("IHA_table_5")
             })
 
-            myList <- localStats$processed_dailyStats
-            
-            if (length(myList)>0){
-              variable_to_IHA <- input$parameter_name
-              myData <- myList[[which(names(myList)==variable_to_IHA)]]
-              mean_col <- paste0(input$parameter_name,".mean")
-              myData <- myData[c('Date',mean_col)]
-              myData.IHA<- read.zoo(myData,format="%Y-%m-%d")
-              #localStats$myData.IHA <- myData.IHA
+            #myList <- localStats$processed_dailyStats
+            if(input$select_data_source == "Uploaded data"){
+              myList <- localStats$processed_dailyStats
+              
+              if (length(myList)>0){
+                variable_to_IHA <- input$parameter_name
+                myData <- myList[[which(names(myList)==variable_to_IHA)]]
+                mean_col <- paste0(input$parameter_name,".mean")
+                myData <- myData[c('Date',mean_col)]
+                myData.IHA<- read.zoo(myData,format="%Y-%m-%d")
+                myData.IHA.noNA <- myData %>% dplyr::filter(is.na(!!sym(mean_col))==FALSE) %>% read.zoo(format="%Y-%m-%d")
+                #localStats$myData.IHA <- myData.IHA
+                localResults$myData.IHA <- myData.IHA
+              }else{
+                myData <- uploaded_data()
+                print(paste0("the file name is:",loaded_data$name))
+              }
+
+              iha_output_file_str <- paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                            "_",
+                                            input$parameter_name,
+                                            "_iha_")
+              
+            } else if(input$select_data_source == "Downloaded USGS gage data"){
+              myData <- gageDailyRawData$gagedata %>% dplyr::select(Date.Time, input$parameter_name) %>% dplyr::rename("Date" = "Date.Time")
+              myData.IHA <- read.zoo(myData,format="%Y-%m-%d")
+              myData.IHA.noNA <- myData %>% dplyr::filter(is.na(!!sym(input$parameter_name))==FALSE) %>% read.zoo(format="%Y-%m-%d")
               localResults$myData.IHA <- myData.IHA
-            }else{
-              myData <- uploaded_data()
-              print(paste0("the file name is:",loaded_data$name))
+              
+              iha_output_file_str <- paste0("USGS_gage_", unique(unique(gageDailyRawData$gagedata$GageID)), "_", input$parameter_name, "_iha_")
             }
+            
 
             myYr <- "calendar"
             ## IHA parameters group 1; Magnitude of monthly water conditions
-            Analysis.Group.1 <- group1(myData.IHA, year=myYr)
+            Analysis.Group.1 <- group1(myData.IHA.noNA, year=myYr)
             #save(Analysis.Group.1,file="IHA_group_1.RData")
             Analysis.Group.1 <- as.data.frame(Analysis.Group.1) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.1 <- Analysis.Group.1
             localResults$IHA.group.1 <- Analysis.Group.1 %>% tibble::rownames_to_column("year")
-            renderTables(id="display_IHA_table_1", data=Analysis.Group.1, tblTitle="Group 1: Magnitude of monthly water conditions", btnId=ns("display_IHA_plot_1"))
+            renderTables(id="display_IHA_table_1", data=Analysis.Group.1, tblTitle="Group 1: Magnitude of monthly water conditions", btnId=ns("display_IHA_plot_1"), iha_output_file_str = iha_output_file_str)
             
             
             ## IHA parameters group 2: Magnitude of monthly water condition and include 12 parameters
-            Analysis.Group.2 <- group2(myData.IHA, year=myYr)
+            Analysis.Group.2 <- group2(myData.IHA.noNA, year=myYr)
             #save(Analysis.Group.2,file="IHA_group_2.RData")
             Analysis.Group.2 <- as.data.frame(Analysis.Group.2) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.2 <- Analysis.Group.2
             localResults$IHA.group.2 <- Analysis.Group.2 # LCN: I do not know why this table already has year as a column
-            renderTables(id="display_IHA_table_2", data=Analysis.Group.2, tblTitle="Group 2: Magnitude of monthly water condition and include 12 parameters",btnId=ns("display_IHA_plot_2"))
+            renderTables(id="display_IHA_table_2", data=Analysis.Group.2, tblTitle="Group 2: Magnitude of monthly water condition and include 12 parameters",btnId=ns("display_IHA_plot_2"), iha_output_file_str = iha_output_file_str)
 
             
             ## IHA parameters group 3:Timing of annual extreme water conditions
-            Analysis.Group.3 <- group3(myData.IHA, year=myYr)
+            Analysis.Group.3 <- group3(myData.IHA.noNA, year=myYr)
             #save(Analysis.Group.3,file="IHA_group_3.RData")
             #localStats$IHA.group.3 <- Analysis.Group.3
             localResults$IHA.group.3 <- Analysis.Group.3 %>% as.data.frame() %>% tibble::rownames_to_column("year")
-            renderTables(id="display_IHA_table_3", data=Analysis.Group.3, tblTitle="Group 3: Timing of annual extreme water conditions", btnId=ns("display_IHA_plot_3"))
-            
+            renderTables(id="display_IHA_table_3", data=Analysis.Group.3, tblTitle="Group 3: Timing of annual extreme water conditions", btnId=ns("display_IHA_plot_3"), iha_output_file_str = iha_output_file_str)
             
             ## IHA parameters group 4; Frequency and duration of high and low pulses
             # defaults to 25th and 75th percentiles
-            Analysis.Group.4 <- group4(myData.IHA, year=myYr)
+            # need to remove NAs to deal with quantile defaults
+           
+            Analysis.Group.4 <- group4(myData.IHA.noNA, year=myYr)
             #save(Analysis.Group.4,file="IHA_group_4.RData")
             #localStats$IHA.group.4 <- Analysis.Group.4
             localResults$IHA.group.4 <- Analysis.Group.4 %>% as.data.frame() %>% tibble::rownames_to_column("year")
-            renderTables(id="display_IHA_table_4", data=Analysis.Group.4, tblTitle="Group 4: Frequency and duration of high and low pulses", btnId=ns("display_IHA_plot_4"))
+            renderTables(id="display_IHA_table_4", data=Analysis.Group.4, tblTitle="Group 4: Frequency and duration of high and low pulses", btnId=ns("display_IHA_plot_4"), iha_output_file_str = iha_output_file_str)
             
 
             ## IHA parameters group 5; Rate and frequency of water condition changes
-            Analysis.Group.5 <- group5(myData.IHA, year=myYr)
+            Analysis.Group.5 <- group5(myData.IHA.noNA, year=myYr)
             #save(Analysis.Group.5,file="IHA_group_5.RData")
             #localStats$IHA.group.5 <- Analysis.Group.5
             localResults$IHA.group.5 <- Analysis.Group.5 %>% as.data.frame() %>% tibble::rownames_to_column("year")
             Analysis.Group.5 <- as.data.frame(Analysis.Group.5) %>% mutate_if(is.numeric,round,digits=2)
             
-            renderTables(id="display_IHA_table_5", data=Analysis.Group.5, tblTitle="Group 5: Rate and frequency of water condition changes", btnId=ns("display_IHA_plot_5"))
+            renderTables(id="display_IHA_table_5", data=Analysis.Group.5, tblTitle="Group 5: Rate and frequency of water condition changes", btnId=ns("display_IHA_plot_5"), iha_output_file_str = iha_output_file_str)
             
 
             
@@ -315,7 +363,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             Notes.Data <- c(loaded_data$name, myYr, myDate, Notes.User)
             df.Notes <- as.data.frame(cbind(Notes.Names,Notes.Data))
             # Open/Create file
-            myFile.XLSX <- paste("IHA",loaded_data$name, myYr, myDate, "xlsx", sep=".")
+            myFile.XLSX <- paste(iha_output_file_str, "xlsx", sep=".")
             Notes.Summary <- summary(localResults$myData.IHA)
             
             hs <- createStyle(fgFill = "#D9D9D9", textDecoration = "bold")
@@ -360,7 +408,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             
           )
           
-          renderTables <- function(id, data, tblTitle, options, btnId) {
+          renderTables <- function(id, data, tblTitle, options, btnId, iha_output_file_str) {
             
             tempStr <- paste0("function ( e, dt, node, config ) {",
                 "Shiny.setInputValue('", btnId ,"' , true, {priority: 'event'})","}")
@@ -378,15 +426,9 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
                              
                              list(extend='collection', buttons = 
                                     list(
-                                      list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                             "_", str_sub(tblTitle, 1, 7),
-                                                                             "_iha")),
-                                      list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                               "_", str_sub(tblTitle, 1, 7),
-                                                                               "_iha")),
-                                      list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
-                                                                             "_", str_sub(tblTitle, 1, 7),
-                                                                             "_iha")) 
+                                      list(extend = "csv", filename = paste0(iha_output_file_str, str_sub(tblTitle, 1, 7))),
+                                      list(extend = "excel", filename = paste0(iha_output_file_str, str_sub(tblTitle, 1, 7))),
+                                      list(extend = "pdf", filename =  paste0(iha_output_file_str, str_sub(tblTitle, 1, 7))) 
                                     ),text='Download', className="btn btn-primary"),
                              
                              

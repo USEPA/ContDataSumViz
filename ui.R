@@ -24,7 +24,7 @@ ui <- shinyUI(fluidPage(
   tags$head(tags$link(rel="icon", type="mage/x-icon", href="https://www.epa.gov/themes/epa_theme/images/favicon.ico")),
   tags$head(tags$link(rel="icon", type="mage/x-icon", href="favicon.ico")),
 
-  # Start EPA formatting
+  # Start EPA formatting 
   tags$html(class = "no-js", lang="en"),
   head_tag(),
   tags$body(class="path-themes not-front has-wide-template", id="top",
@@ -299,6 +299,11 @@ ui <- shinyUI(fluidPage(
                                    tabsetPanel(
                                      id = "hydro_subtabs",
                                      ### DE, Hydro, IHA----
+                                     tabPanel("Download USGS daily flow", br(),
+                                              value = "USGSDaily_tab", br(),
+                                              column(
+                                                width = 12, USGSDailyModuleUI("USGSDailyTab")
+                                              )),
                                      tabPanel("IHA",
                                               value = "IHA_tab", br(),
                                               column(
