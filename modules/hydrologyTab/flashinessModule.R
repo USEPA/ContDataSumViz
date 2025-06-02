@@ -113,7 +113,8 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
               daily_Value <- localStats$processed_dailyStats[[input$flash_name]]%>% 
                 select(Date, paste0(input$flash_name, ".mean")) %>% 
                 mutate(Year = lubridate::year(Date)) %>% 
-                rename("mean" = paste0(input$flash_name, ".mean"))
+                rename("mean" = paste0(input$flash_name, ".mean")) %>% 
+                dplyr::filter(is.na(mean) == FALSE)
               years_available <- unique(daily_Value$Year)
               
               flash_output_file_str <- paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
@@ -126,7 +127,8 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
               daily_Value <- gageDailyRawData$gagedata %>% 
                 dplyr::select(Date.Time, input$flash_name) %>% 
                 dplyr::rename("Date" = "Date.Time", "mean" = input$flash_name) %>% 
-                mutate(Year = lubridate::year(Date))
+                mutate(Year = lubridate::year(Date)) %>% 
+                dplyr::filter(is.na(mean) == FALSE)
               years_available <- unique(daily_Value$Year)
               
               flash_output_file_str <- paste0("USGS_gage_", unique(unique(gageDailyRawData$gagedata$GageID)), "_", input$flash_name, "_RB-Index")
