@@ -15,15 +15,12 @@ fun.dayMetRawPlot <- function(fun.daymet.data,
         # daymetProcessed$dayMetData <- dayMetData$data%>% select(year, yday, precip="prcp..mm.day.") %>%
         # mutate(Date=as.Date(yday, origin=paste(as.character(year - 1), "-12-31", sep="")))
 
-        daymet_data_merged <- daymet_data_merged %>%
+        daymet_data_merged<- daymet_data_merged %>%
           select(c(fun.daymet.vars.to.process), c("year", "yday")) %>%
           mutate(Date = as.Date(yday, origin = paste(as.character(year - 1), "-12-31", sep = ""))) %>%
           select(c(fun.daymet.vars.to.process), "Date") %>%
           gather(key = "parameter", value = "value", -Date)
-
-        # print("arranged the data")
-        # print(daymet_data_merged)
-
+        
         main_range <- calculate_time_range(as.list(daymet_data_merged))
         mainBreaks <- main_range[[1]]
         main_x_date_label <- main_range[[2]]
@@ -37,9 +34,10 @@ fun.dayMetRawPlot <- function(fun.daymet.data,
           parameter == "tmax..deg.c." ~ "Maximum air temperature (degrees C)", 
           parameter == "tmin..deg.c." ~ "Minimum air temperature (degrees C)", 
           parameter == "vp..Pa." ~"Water vapor pressure (Pa)"
-        ))
+        ), Date = as.POSIXct(Date, format = "%Y-%m-%d"))
                              ) +
-          geom_line(aes(colour = parameter, y = value, x = as.POSIXct(Date, format = "%Y-%m-%d")), size = 0.8, ) +
+          #geom_line(aes(colour = parameter, y = value, x = as.POSIXct(Date, format = "%Y-%m-%d")), size = 0.8, ) +
+          geom_line(aes(colour = parameter, y = value, x = Date), size = 0.8, ) +
           labs(title = fun.daymet.title, y = "Parameters", x = "Date") +
           # scale_color_discrete(
           #   labels = c("prcp..mm.day." = "Precipitation (mm)", "srad..W.m.2."="Shortwave radiation (W m^-2)", "swe..kg.m.2."="Snow water equivalent (kg m^-2)",

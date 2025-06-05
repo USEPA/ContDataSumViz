@@ -51,6 +51,10 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
       observe({
         if(renderUsgsAndDaymet$render == TRUE) {
           
+          if(dateRange$min %>% lubridate::year() < 1980 | dateRange$max %>% lubridate::year() > 2023){
+            output$daymet_range_warning <- renderText({"Uploaded data is outside of the range of available Daymet data (1980-2023)"})
+          }
+          
           output$gage_panel <- renderUI({
             div(class="panel panel-default", style="padding:10px;margin-top:20px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
@@ -83,9 +87,10 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site Latitude",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site Longitude",value=""),
-                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:2100)),
-                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:2100))),
-                    actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary")
+                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:2023)),
+                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:2023))),
+                    actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary"),
+                    div(textOutput(ns("daymet_range_warning")), style = "color:red;")
                 ),
                 div(id=ns("daymetVarsDiv"), style="padding:5px;display:none",
                     selectizeInput(ns("daymet_params"), label ="Select Daymet variables",
@@ -210,6 +215,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         #Sys.sleep(0.5)
         if (input$daymet_lat != "" && length(input$daymet_lat) > 0 && input$daymet_long != "" && length(input$daymet_long) > 0) {
           
+
+          
           withProgress(message = "Getting DayMet data", value = 0, {
             incProgress(0, detail = paste("Retrieving records for Latitude and Longitude ", input$daymet_lat, input$daymet_long))
             
@@ -287,12 +294,12 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
       
       #subplot for daymet, gage and base
       observeEvent(input$display_subplot_ts, {
-        
         daymet_data_raw <- NULL
         gage_data_raw <- NULL
         base_data_raw <- NULL
         mergedList <- list()
         totalH <- 0L
+        
         if(length(input$dailyStats_ts_variable_name2) > 0) {
           clearContents()
         
@@ -326,14 +333,13 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           variable_to_plot <- input$dailyStats_ts_variable_name2
           if (!is.null(variable_to_plot) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted),])){
             
-            
-            timediff <- get_interval(raw_data$date.formatted)
-            #print(timediff)
-            timediff <- ifelse(timediff == "min", "15 mins", timediff)
-            
-            raw_data <- raw_data %>%
-              mutate(date.formatted = as.POSIXct(date.formatted)) %>%
-              complete(date.formatted = seq(min(date.formatted,na.rm = TRUE), max(date.formatted, na.rm = TRUE), by=timediff))
+            # timediff <- get_interval(raw_data$date.formatted)
+            # #print(timediff)
+            # timediff <- ifelse(timediff == "min", "15 mins", timediff)
+            # # 
+            # raw_data <- raw_data %>%
+            #   mutate(date.formatted = as.POSIXct(date.formatted)) %>%
+            #   complete(date.formatted = seq(min(date.formatted,na.rm = TRUE), max(date.formatted, na.rm = TRUE), by=timediff))
             
             base_data_raw  <- raw_data %>%
               select(any_of(variable_to_plot), Date= c("date.formatted")) %>%
@@ -350,7 +356,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           mainBreaks = main_range[[1]]
           main_x_date_label = main_range[[2]]
           
-          allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter), aes(x = as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
+          #allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter), aes(x = as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
+          allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter) %>% mutate(Date = as.POSIXct(Date,format="%Y-%m-%d")), aes(x = Date, y = value)) +
             geom_line(aes(colour=parameter)) +
             labs(title="Base, USGS gage and DayMet Data", y="Parameters", x="Date") + 
             scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+

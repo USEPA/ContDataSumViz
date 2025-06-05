@@ -29,17 +29,23 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_
         timediff <- get_interval(raw_data$date.formatted)
         timediff <- ifelse(timediff == "min", "15 mins", timediff)
 
-        uploaded_raw_data  <- raw_data %>%
-          mutate(date.formatted = as.POSIXct(date.formatted)) %>%
-          complete(date.formatted = seq(min(date.formatted,na.rm = TRUE), max(date.formatted, na.rm = TRUE), by=timediff)) %>%
-          select(c(userSelectedValues$parmToProcess()), "Date" = c(date.formatted)) %>%
-          gather(key = "parameter", value = "value", -Date)
+        # uploaded_raw_data  <- raw_data %>%
+        #   mutate(date.formatted = as.POSIXct(date.formatted)) %>%
+        #   complete(date.formatted = seq(min(date.formatted,na.rm = TRUE), max(date.formatted, na.rm = TRUE), by=timediff)) %>%
+        #   select(c(userSelectedValues$parmToProcess()), "Date" = c(date.formatted)) %>%
+        #   gather(key = "parameter", value = "value", -Date)
 
+        uploaded_raw_data <- raw_data %>% 
+          dplyr::select(c(userSelectedValues$parmToProcess()), "Date" = c(date.formatted)) %>% 
+          pivot_longer(cols = !Date, names_to = "parameter", values_to = "value")
+        
         main_range = calculate_time_range(as.list(uploaded_raw_data))
         mainBreaks = main_range[[1]]
         main_x_date_label = main_range[[2]]
 
-        p <- ggplot(data = uploaded_raw_data, aes(x=as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
+
+        #p <- ggplot(data = uploaded_raw_data, aes(x=as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
+        p <- ggplot(data = uploaded_raw_data, aes(x=Date, y = value)) +
           geom_line(aes(colour=parameter)) +
           labs(title="Raw data", x="Date", y = "")+ # y="Parameters"
           scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+
@@ -57,6 +63,7 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_
             ,legend.position="bottom"
             ,axis.text.x=element_text(angle=65, hjust=10)
           )
+
         #p = p + facet_grid(parameter ~ ., scales = "free_y",switch = "both")
         output$display_all_raw_ts <- renderPlotly({
           ggplotly(p, height = calculatePlotHeight(length(my_raw_choices) * 2)) %>% 
