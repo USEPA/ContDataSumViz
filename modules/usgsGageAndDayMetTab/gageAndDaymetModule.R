@@ -15,9 +15,17 @@ GageAndDaymetModuleUI <- function(id) {
     mainPanel(
       width = 9,
       column(width = 12,
-            
-             div(style="width:100%", uiOutput(ns("gageDayMetError"))),
-             withSpinner(plotlyOutput(ns("display_downloaded_data"))),type=1)
+             fluidRow(shinydashboard::box(id=ns("gage_daymet_help"), width=12, class="well",
+                                 h4("USGS & Daymet Exploration"),
+                                 div(style="width:100%;", "Contextualize uploaded data with relevant, high-frequency USGS stream gage and Daymet daily weather and climate data."),
+                                 br(),
+                                 div(style = "width: 100%", "USGS gage data available (depending on the selected gage): discharge, water level, air temperature, water temperature, pH, precipitation, air pressure, and water pressure"),
+                                 div(style = "width:100%", "Daymet data available: precipitation, shortwave radiation, snow water equivalent, maximum air temperature, minimum air temperature, and water vapor pressure"),
+                                 br(),
+                                 div(style = "width:100%", "The date ranges auto-populate with the date range of user-uploaded data, but can be modified. Select the Import data buttons to download data and the View data buttons to view time series of the data."))
+             ), 
+             fluidRow(div(style="width:100%", uiOutput(ns("gageDayMetError")))),
+             fluidRow(withSpinner(plotlyOutput(ns("display_downloaded_data"))),type=1))
     ) # mainPanel end
   ) # sidebarLayout end
 }
@@ -52,7 +60,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         if(renderUsgsAndDaymet$render == TRUE) {
           
           if(dateRange$min %>% lubridate::year() < 1980 | dateRange$max %>% lubridate::year() > 2023){
-            output$daymet_range_warning <- renderText({"Uploaded data is outside of the range of available Daymet data (1980-2023)"})
+            output$daymet_range_warning <- renderText({paste0("Uploaded data is outside of the range of available Daymet data (1980-", as.numeric(format(Sys.time(), "%Y")) - 2, ")")})
           }
           
           output$gage_panel <- renderUI({
@@ -87,8 +95,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site Latitude",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site Longitude",value=""),
-                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:2023)),
-                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:2023))),
+                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2)),
+                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2))),
                     actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary"),
                     div(textOutput(ns("daymet_range_warning")), style = "color:red;")
                 ),

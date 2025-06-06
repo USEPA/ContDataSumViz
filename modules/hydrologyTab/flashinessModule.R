@@ -19,7 +19,8 @@ FlashinessModuleUI <- function(id) {
     ),
     mainPanel(
       width = 9, 
-      shinydashboard::box(id=ns("display_help_text_flashiness"), style="display:none;", width=12, class="well",
+      #shinydashboard::box(id=ns("display_help_text_flashiness"), style="display:none;", width=12, class="well",
+      shinydashboard::box(id=ns("display_help_text_flashiness"), width=12, class="well",
                                                 h4("Hydrology – Flashiness"),
                                                 div(style="width:100%;", "The Richards-Baker flashiness index (RBI) (Baker et al. 2004) reflects the frequency and rapidity of short-term changes in streamflow.
                                                     It measures oscillations in discharge relative to total discharge, such that flashier streams receive higher scores.
@@ -38,7 +39,7 @@ FlashinessModuleUI <- function(id) {
                                                 a('https://doi.org/10.1111/j.1752-1688.2004.tb01046.x', href='https://doi.org/10.1111/j.1752-1688.2004.tb01046.x', target='_blank')
 
                             ), # end of box
-      DT::dataTableOutput(ns("flash_table"))
+      div(DT::dataTableOutput(ns("flash_table")), style = "width: 50%; margin: 0 auto;")
       
     )
    )
@@ -67,7 +68,7 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
         variables_avail <- names(uploaded_data())
         
         if(renderFlashiness$render == TRUE) {
-          shinyjs::show(id=ns("display_help_text_flashiness"), asis=TRUE)
+          #shinyjs::show(id=ns("display_help_text_flashiness"), asis=TRUE)
           
           output$flash_input_1 <- renderUI({
             radioButtons(ns("flash_data_source"), label = "Select flow data source", 
@@ -107,8 +108,8 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
 
             observeEvent(input$display_RBindex, {
             output$errorDiv <- renderUI({})
-            shinyjs::hide(id=ns("display_help_text_flashiness"), asis=TRUE)
-
+            #shinyjs::hide(id=ns("display_help_text_flashiness"), asis=TRUE)
+            
             if(input$flash_data_source == "Uploaded data"){
               daily_Value <- localStats$processed_dailyStats[[input$flash_name]]%>% 
                 select(Date, paste0(input$flash_name, ".mean")) %>% 
@@ -142,7 +143,8 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
               
               RB_df <- DailyChange_df %>% 
                 group_by(Year) %>% 
-                summarize(RB_Index = (sum(DailyChangeValue)/sum(mean)) %>% round(3))
+                summarize(RB_Index = (sum(DailyChangeValue)/sum(mean)) %>% round(3)) %>% 
+                rename("RB Index" = "RB_Index")
 
               
               output$flash_table <- DT::renderDataTable({
@@ -191,6 +193,7 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
               })
             } # end error
             )
+            runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("flash_table")))
             }) 
         }
       })

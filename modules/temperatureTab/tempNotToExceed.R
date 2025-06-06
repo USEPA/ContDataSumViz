@@ -33,7 +33,7 @@ TempNotToExceedUI <- function(id) {
     ),
     mainPanel(
       width = 9,
-      shinydashboard::box(id=ns("display_help_text_not_to_exceed"), style="display:none;", width=12, class="well",
+      shinydashboard::box(id=ns("display_help_text_not_to_exceed"), width=12, class="well",
                           h4("Temperature – Temperature not to exceed"),
                           div(style="width:100%;", "This module was developed to support 4T3 and 6T3 calculations used in New Mexico water quality criteria."),
                           div(style="width:100%;", "4T3 Temperature = temperature not to be exceeded for four or more consecutive hours in a 24-hour period, on more than three consecutive days."),
@@ -72,12 +72,19 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
         
         if(renderTempNotToExceed$render == TRUE) {
           
-          shinyjs::show(id=ns("display_help_text_not_to_exceed"), asis=TRUE)
-          
           output$temp_input <- renderUI({
+            water_keys_in_favor_order <- c("Water.Temp.C","WATER.TEMP.C","Water_Temp_C","WATER_TEMP_C")
+            possible_water_columns <- water_keys_in_favor_order[water_keys_in_favor_order %in% variables_avail]
+            if (length(possible_water_columns)==0){
+              water_to_select <- variables_avail[grep('water',variables_avail,ignore.case=TRUE)][1]
+            }else{
+              water_to_select <- possible_water_columns[1]
+            }
+            
             selectizeInput(ns("temp_name"),label ="Select Temperature Column",
                            choices=variables_avail,
                            multiple = FALSE,
+                           selected = water_to_select,
                            options = list(hideSelected = FALSE))
           })
           
@@ -104,7 +111,6 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
           
           observeEvent(input$display_tempExceed, {
             output$errorDiv <- renderUI({})
-            shinyjs::hide(id=ns("display_help_text_not_to_exceed"), asis=TRUE)
             
             tryCatch({
               # using data.table for faster processing
@@ -258,6 +264,8 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
                 div(h4(errorMsg), class="alert alert-danger")
               })
             })
+            
+            runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("tempExceed_table")))
 
           }
           )

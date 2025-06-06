@@ -20,9 +20,13 @@ TsBoxPlotModuleUI <- function(id) {
     ),
     mainPanel(
       width = 9,
-      fluidRow(column(width = 12, 
-                      div(style="width:100%", uiOutput(ns("boxPlotError"))),
-                      plotlyOutput(ns("display_box_plots"))))
+      fluidRow(
+        shinydashboard::box(id=ns("boxplot_tab_help"), width=12, class="well",
+                            h4("Any parameters – Boxplots"),
+                            div(style="width:100%;", "Displays boxplots of a user-selected daily summary statistic (e.g., mean, median, standard deviation) for any processed continuous parameter, grouped by a user-selected time period."))
+      ),
+      fluidRow(div(style="width:100%", uiOutput(ns("boxPlotError"))),
+                      plotlyOutput(ns("display_box_plots")))
     ) # mainPanel end
   ) # sidebarLayout end
 }
@@ -188,7 +192,7 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
               renderErrorMsg(paste("Process failed due to invalid data, error: ", err$message))
               clearPlot()
             })
-
+            #runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_box_plots")))
           })  #observeEvent end
           
           #common

@@ -22,12 +22,12 @@ GrowingDegreeModuleUI <- function(id) {
       ),
     mainPanel(
       width = 9,
-        shinydashboard::box(id=ns("display_help_text_growing_degree_days"), style="display:none;", width=12, class="well",
+        shinydashboard::box(id=ns("display_help_text_growing_degree_days"), width=12, class="well",
                 h4("Temperature – Growing Degree Days"),
                 div(style="width:100%;", "Growing Degree Days (GDD) are used to estimate the growth and development of insects during the growing season.
                     The basic concept is that development will only occur if the temperature exceeds some minimum development threshold, or base temperature, which varies depending on the type of organisms being studied.")
                   ), 
-      DT::dataTableOutput(ns("gdd_table"))
+      div(DT::dataTableOutput(ns("gdd_table")), style = "width: 50%; margin: 0 auto;")
     ))
   
 }
@@ -53,13 +53,19 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
              variables_avail <- names(uploaded_data())
              
             if(renderGrowingDegree$render == TRUE) {
-
-              shinyjs::show(id=ns("display_help_text_growing_degree_days"), asis=TRUE)
               
               output$temp_input <- renderUI({
+                water_keys_in_favor_order <- c("Water.Temp.C","WATER.TEMP.C","Water_Temp_C","WATER_TEMP_C")
+                possible_water_columns <- water_keys_in_favor_order[water_keys_in_favor_order %in% variables_avail]
+                if (length(possible_water_columns)==0){
+                  water_to_select <- variables_avail[grep('water',variables_avail,ignore.case=TRUE)][1]
+                }else{
+                  water_to_select <- possible_water_columns[1]
+                }
                 selectizeInput(ns("temp_name"),label ="Select Temperature Column",
                                choices=variables_avail,
                                multiple = FALSE,
+                               selected = water_to_select,
                                options = list(hideSelected = FALSE))
               })
               
@@ -73,7 +79,6 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
 
               observeEvent(input$display_gdd, {
                 output$errorDiv <- renderUI({})
-                shinyjs::hide(id=ns("display_help_text_growing_degree_days"), asis=TRUE)
                 
                 daily_temp <- localStats$processed_dailyStats[[input$temp_name]]
                 years_available <- unique(lubridate::year(daily_temp$Date))
@@ -160,7 +165,7 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
                   
                 )
 
-              
+                runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("gdd_table")))
               }
               )
 

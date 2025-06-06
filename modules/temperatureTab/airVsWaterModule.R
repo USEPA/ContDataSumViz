@@ -18,6 +18,7 @@ AirVsWaterModuleUI <- function(id) {
                            choices = c("No" = "No", "Yes" = "Yes"),
                            selected = "No"
               ),
+              uiOutput(ns("air_vs_water_input_3")),
               div(id = ns("cp_air_temp"),
                     uiOutput(ns("air_vs_water_input_4"))
                 ), # div end
@@ -32,7 +33,7 @@ AirVsWaterModuleUI <- function(id) {
       column(
         width = 12,
         #uiOutput(ns("display_help_text_air_water")),
-        shinydashboard::box(id=ns("display_help_text_air_water"), style="display:none;", width=12, class="well",
+        fluidRow(shinydashboard::box(id=ns("display_help_text_air_water"),  width=12, class="well",
                             h4("Temperature - Air vs Water"),
                             div(style="width:100%;", "Because solar radiation affects both air and water temperature, the two parameters are typically closely correlated and many statistical models use changes in air temperature to explain variances in stream temperatures (Caissie 2006). 
                                                       This relationship can be quantified as the slope of the linear regression line between air and water temperature and indicates how sensitive a given stream is to changes in water temperature due to changes in air temperature (Kelleher et al. 2012)"),
@@ -48,11 +49,11 @@ AirVsWaterModuleUI <- function(id) {
                             div(style="width:100%", "Kelleher, Christa & Wagener, Thorsten & Gooseff, Michael & Mcglynn, Brian & McGuire, Kevin & Marshall Price, Lucy. 2012. Investigating Controls on the Thermal Sensitivity of Pennsylvania Streams. Hydrological Processes. 26. 771 - 785. 10.1002/hyp.8186."),
                             br(),
                             div(style="width:100%", "Mohseni, O., and H.G. Stefan. 1999. Stream Temperature/Air Temperature Relationship: A Physical Interpretation. Journal of Hydrology 218 (3–4): 128–41.",
-                             a('https://doi.org/doi:10.1016/s0022-1694(99)00034-7', href='https://doi.org/doi:10.1016/s0022-1694(99)00034-7', target='_blank'))
+                             a('https://doi.org/doi:10.1016/s0022-1694(99)00034-7', href='https://doi.org/doi:10.1016/s0022-1694(99)00034-7', target='_blank')))
 
         ), # end of box
-        div(style="width:100%", uiOutput(ns("airVsWaterError"))),
-        plotOutput(ns("display_thermal_sensitivity_plot_1"))
+        fluidRow(div(style="width:100%", uiOutput(ns("airVsWaterError")))),
+        fluidRow(div(style = "margin: 0 auto;", plotOutput(ns("display_thermal_sensitivity_plot_1"))))
       )
     ) # mainPanel end
   ) # sidebarLayout end
@@ -114,13 +115,16 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                                    selected=water_to_select,
                                    options = list(hideSelected = FALSE))
                   })
+                  output$air_vs_water_input_3 <- renderUI({
+                    numericInput(inputId=ns("raster_plot_aspect_ratio"), label="Adjust plot aspect ratio",0.5,min=0,max=10,step=0.1)
+                    
+                  })
                   
                   output$display_thermal_sensitivity_button <- renderUI({
                     actionButton(inputId=ns("display_thermal_sensitivity"), label="Display thermal sensitivity",class="btn btn-primary")
                   })
                   #clear previous error messages
                   clearContents()
-                  shinyjs::show(id=ns("display_help_text_air_water"), asis=TRUE)
                   
                   #Nilima Gandhi - Remvoing old way, it is a overkill, but keeping the code, do not know if there is a future plan to use the file.
                   # output$display_help_text_air_water <- renderUI({
@@ -139,7 +143,6 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
            observeEvent(input$display_thermal_sensitivity, {
              localStats <- dailyStats
              clearContents()
-             shinyjs::hide(id=ns("display_help_text_air_water"), asis=TRUE)
              
              myList <- localStats$processed_dailyStats
              ## check if both of "Air.Temp.C" and "Water.Temp.C" are available
@@ -163,26 +166,42 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                                         list(a = format(unname(coef(myModel)[1]), digits = 2),
                                              b = format(unname(coef(myModel)[2]), digits = 2),
                                              r2 = format(summary(myModel)$r.squared, digits = 3)))
+               myEquation1 <- myEquation <- substitute(italic(y) == a + b %.% italic(x),
+                                                       list(a = format(unname(coef(myModel)[1]), digits = 2),
+                                                            b = format(unname(coef(myModel)[2]), digits = 2)))
+               myEquation2 <- substitute(italic(r)^2~"="~r2,
+                                        list(r2 = format(summary(myModel)$r.squared, digits = 3)))
+               label_space <- (max(data_to_plot$Water.Temp.C.mean) - min(data_to_plot$Water.Temp.C.mean))/5
                
+
                output$display_thermal_sensitivity_plot_1 <- renderPlot({
-                 p1 <- ggplot(data_to_plot,aes(x=!!sym(mean_col_air),y=!!sym(mean_col_water)))+
+                ggplot(data_to_plot,aes(x=!!sym(mean_col_air),y=!!sym(mean_col_water)))+
                    geom_point(alpha=0.5,size=1.5)+
                    geom_smooth(method="loess",se=FALSE,color="black")+
                    geom_smooth(method="lm",se=FALSE,color="cornflowerblue",linetype="dashed",size=2)+
-                   geom_text(x=(min(data_to_plot[,mean_col_air],na.rm=TRUE)+5)
+                   geom_text(x=(min(data_to_plot[,mean_col_air],na.rm=TRUE))
                              ,y=(max(data_to_plot[,mean_col_water],na.rm=TRUE)-1.5)
-                             ,label=as.character(as.expression(myEquation))
+                             ,label=as.character(as.expression(myEquation1))
+                             ,hjust = 0
+                             ,size = 15/.pt
                              ,color="cornflowerblue"
-                               ,size=8
+                             ,parse= TRUE)+
+                   geom_text(x=(min(data_to_plot[,mean_col_air],na.rm=TRUE))
+                             ,y=(max(data_to_plot[,mean_col_water],na.rm=TRUE)-1.5-label_space)
+                             ,label=as.character(as.expression(myEquation2))
+                             ,hjust = 0
+                             ,size = 15/.pt
+                             ,color="cornflowerblue"
                              ,parse= TRUE)+
                    labs(x = "Air Temperature",y = "Water Temperature")+
                    theme_minimal()+
                    theme(text=element_text(size=16,face = "bold", color="cornflowerblue"),
                          plot.background = element_rect(color="grey20",linewidth=2),
                          legend.position = "right",
+                         aspect.ratio = isolate(input$raster_plot_aspect_ratio)
                    )
                  #ggplotly(p1)
-                 print(p1)
+                 # print(p1)
                })  # renderPlot close
                
              }else{
@@ -190,6 +209,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                clearPlot()
              } ## outer if else loop close
              
+             runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_thermal_sensitivity_plot_1")))
            }) ## observeEvent end
 
            

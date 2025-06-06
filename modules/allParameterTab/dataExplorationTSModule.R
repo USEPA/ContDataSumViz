@@ -19,20 +19,6 @@ DataExplorationTSModuleUI <- function(id) {
             id = ns("cp_shaded_region"),
             uiOutput(ns("time_series_input_3")),
           ), # div end
-          # Tom Faber asked to comment this out for now
-          # shinyjs::hidden(
-          #   div(
-          #     id = ns("cp_new_data"),
-          #     conditionalPanel(
-          #       condition = "input$dailyStats_shading == 'newData' ",
-          #       hr(),
-          #       fileInput(ns("uploaded_newData_file"),
-          #                 label = "Upload your new data", multiple = FALSE,
-          #                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-          #       )
-          #     ) # conditionalPanel end
-          #   ) # div end
-          # ), # shinyjs:: hidden end
           uiOutput(ns("time_series_input_4")),
           hr(),
           fluidRow(
@@ -46,11 +32,15 @@ DataExplorationTSModuleUI <- function(id) {
     ),
     mainPanel(
       width = 9,
-      fluidRow(column(
-        width = 12,
+      fluidRow(
+        shinydashboard::box(id=ns("summary_tab_help"), width=12, class="well",
+                            h4("Any parameters – Daily summary plots"),
+                            div(style="width:100%;", "Displays a time series of user-selected daily summary statistics (e.g., mean, median, standard deviation) for any processed continuous parameter, with the option to add percentile or min/max shading."))
+      ),
+      fluidRow(
         div(style = "width:100%", uiOutput(ns("tsError"))),
         plotlyOutput(ns("display_time_series"))
-      ))
+      )
     ) # mainPanel end
   ) # sidebarLayout end
 }
@@ -119,7 +109,7 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
 
           output$time_series_input_5 <- renderUI({
             tagList(
-              actionButton(inputId = ns("display_ts"), label = "Display", class = "btn btn-primary")
+              actionButton(inputId = ns("display_ts"), label = "Display time series", class = "btn btn-primary")
             )
           })
         }
@@ -169,6 +159,8 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
           renderErrorMsg(calculateDailyStatsMsg)
           clearPlot()
         }
+        
+        #runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_time_series")))
       }) # observeEvent end
 
 

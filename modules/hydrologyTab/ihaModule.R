@@ -25,7 +25,7 @@ IHAModuleUI <- function(id) {
         width = 12,
         #uiOutput(ns("display_help_text_IHA")),
         
-        shinydashboard::box(id=ns("display_help_text_IHA"), style="display:none;", width=12, class="well",
+        shinydashboard::box(id=ns("display_help_text_IHA"), width=12, class="well",
                             h4("Hydrology-IHA"),
                             br(),
                             div(style="width:100%;","Indicators of Hydrologic Alteration (IHA) software was developed by scientists at the Nature Conservancy to facilitate hydrologic analysis in an ecologically-meaningful manner (Richter et al. 1996)."),
@@ -223,7 +223,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
                 actionButton(inputId=ns("display_IHA"), label="Display IHA tables",class="btn btn-primary")
               })
               
-              shinyjs::show(id=ns("display_help_text_IHA"), asis=TRUE)
+              #shinyjs::show(id=ns("display_help_text_IHA"), asis=TRUE)
               
               #Nilima Gandhi - Remvoing old way, it is a overkill, but keeping the code, do not know if there is a future plan to use the file.
               # output$display_help_text_IHA <- renderUI({
@@ -244,7 +244,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
           
           observeEvent(input$display_IHA, {
             localStats <- dailyStats
-            shinyjs::hide(id=ns("display_help_text_IHA"), asis=TRUE)
+            #shinyjs::hide(id=ns("display_help_text_IHA"), asis=TRUE)
 
             output$display_IHA_table_1 <- renderUI({
               dataTableOutput("IHA_table_1")
@@ -395,6 +395,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               downloadButton(outputId=ns("save_IHA"), label="Save IHA results to excel",class="btn btn-primary")
             })
 
+            runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_IHA_table_1")))
           }) #observeEvent end
           
           

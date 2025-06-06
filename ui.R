@@ -89,7 +89,7 @@ ui <- shinyUI(fluidPage(
                                               accept = c(
                                                 "text/csv",
                                                 "text/comma-separated-values,text/plain",
-                                                ".csv"
+                                                 ".csv"
                                               )
                                     )),
                                   uiOutput("displayFC")
@@ -170,10 +170,16 @@ ui <- shinyUI(fluidPage(
                         ),
                         mainPanel(
                           width = 9,
-                          column(width = 12, uiOutput("discreteHeader")),
+                          fluidRow(width = 12, 
+                                   shinydashboard::box(id="discrete_data_help", width=12, class="well",
+                                                       h4("Dicrete Data Exploration"),
+                                                       div(style="width:100%;", "Overlay high frequency sensor data with discrete data (e.g., grab samples) containing the same parameters in an interactive time series."),
+                                                       br(),
+                                                       div(style = "width:100%", "To begin, upload a file containing discrete data containing at least one matching parameter to the previously uploaded continuous data, and provide the date and time format."))),
+                          fluidRow(width = 12, uiOutput("discreteHeader")),
                           fluidRow(column(width = 12,
-                                          withSpinner(plotlyOutput("display_time_series_discrete"), type=1)
-                          ))
+                                          withSpinner(plotlyOutput("display_time_series_discrete"), type=1))
+                          )
                         ) # mainPanel end
                       ) # sidebarLayout end
                     ), # column close

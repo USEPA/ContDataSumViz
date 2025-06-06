@@ -30,7 +30,7 @@ ThermalStatsModuleUI <- function(id) {
       column(
         width = 12,
         uiOutput(ns("errorDiv")),
-        shinydashboard::box(id=ns("display_help_text_thermal_statistics"), style="display:none;", width=12, class="well",
+        shinydashboard::box(id=ns("display_help_text_thermal_statistics"), width=12, class="well",
                             h4("Temperature – Thermal Statistics"),
                             div(style="width:100%;", "The output from this Shiny app is derived from the StreamThermal R package on GitHub (",
                             a('https://github.com/tsangyp/StreamThermal', href='https://github.com/tsangyp/StreamThermal', target='_blank'),
@@ -134,7 +134,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
 
               
               #Remvoing old way, it is a overkill, but keeping the code, do not know if there is a future plan to use the file.
-              shinyjs::show(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
+              #shinyjs::show(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
               
               # output$display_help_text_thermal_statistics <- renderUI({
               #   verbatimTextOutput(ns("help_text_thermal_statistics"))
@@ -158,7 +158,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         #remove previous error messages if any
                         output$errorDiv <- renderUI({})
               
-                        shinyjs::hide(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
+                        #shinyjs::hide(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
                         myData <- uploaded_data
                         
                         tryCatch({
@@ -236,6 +236,8 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         renderTables(id="display_thermal_table_3", data=ST.roc, tblTitle="Rate of Change") 
                         renderTables(id="display_thermal_table_4", data=ST.tim, tblTitle="Timing") 
                         renderTables(id="display_thermal_table_5", data=ST.var, tblTitle="Variability") 
+                        
+                        runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_thermal_table_1")))
           
                         require(openxlsx)
 

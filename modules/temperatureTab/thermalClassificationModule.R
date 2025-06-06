@@ -23,7 +23,7 @@ ThermalClassificationModuleUI <- function(id) {
         width = 12,
         #uiOutput(ns("display_help_text_water_temp_class")),
         uiOutput(ns("errorDiv")),
-        shinydashboard::box(id=ns("display_help_text_water_temp_class"), style="display:none;", width=12, class="well",
+        shinydashboard::box(id=ns("display_help_text_water_temp_class"), width=12, class="well",
                             h4("Temperature – Thermal classification"),
                             br(),
                             div(style="width:100%;", "The Maheu et al. (2015) scheme has six annual thermal regime classes: stable cold, stable cool, variable cold, variable cool, highly variable cool and variable warm.
@@ -51,7 +51,7 @@ ThermalClassificationModuleUI <- function(id) {
 
 
         ), # end of box
-        DT::dataTableOutput(ns("display_water_temp_class_table"))
+        div(DT::dataTableOutput(ns("display_water_temp_class_table")), style = "width: 50%; margin: 0 auto;")
       )
 
     ) # mainPanel end
@@ -89,7 +89,6 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
 
            observe({
             if(renderThermalClassification$render == TRUE) {
-              shinyjs::show(id=ns("display_help_text_water_temp_class"), asis=TRUE)
               localStats <- dailyStats
               localStats$stats <- localStats$processed_dailyStats
               #gets into errors when column is not found in the processed list
@@ -140,7 +139,6 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
              #remove previous error messages if any
              output$errorDiv <- renderUI({})
              output$display_water_temp_class_table <- DT::renderDataTable({})
-             shinyjs::hide(id=ns("display_help_text_water_temp_class"), asis=TRUE)
 
              tryCatch({
              myList <- localStats$processed_dailyStats
@@ -158,7 +156,7 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
                to.select <- data_water_to_calculate$Date >= as.Date(paste0(year.now,"-07-01")) & data_water_to_calculate$Date <= as.Date(paste0(year.now,"-08-31"))
                mean.this.year <- mean(data_water_to_calculate[to.select,2],na.rm=TRUE)
                if(is.nan(mean.this.year)){
-                 class.this.year <- "NaN"
+                 class.this.year <- "No July/August records"
                }else if (mean.this.year<10){
                  class.this.year <- "Very cold"
                }else if(mean.this.year>=10&mean.this.year<15){
@@ -225,6 +223,7 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
                print(myTable)
              })  ## renderDataTable ebd
 
+             runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_water_temp_class_table")))
            })  ##observeEvent end
 
 

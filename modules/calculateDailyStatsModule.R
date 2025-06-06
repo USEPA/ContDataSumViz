@@ -31,7 +31,7 @@ step5ui <- function(id){
   ns <- NS(id)
   div(id = ns("step5panel"), class="panel panel-default", style = "margin:10px;display:none",
       div(class="panel-heading", "Step 5: Visualize data", style="font-weight:bold;"),
-      p("Proceed to the tabs at the top of the page to visualize your data.", style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;font-weight:bold")
+      div(a(href = "#mainTabs","Proceed to the tabs at the top of the page to visualize your data."), style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;")
   )
 }
   

@@ -22,9 +22,15 @@ TsCDFPlotModuleUI <- function(id) {
     ),
     mainPanel(
       width = 9,
-      fluidRow(column(width = 12, 
-                div(style="width:100%", uiOutput(ns("cdfError"))),
-                plotlyOutput(ns("display_plot_CDF"))))
+      column(
+        width = 12, 
+        fluidRow(shinydashboard::box(id=ns("cdf_tab_help"), width=12, class="well",
+                                     h4("Any parameters – CDFs"),
+                                     div(style="width:100%;", "Displays the annual cumulative distribution function (CDF) of daily means of any processed continuous parameter, with the option to add percentile or min/max shading."))),
+        fluidRow(div(style="width:100%", uiOutput(ns("cdfError")))),
+        fluidRow(div(style = "height:800px;", plotlyOutput(ns("display_plot_CDF"))))
+      )
+
     ) # mainPanel end
   ) # sidebarLayout end
 }
@@ -178,8 +184,9 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
                 renderErrorMsg(paste("Process failed due to invalid data, error: " , CDF_plot))
                 clearPlot()
               } else {
-                CDF_plot <- ggplotly(CDF_plot, height = 800) %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3)) %>% 
-                  plotly::config(toImageButtonOptions = list(format = "png", 
+                #CDF_plot <- ggplotly(CDF_plot, height = 800) %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3)) %>% 
+                ggplotly(CDF_plot, height = 800) %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3)) %>% 
+                    plotly::config(toImageButtonOptions = list(format = "png", 
                                                              filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), "_",
                                                                                isolate(input$CDF_variable_name), "_",
                                                                                isolate(input$CDF_shading), "_",
@@ -187,8 +194,10 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
                                                                                "CDF")))
                 #CDF_plot <- ggplotly(CDF_plot, height = 900) %>% plotly::layout( yaxis = list(scaleanchor = "x", scaleratio = isolate(input$cdf_plot_aspect_ratio)), legend = list(orientation = "h", x = 0.4, y = -0.3))
               }
-              print(CDF_plot)
+              #print(CDF_plot)
             })
+            
+            #runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("overlay_tab_help")))
           }) # observeEvent close
 
          

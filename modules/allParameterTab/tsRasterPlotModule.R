@@ -27,11 +27,16 @@ TsRasterPlotModuleUI <- function(id) {
     ),
     mainPanel(
       width = 9,
-      column(width = 12, 
-             div(style="width:100%", uiOutput(ns("rasterError"))),
-             plotOutput(ns("display_raster_graphs"),height="550px",width="100%")
+      
+      fluidRow(
+        shinydashboard::box(id=ns("raster_tab_help"), width=12, class="well",
+                            h4("Any parameters – Boxplots"),
+                            div(style="width:100%;", "Displays raster graph of a user-selected daily summary statistic (e.g., mean, median, standard deviation) for any processed continuous parameter."))
+      ),
+      fluidRow(div(style="width:100%", uiOutput(ns("rasterError"))),
+             plotOutput(ns("display_raster_graphs"),height="550px",width="100%"))
+      
              #,downloadButton(ns("raster_download"))
-             ) 
       
     ) # mainPanel end
   ) # sidebarLayout end
@@ -188,7 +193,7 @@ TsRasterPlotModuleServer <- function(id, dailyStats, renderRasterPlot) {
           clearPlot()
           
         }##inner if else loop close
-        
+        #runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("raster_tab_help")))
       }) ##observeEvent end
       
       #common

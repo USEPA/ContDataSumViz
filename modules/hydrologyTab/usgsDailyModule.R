@@ -19,7 +19,7 @@ USGSDailyModuleUI <- function(id) {
     mainPanel(
         width = 9, 
         div(style="width:100%", uiOutput(ns("gageDayMetError"))),
-        fluidRow(shinydashboard::box(id=ns("display_help_text_usgsdaily"), style="display:none;", width=12, class="well",
+        fluidRow(shinydashboard::box(id=ns("display_help_text_usgsdaily"), width=12, class="well",
                                 h4("Download Daily USGS Flow Data"),
                                 div(style="width:100%;", "The IHA and Flashiness modules accept data from the user-uploaded file or from flow data downloaded from a USGS gage. If you would like to calculate IHA metrics or flashiness using USGS gage data, download the desired data using in this module. Note that this download is independent of the earlier USGS & Daymet Exploration module, which downloads instantaneous rather than daily values from USGS gages")
                                 
@@ -55,7 +55,7 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
       
       observe({
         if(renderUSGSDaily$render == TRUE) {
-          shinyjs::show(id=ns("display_help_text_usgsdaily"), asis=TRUE)
+          #shinyjs::show(id=ns("display_help_text_usgsdaily"), asis=TRUE)
           
           output$gage_panel <- renderUI({
             div(class="panel panel-default", style="padding:5px;margin-top:20px;",
@@ -81,6 +81,7 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
           })
           
           observeEvent(input$display_gage_ts, {
+            runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_downloaded_data")))
             clearContents()
             if(input$gage_id != "" && length(input$gage_id) > 0) {
               #data <- uploaded_data()
@@ -131,7 +132,7 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
           
           observeEvent(input$display_gage_raw, {
             shinyjs::show(id=ns("display_downloaded_data"), asis=TRUE)
-            shinyjs::hide(id=ns("display_help_text_usgsdaily"), asis=TRUE)
+            #shinyjs::hide(id=ns("display_help_text_usgsdaily"), asis=TRUE)
             
             clearContents()
             output$display_downloaded_data <- renderUI({})

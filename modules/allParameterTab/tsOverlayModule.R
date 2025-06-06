@@ -71,13 +71,15 @@ TsOverlayModuleUI <- function(id) {
     ),
     mainPanel(
       width = 9,
+      fluidRow(
+        shinydashboard::box(id=ns("overlay_tab_help"), width=12, class="well",
+                            h4("Any parameters – Time series - Annual overlays"),
+                            div(style="width:100%;", "Displays a time series of user-selected daily summary statistics (e.g., mean, median, standard deviation) for any processed continuous parameter, with each year depicted as a separate trace and with the option to add min/max shading."))
+      ),
 
-      fluidRow(column(width = 12, 
-                      div(style="width:100%", uiOutput(ns("tsOverlayError"))),
+      fluidRow(div(style="width:100%", uiOutput(ns("tsOverlayError"))),
                       div(plotlyOutput(ns("display_time_series_overlay"))) ,
                       div(plotOutput(ns("display_time_series_overlay_1")))
-                      
-               )#end of columns
      ) # end of fluidRow
     ) # mainPanel end
   ) # sidebarLayout end
@@ -130,7 +132,7 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
                   
                   output$time_series_overlay_input_4 <- renderUI({
                     radioButtons(ns("overlay_shading"), "Add shading with", choices = c("none"="none"
-                                                                                    ,"overall minimum and maximum(all years)"="overall"
+                                                                                    ,"mean daily min and max across all years"="overall"
                     ),
                     selected = "none")
                   })
@@ -255,7 +257,9 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
 
                     }##inner if else loop close
             } ## outer if else loop close
-          }) ##observeEvent end
+          
+            #runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("display_time_series_overlay")))
+            }) ##observeEvent end
           
           
           #common
