@@ -265,11 +265,11 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         file.copy(file.path(path.package("ContDataQC")
                                             ,"extdata"
                                             ,"StreamThermal_MetricList.xlsx")
-                                  , fileName)
+                                  , file.path(tempdir(),fileName))
 
                         hs <- createStyle(fgFill = "#D9D9D9", textDecoration = "bold")
                         
-                        wb <- loadWorkbook(fileName)
+                        wb <- loadWorkbook(file.path(tempdir(),fileName))
                         
                         addWorksheet(wb, "AnalysisNotes")
                         addWorksheet(wb, "TableDescriptions")
