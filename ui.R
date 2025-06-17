@@ -86,13 +86,15 @@ ui <- shinyUI(fluidPage(
                         sidebarPanel(
                           width = 3,
                           div(class="panel panel-default", style="margin:10px;",
-                              div(class="panel-heading", "Step 1: Upload File", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="fileHelp")),
+                              div(class="panel-heading", "Step 1: Upload continuous data file", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="fileHelp")),
                               div(class="panel-body",
                                   tagList(
-                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names.</br></br>  Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
+                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names. A site identifier, date and time (in one column or two), and one or more continuous parameters are required columns. 
+                                                                                                                Column(s) indicating the quality of each parameter observation can also be used to filter the data used in subsequent calculations, but this column is not required. </br></br>  
+                                                                                                                Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
                                               placement = "right", trigger = "hover"),
                                     fileInput("uploaded_data_file",
-                                              label = HTML("<b>Upload your data in .csv format</b>"),
+                                              label = HTML("<b>Upload your continuous data in .csv format</b>"),
                                               multiple = FALSE,
                                               buttonLabel=list(tags$b("Browse"),tags$i(class = "fa-solid fa-folder")),
                                               accept = c(

@@ -65,8 +65,8 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
                 ),
                 div(style="padding:5px;",
                     textInput(inputId=ns("gage_id"), label="Gage Id",value=""),
-                    div(div(dateInput(ns("gage_date_start"),"Date Start:",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                        div(dateInput(ns("gage_date_end"),"Date End:",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
+                    div(div(dateInput(ns("gage_date_start"),"Date Start",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                        div(dateInput(ns("gage_date_end"),"Date End",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
                     actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
                 ),
                 div(id=ns("gageVarsDiv") , style="padding:5px;display:none",

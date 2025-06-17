@@ -12,7 +12,7 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
   tagList(
     fluidRow(
         radioButtons(ns("dateColumnNumsId"),
-          label = "Select date and time format", choices = c(
+          label = "Select date and time column format", choices = c(
             "Date and time uploaded in one column" = "combined",
             "Date and time uploaded in two separate columns" = "separate"
           ), inline = FALSE,
@@ -31,16 +31,16 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
                      options = list(hideSelected = FALSE, plugins = list("remove_button"))
       )),
     fluidRow(
-      selectInput(ns("dateFieldNameId"), label = "Date Field Name", choices = c("", uploadedCols))
+      selectInput(ns("dateFieldNameId"), label = "Date field name", choices = c("", uploadedCols))
     ),
     fluidRow(
       #tags$div(id = ns("timeFieldParentId"), style = "display:none", column(width = 4, selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols))))
-      tags$div(id = ns("timeFieldParentId"), style = "display:none", selectInput(ns("timeFieldNameId"), label = "Time Field Name", choices = c("", uploadedCols)))
+      tags$div(id = ns("timeFieldParentId"), style = "display:none", selectInput(ns("timeFieldNameId"), label = "Time field name", choices = c("", uploadedCols)))
     ),
     fluidRow(
       selectizeInput(
         ns("dateFormatId"),
-        label = "Date Format",
+        label = "Date format",
         choices = c(
           c(""),
           c("Year, Month, Day"), c("Year, Day, Month"), c("Month, Day, Year"),
@@ -57,7 +57,7 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
     fluidRow(
       selectizeInput(
         ns("timeFormatId"),
-        label = "Time Format",
+        label = "Time format",
         choices = c("","Hour, Minute, Second", "Hour, Minute", "Hour in 12-hour format, Minute, AM/PM", "Hour in 12-hour format, Minute, Second, AM/PM", "None"),
         multiple = FALSE,
         options = list(
@@ -69,7 +69,7 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
     fluidRow(
       selectizeInput(
         ns("timeZoneId"),
-        label = "Time Zone",
+        label = "Time zone",
         choices = c("","UTC"="UTC","US/Alaska"="US/Alaska","US/Central"="US/Central", "US/Eastern"="US/Eastern", 
                     "US/Hawaii"="US/Hawaii","US/Mountain"="US/Mountain","US/Pacific"="US/Pacific", "US/Arizona" = "US/Arizona"),
         multiple = FALSE,

@@ -85,8 +85,11 @@ server <- function(input, output, session) {
   # workflow module (step1, step2, step3, step4, step5)
   progressWorkflowModuleServer("statusWorkflow", workflowStatus)
   
-  # caluclate daily statistics
+  # calculate daily statistics
   calculateDailyStatsModuleServer("calculateDailyStats", formated_raw_data, homeDTvalues, metaHomeValues, loaded_data, dailyStatusCalculated, processed, readyForCalculation)
+  
+  # flag module
+  flagServer("displayStep3", homeDTvalues, formated_raw_data)
   
   ############ Continuous Data Exploration >>  All parameters ############
   
@@ -196,7 +199,9 @@ server <- function(input, output, session) {
     )
     output$display_paramselect <- renderUI({
       div(class="panel panel-default", style="margin:10px;",
-          div(class="panel-heading", "Step 2: Select Date and Time", style="font-weight:bold;"),
+          div(class="panel-heading", "Step 2: Select date and time format", style="font-weight:bold;",
+              bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Lorem ipsum"),
+                        placement = "right", trigger = "hover")),
           div(class = "panel-body", style = "margin-left: 10px;margin-right: 10px;margin-top: 10px",
               dateAndTimeUI(id = "homePage", paramChoices =  fun.findVariableToProcess(colnames(uploaded_data()), getDateCols = FALSE), uploadedCols = colnames(uploaded_data()))),
           div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left: 10px;margin-bottom: 10px"),
@@ -276,8 +281,8 @@ server <- function(input, output, session) {
             div(class="panel-heading", "Step 2b: Subset Time Series (optional)", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="subsetHelp")),
             div(bsPopover(id="subsetHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Selecting the subset data and update time series button will subset the data for all subsequent outputs. Once subset, the app will need to be reloaded and raw uploaded to return to the full time series. If you wish to view the time series with a different date range, please use the box zoom, which can be accessed by hovering over the plot to reveal the control panel in the upper right, selecting the magnifying glass icon, clicking, and dragging across the range you wish to view."), 
                           placement = "right", trigger = "hover")),
-            div(div(dateInput("date_start","Date Start:",value = min(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                div(dateInput("date_end","Date End:",value =max(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")), style="margin:10px;"),
+            div(div(dateInput("date_start","Date Start",value = min(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                div(dateInput("date_end","Date End",value =max(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")), style="margin:10px;"),
             div(actionButton(inputId = "updateTS", label = "Subset data and update time series", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 10px;margin-top: 20px;")),
             div("Selecting will subset the data for all subsequent outputs", style = "margin-left:10px;margin-bottom:10px;")
         )
@@ -287,7 +292,7 @@ server <- function(input, output, session) {
       renderUI({
         div(class="panel panel-default", style="margin:10px;",
             div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;"),
-            div(actionButton(inputId = "runQS", label = "Run meta summary", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 20px;margin-top: 20px;"))
+            div(class = "panel-body", flagUI("displayStep3"), style = "margin: 10px;")
         )
       })
     

@@ -71,8 +71,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 ),
                 div(style="padding:5px;",
                     textInput(inputId=ns("gage_id"), label="Gage Id",value=""),
-                    div(div(dateInput(ns("gage_date_start"),"Date Start:",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                        div(dateInput(ns("gage_date_end"),"Date End:",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
+                    div(div(dateInput(ns("gage_date_start"),"Date Start",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                        div(dateInput(ns("gage_date_end"),"Date End",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
                     actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
                 ),
                 div(id=ns("gageVarsDiv") , style="padding:5px;display:none",
@@ -95,8 +95,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site Latitude",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site Longitude",value=""),
-                    div(div(selectInput(ns("daymet_date_start"),"Date Start:",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2)),
-                        div(selectInput(ns("daymet_date_end"),"Date End:",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2))),
+                    div(div(selectInput(ns("daymet_date_start"),"Date Start",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2)),
+                        div(selectInput(ns("daymet_date_end"),"Date End",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2))),
                     actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary"),
                     div(textOutput(ns("daymet_range_warning")), style = "color:red;")
                 ),
