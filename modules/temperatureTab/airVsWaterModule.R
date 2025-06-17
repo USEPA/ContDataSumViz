@@ -9,19 +9,19 @@ AirVsWaterModuleUI <- function(id) {
     sidebarPanel(
       width = 3,
       div(class="panel panel-default",style="margin:10px;",
-          div(class="panel-heading"),
+          # div(class="panel-heading"),
           div(class="panel-body",
               uiOutput(ns("air_vs_water_input_1")),
               uiOutput(ns("air_vs_water_input_2")),
               radioButtons(ns("exclude_data_points"),
-                           "Limit the data points with air temperature",
+                           "Exclude points less than a specified air temperature limit",
                            choices = c("No" = "No", "Yes" = "Yes"),
                            selected = "No"
               ),
-              uiOutput(ns("air_vs_water_input_3")),
               div(id = ns("cp_air_temp"),
-                    uiOutput(ns("air_vs_water_input_4"))
-                ), # div end
+                  uiOutput(ns("air_vs_water_input_4"))
+              ), # div end
+              uiOutput(ns("air_vs_water_input_3")),
               hr(),
               uiOutput(ns("display_thermal_sensitivity_button")),
               div("To download the plot, mouse over the plot, right click, and select Save image as.")
@@ -34,21 +34,22 @@ AirVsWaterModuleUI <- function(id) {
         width = 12,
         #uiOutput(ns("display_help_text_air_water")),
         fluidRow(shinydashboard::box(id=ns("display_help_text_air_water"),  width=12, class="well",
-                            h4("Temperature - Air vs Water"),
+                            h4("Temperature - Air vs. water"),
                             div(style="width:100%;", "Because solar radiation affects both air and water temperature, the two parameters are typically closely correlated and many statistical models use changes in air temperature to explain variances in stream temperatures (Caissie 2006). 
                                                       This relationship can be quantified as the slope of the linear regression line between air and water temperature and indicates how sensitive a given stream is to changes in water temperature due to changes in air temperature (Kelleher et al. 2012)"),
                             br(),
                             div(style="width:100%;", "We give users the option of excluding air temperatures <0°C because 0 is generally the point at which additional cooling of water forms ice, causing the linear air-water temperature relationship to break down (Kelleher et al. 2012). 
                                                       This relationship also tends to break down at high temperatures (above ~20°C) (Mohseni and Stefan 1999). In the future, we may add in an option to exclude high-end temperatures and to calculate nonlinear regression equations."),
                             br(),
-                            div(style="width:100%" , "For more information, see Kelleher et al. (2012)."),
-                            br(),
-                            div(style="width:100%", "Citation: Caissie, D. 2006. The Thermal Regime of Rivers: A Review. Freshwater Biology 51 (8): 1389–406. ",
+                            div(stype = "width:100%;font-weight:bold;", "Citations:"),
+                            
+                            div(style="width:100%", "Caissie, D. 2006. The Thermal Regime of Rivers: A Review. Freshwater Biology 51 (8): 1389–406. ",
                                 a('https://doi.org/10.1111/j.1365-2427.2006.01597.x', href='https://doi.org/10.1111/j.1365-2427.2006.01597.x', target='_blank')),
                             br(),
-                            div(style="width:100%", "Kelleher, Christa & Wagener, Thorsten & Gooseff, Michael & Mcglynn, Brian & McGuire, Kevin & Marshall Price, Lucy. 2012. Investigating Controls on the Thermal Sensitivity of Pennsylvania Streams. Hydrological Processes. 26. 771 - 785. 10.1002/hyp.8186."),
+                            div(style="width:100%", "Kelleher, C., Wagener, T., Gooseff, M., McGlynn, B., McGuire, K., Marshall, L. 2012. Investigating Controls on the Thermal Sensitivity of Pennsylvania Streams. Hydrological Processes 26: 771-785.",
+                                a("https://doi.org/10.1002/hyp.8186", href = "https://doi.org/10.1002/hyp.8186", target = "_blank")),
                             br(),
-                            div(style="width:100%", "Mohseni, O., and H.G. Stefan. 1999. Stream Temperature/Air Temperature Relationship: A Physical Interpretation. Journal of Hydrology 218 (3–4): 128–41.",
+                            div(style="width:100%", "Mohseni, O., Stefan. H.G. 1999. Stream Temperature/Air Temperature Relationship: A Physical Interpretation. Journal of Hydrology 218 (3–4): 128–41.",
                              a('https://doi.org/doi:10.1016/s0022-1694(99)00034-7', href='https://doi.org/doi:10.1016/s0022-1694(99)00034-7', target='_blank')))
 
         ), # end of box
@@ -94,7 +95,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                     }else{
                       air_to_select <- possible_air_columns[1]
                     }
-                    selectizeInput(ns("air_temp_name"),label ="Select Air Temperature Column",
+                    selectizeInput(ns("air_temp_name"),label ="Select air temperature column",
                                    choices=variables_avail,
                                    multiple = FALSE,
                                    selected=air_to_select,
@@ -109,7 +110,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                     }else{
                       water_to_select <- possible_water_columns[1]
                     }
-                    selectizeInput(ns("water_temp_name"),label ="Select Water Temperature Column",
+                    selectizeInput(ns("water_temp_name"),label ="Select water temperature column",
                                    choices=variables_avail,
                                    multiple = FALSE,
                                    selected=water_to_select,
@@ -121,7 +122,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                   })
                   
                   output$display_thermal_sensitivity_button <- renderUI({
-                    actionButton(inputId=ns("display_thermal_sensitivity"), label="Display thermal sensitivity",class="btn btn-primary")
+                    actionButton(inputId=ns("display_thermal_sensitivity"), label="Display air vs. water temperature plot",class="btn btn-primary")
                   })
                   #clear previous error messages
                   clearContents()
@@ -156,7 +157,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                data_water_to_plot <- myData.Water[c("Date",mean_col_water)]
                data_to_plot <- merge(data_air_to_plot,data_water_to_plot,by="Date")
                if (input$exclude_data_points=="Yes"){
-                 data_to_plot <- data_to_plot[data_to_plot$Air.Temp.C.mean>input$air_limit_temp,]
+                 data_to_plot <- data_to_plot %>% dplyr::filter(!!sym(mean_col_air) > input$air_limit_temp)
                }
                data_to_model <- data_to_plot
                names(data_to_model)[match(mean_col_water,names(data_to_model))] <- "y"
@@ -166,36 +167,16 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                                         list(a = format(unname(coef(myModel)[1]), digits = 2),
                                              b = format(unname(coef(myModel)[2]), digits = 2),
                                              r2 = format(summary(myModel)$r.squared, digits = 3)))
-               myEquation1 <- myEquation <- substitute(italic(y) == a + b %.% italic(x),
-                                                       list(a = format(unname(coef(myModel)[1]), digits = 2),
-                                                            b = format(unname(coef(myModel)[2]), digits = 2)))
-               myEquation2 <- substitute(italic(r)^2~"="~r2,
-                                        list(r2 = format(summary(myModel)$r.squared, digits = 3)))
-               label_space <- (max(data_to_plot$Water.Temp.C.mean) - min(data_to_plot$Water.Temp.C.mean))/5
                
-
                output$display_thermal_sensitivity_plot_1 <- renderPlot({
-                ggplot(data_to_plot,aes(x=!!sym(mean_col_air),y=!!sym(mean_col_water)))+
+                 ggplot(data_to_plot,aes(x=!!sym(mean_col_air),y=!!sym(mean_col_water)))+
                    geom_point(alpha=0.5,size=1.5)+
                    geom_smooth(method="loess",se=FALSE,color="black")+
                    geom_smooth(method="lm",se=FALSE,color="cornflowerblue",linetype="dashed",size=2)+
-                   geom_text(x=(min(data_to_plot[,mean_col_air],na.rm=TRUE))
-                             ,y=(max(data_to_plot[,mean_col_water],na.rm=TRUE)-1.5)
-                             ,label=as.character(as.expression(myEquation1))
-                             ,hjust = 0
-                             ,size = 15/.pt
-                             ,color="cornflowerblue"
-                             ,parse= TRUE)+
-                   geom_text(x=(min(data_to_plot[,mean_col_air],na.rm=TRUE))
-                             ,y=(max(data_to_plot[,mean_col_water],na.rm=TRUE)-1.5-label_space)
-                             ,label=as.character(as.expression(myEquation2))
-                             ,hjust = 0
-                             ,size = 15/.pt
-                             ,color="cornflowerblue"
-                             ,parse= TRUE)+
-                   labs(x = "Air Temperature",y = "Water Temperature")+
+                   labs(x = "Air temperature",y = "Water temperature", title = myEquation)+
                    theme_minimal()+
                    theme(text=element_text(size=16,face = "bold", color="cornflowerblue"),
+                         plot.title = element_text(size=16,face = "bold", color="cornflowerblue"),
                          plot.background = element_rect(color="grey20",linewidth=2),
                          legend.position = "right",
                          aspect.ratio = isolate(input$raster_plot_aspect_ratio)
@@ -215,9 +196,9 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
            
            observeEvent(input$exclude_data_points,{
              if (input$exclude_data_points == 'Yes'){
-                   air_limit_temp_tooltip_text = paste0("limit the data points with air temperature")
+                   air_limit_temp_tooltip_text = paste0("Limit the data points with air temperature")
                    output$air_vs_water_input_4 <- renderUI({
-                     tipify(numericInput(ns("air_limit_temp"),label ="air temperature less than this value will be excluded",0,min=-10,max=100,step=1.0),air_limit_temp_tooltip_text,placement="right",trigger="hover")
+                     tipify(numericInput(ns("air_limit_temp"),label ="Air temperature less than this value will be excluded",0,min=-10,max=100,step=1.0),air_limit_temp_tooltip_text,placement="right",trigger="hover")
                    })
                shinyjs::show("cp_air_temp")
              }else{

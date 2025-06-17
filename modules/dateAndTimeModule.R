@@ -42,8 +42,9 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
         ns("dateFormatId"),
         label = "Date Format",
         choices = c(
+          c(""),
           c("Year, Month, Day"), c("Year, Day, Month"), c("Month, Day, Year"),
-          c("Day, Month, Year"), c("Year, Month, Day"),
+          c("Day, Month, Year"), 
           c("Abbreviated month, Day of the month, Year")
         ),
         multiple = FALSE,
@@ -57,7 +58,7 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
       selectizeInput(
         ns("timeFormatId"),
         label = "Time Format",
-        choices = c("Hour, Minute, Second", "Hour, Minute", "Hour in 12-hour format, Minute, AM/PM", "Hour in 12-hour format, Minute, Second, AM/PM", "None"),
+        choices = c("","Hour, Minute, Second", "Hour, Minute", "Hour in 12-hour format, Minute, AM/PM", "Hour in 12-hour format, Minute, Second, AM/PM", "None"),
         multiple = FALSE,
         options = list(
           hideSelected = FALSE,
@@ -69,7 +70,7 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
       selectizeInput(
         ns("timeZoneId"),
         label = "Time Zone",
-        choices = c("UTC"="UTC","US/Alaska"="US/Alaska","US/Central"="US/Central", "US/Eastern"="US/Eastern", 
+        choices = c("","UTC"="UTC","US/Alaska"="US/Alaska","US/Central"="US/Central", "US/Eastern"="US/Eastern", 
                     "US/Hawaii"="US/Hawaii","US/Mountain"="US/Mountain","US/Pacific"="US/Pacific", "US/Arizona" = "US/Arizona"),
         multiple = FALSE,
         options = list(
@@ -107,6 +108,8 @@ dateAndTimeServer <- function(id, data, homePageInputs) {
       iv$add_rule("parmToProcessId", sv_required(message = ""))
       iv$add_rule("dateFieldNameId", sv_required(message = ""))
       iv$add_rule("dateFormatId", sv_required(message = ""))
+      iv$add_rule("timeFormatId", sv_required(message = ""))
+      iv$add_rule("timeZoneId", sv_required(message = ""))
       iv$enable()
 
       dateColumnNums <- shiny::reactive(input$dateColumnNumsId)

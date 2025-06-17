@@ -67,7 +67,16 @@ ui <- shinyUI(fluidPage(
     fluidRow(
       p(),
       tabsetPanel(id="mainTabs",
+                  selected = "uploadData",
 
+                  tabPanel(
+                    title="User Guide",
+                    value="userguide",
+                    fluidPage(
+                      div(a(tags$button(tags$i(class="fas fa-arrow-down"), "Download Full User Guide", class="btn btn-primary btn-sm"), href="ContDataSumViz User Guide.docx", target="_blank")),
+                        includeHTML("Guidance_Tab.html")
+                    ) # page
+                  ),
 
                   tabPanel(
                     title="Upload Data",
@@ -89,11 +98,11 @@ ui <- shinyUI(fluidPage(
                                               accept = c(
                                                 "text/csv",
                                                 "text/comma-separated-values,text/plain",
-                                                 ".csv"
+                                                ".csv"
                                               )
                                     )),
                                   uiOutput("displayFC")
-
+                                  
                               )),
                           tagList(
                             uiOutput("display_paramselect"),
@@ -115,17 +124,7 @@ ui <- shinyUI(fluidPage(
                       ) # sidebarLayout end
                     ) # fluidPage close
                   ), # tabPanel end
-
-
-                  tabPanel(
-                    title="User Guide",
-                    value="userguide",
-                    fluidPage(
-                      div(a(tags$button(tags$i(class="fas fa-arrow-down"), "Download Full User Guide", class="btn btn-primary btn-sm"), href="ContDataSumViz User Guide.docx", target="_blank")),
-                        includeHTML("Guidance_Tab.html")
-                    ) # page
-                  ),
-
+                  
                   tabPanel(
                     title="USGS & Daymet Exploration",
                     value="downloadData",
@@ -269,7 +268,7 @@ ui <- shinyUI(fluidPage(
                                               ), # column close
                                      ),
                                      ### DE, Temp, Air v Water ----
-                                     tabPanel("Air vs Water",
+                                     tabPanel("Air vs. water",
                                               value = "sb2", br(),
                                               column(
                                                 width = 12, AirVsWaterModuleUI("airVsWater")
