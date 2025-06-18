@@ -62,7 +62,7 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
                 }else{
                   water_to_select <- possible_water_columns[1]
                 }
-                selectizeInput(ns("temp_name"),label ="Select Temperature Column",
+                selectizeInput(ns("temp_name"),label ="Select temperature column",
                                choices=variables_avail,
                                multiple = FALSE,
                                selected = water_to_select,
@@ -70,7 +70,7 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
               })
               
               output$base_input <- renderUI({
-                numericInput(ns("base_temp"), label = "Select Base Temperature", value = 5, step = 0.1)
+                numericInput(ns("base_temp"), label = "Select base temperature", value = 5, step = 0.1)
               })
               
               output$display_gdd_button <- renderUI({

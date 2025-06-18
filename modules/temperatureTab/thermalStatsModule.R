@@ -36,10 +36,9 @@ ThermalStatsModuleUI <- function(id) {
                             a('https://github.com/tsangyp/StreamThermal', href='https://github.com/tsangyp/StreamThermal', target='_blank'),
                                                       " ). It generates over 200 different thermal metrics that cover five categories of stream thermal regimes: magnitude, variability, frequency, timing, and rate of change. Critical temperature refers to the cutoff temperature for the frequency calculation, which sums the number of observations greater than the cutoff."),
                             br(),
-                            div(style="width:100%;", "Citation:
-                                                      Tsang, Yin-Phan & Infante, Dana & Stewart, Jana & Wang, Lizhu & Tingly, Ralph & Thornbrugh, Darren & Cooper, Arthur & Daniel, Wesley. 2016. 
-                                                      StreamThermal: A Software Package for Calculating Thermal Metrics from Stream Temperature Data. Fisheries. 41. 548-554. 10.1080/03632415.2016.1210517.
-                            "),
+                            div(style = "width:100%;font-weight:bold;", "Citation:"),
+                            div(style="width:100%;", "Tsang, Y.P., Infante, D., Stewart, J., Wang, L., Tingly, R., Thornbrugh, D., Cooper, A., Daniel, W. 2016. StreamThermal: A Software Package for Calculating Thermal Metrics from Stream Temperature Data. Fisheries. 41. 548-554.",
+                                a('https://doi.org/10.1080/03632415.2016.1210517', href='https://doi.org/10.1080/03632415.2016.1210517', target='_blank')),
 
         ), # end of box
         
@@ -128,7 +127,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
               })
               
               output$display_run_thermal_button <- renderUI({
-                actionButton(inputId=ns("display_thermal"), label="Display Stream Thermal",class="btn btn-primary")
+                actionButton(inputId=ns("display_thermal"), label="Display stream thermal metrics",class="btn btn-primary")
               })
               
 

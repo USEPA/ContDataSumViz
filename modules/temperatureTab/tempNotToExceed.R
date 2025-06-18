@@ -37,9 +37,9 @@ TempNotToExceedUI <- function(id) {
                           h4("Temperature – Temperature not to exceed"),
                           div(style="width:100%;", "This module was developed to support 4T3 and 6T3 calculations used in New Mexico water quality criteria."),
                           div(style="width:100%;", "4T3 Temperature = temperature not to be exceeded for four or more consecutive hours in a 24-hour period, on more than three consecutive days."),
-                          div(style="width:100%;", "6T3 Temperature = temperature not to be exceeded for six or more consecutive hours in a 24-hour period, on more than three consecutive days"),
-                          div(style="width:100%;", "This module allows the user to select the hour window and number of consecutive days used in the calculation. 
-                              Note that times are included in the hour summary if times >= start time & times <= start time + # hours, while days are included if days >= start day & days =< start day + # days + 1"),
+                          div(style="width:100%;", "6T3 Temperature = temperature not to be exceeded for six or more consecutive hours in a 24-hour period, on more than three consecutive days."),
+                          div(style="width:100%;", "This module allows the user to select the hour window (i.e., 4 for 4T3 or 6 for 6T3) and number of consecutive days used in the calculation (i.e., 3 for both 4T3 and 6T3)."),
+                          div(style="width:100%", "The table returns the temperature not to exceed calculated for the selected time period, and the number of days in that period with sufficient data to include in the calculation."),
                           br(),
                           div(style = "width:100%", "For more information about the 4T3 and 6T3 calculations visit:"),
                           a('https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', href='https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', target='_blank')
@@ -126,12 +126,10 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
               min_temp_hr <- NULL
               
               for(i in df_start:nrow(cont_temp_dt)){
-                
                 end_time <-  cont_temp_dt$date.formatted[i]
                 start_time <- end_time - hours(input$hour_num)
                 
-                temp <- cont_temp_dt[date.formatted > start_time & date.formatted <= end_time, 
-                                               min(temp_var, na.rm = TRUE)]
+                temp <- ifelse(all(is.na((cont_temp_dt[date.formatted > start_time & date.formatted <= end_time]$temp_var))), NA, cont_temp_dt[date.formatted > start_time & date.formatted <= end_time, min(temp_var, na.rm = TRUE)]) 
                 
                 min_temp_hr <- c(min_temp_hr, temp)
               }
@@ -142,7 +140,7 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
               cont_data_hr_sum <- cont_temp_dt %>% 
                 mutate(date.fm = lubridate::date(date.formatted)) %>% 
                 group_by(date.fm) %>% 
-                summarize(window_max = max(min_temp_hr, na.rm = TRUE)) 
+                summarize(window_max = ifelse(all(is.na(min_temp_hr)), NA, max(min_temp_hr, na.rm = TRUE))) 
               
               cont_data_hr_sum <- as.data.table(cont_data_hr_sum)
               
@@ -153,7 +151,7 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
                 end_date <- cont_data_hr_sum$date.fm[j]
                 start_date <- end_date - days(input$day_num)
                 
-                temp <- cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date, min(window_max, na.rm = TRUE)]
+                temp <- ifelse(all(is.na(cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date]$window_max)),NA,cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date, min(window_max, na.rm = TRUE)])
                 min_temp_day <- c(min_temp_day, temp)
               }
               
@@ -174,28 +172,28 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
               if(input$summarise_by == "year/month"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(year, month) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Year" = "year", "Month" = "month", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
               
               if(input$summarise_by == "year"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(year) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Year" = "year", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
              
               if(input$summarise_by == "year/season"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(year, season) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Year" = "year", "Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
               
               if(input$summarise_by == "season"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(season) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = n()) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
               

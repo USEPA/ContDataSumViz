@@ -81,11 +81,19 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             max_y <- dateRange$max %>% lubridate::year() %>% as.numeric()
           }
           
+          # div(class="panel-heading", "Step 2: Select date and time format", style="font-weight:bold;",
+          #     icon("info-circle", style = "color:#2fa4e7", id="datetimeHelp"),
+          #     bsPopover(id="datetimeHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Lorem ipsum"),
+          #               placement = "right", trigger = "hover")),
+          
           output$gage_panel <- renderUI({
             div(class="panel panel-default", style="padding:10px;margin-top:20px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
                     span("USGS gage data", style="font-weight:bold;"),
-                    a("View gage IDs", href="https://waterdata.usgs.gov/nwis/rt", target="_blank", style="float:right")
+                    a("View gage IDs", href="https://dashboard.waterdata.usgs.gov/app/nwd/en/?region=lower48", target="_blank", style="float:right"),
+                    icon("info-circle", style = "color:#2fa4e7", id="usgsHelp"),
+                    bsPopover(id="usgsHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Relevant USGS gages for the uploaded site can be found using the National Water Dashboard linked under View gage IDs to the right. For the provided test data from Posey Creek (38.89431, -78.147258) near Front Royal, VA, the nearby gage 01631000 on the South Fork of the Shenandoah River may provide relevant context data from a much larger stream."),
+                                             placement = "right", trigger = "hover")
                 ),
                 div(style="padding:5px;",
                     textInput(inputId=ns("gage_id"), label="Gage ID",value=""),
@@ -115,7 +123,10 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           output$daymet_panel <- renderUI({
             div(class="panel panel-default", style="padding:10px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
-                    span("DayMet data", style="font-weight:bold;")),
+                    span("DayMet data", style="font-weight:bold;"),
+                    icon("info-circle", style = "color:#2fa4e7", id="daymetHelp"),
+                    bsPopover(id="daymetHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Provide the latitude and longitude in decimal degrees of the site from which the uploaded data were collected. This value cannot at this time be pulled from the uploaded data file. The coordinates of the site in the test data, Posey Creek, are 38.89431, -78.147258."),
+                              placement = "right", trigger = "hover")),
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site latitude (decimal degrees)",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site longitude (decimal degrees)",value=""),

@@ -41,7 +41,7 @@ AirVsWaterModuleUI <- function(id) {
                             div(style="width:100%;", "We give users the option of excluding air temperatures <0°C because 0 is generally the point at which additional cooling of water forms ice, causing the linear air-water temperature relationship to break down (Kelleher et al. 2012). 
                                                       This relationship also tends to break down at high temperatures (above ~20°C) (Mohseni and Stefan 1999). In the future, we may add in an option to exclude high-end temperatures and to calculate nonlinear regression equations."),
                             br(),
-                            div(stype = "width:100%;font-weight:bold;", "Citations:"),
+                            div(style = "width:100%;font-weight:bold;", "Citations:"),
                             
                             div(style="width:100%", "Caissie, D. 2006. The Thermal Regime of Rivers: A Review. Freshwater Biology 51 (8): 1389–406. ",
                                 a('https://doi.org/10.1111/j.1365-2427.2006.01597.x', href='https://doi.org/10.1111/j.1365-2427.2006.01597.x', target='_blank')),
