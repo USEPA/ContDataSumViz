@@ -53,7 +53,7 @@ ui <- shinyUI(fluidPage(
         br(),
         div(span("Please complete steps in the Upload Data Tab before proceeding to Data Exploration Tabs.", class="text-info", style="font-weight:bold"),
             span(style="float:right",
-                 a(tags$button(tags$i(class="fas fa-arrow-down"), "Download Test Data", class="btn btn-primary btn-sm"), href="TestData.zip", target="_blank"))
+                 a(tags$button(tags$i(class="fas fa-arrow-down"), "Download test data", class="btn btn-primary btn-sm", style = "font-size:16px;"), href="TestData.zip", target="_blank"))
         ),
         br(),
         div(span("To start over with a new dataset, refresh the page and upload the new dataset.", class="text-info", style="font-weight:bold")),
@@ -73,7 +73,7 @@ ui <- shinyUI(fluidPage(
                     title="User Guide",
                     value="userguide",
                     fluidPage(
-                      div(a(tags$button(tags$i(class="fas fa-arrow-down"), "Download Full User Guide", class="btn btn-primary btn-sm"), href="ContDataSumViz User Guide.docx", target="_blank")),
+                      div(a(tags$button(tags$i(class="fas fa-arrow-down"), "Download full user guide", class="btn btn-primary btn-sm",  style = "font-size:16px;"), href="ContDataSumViz User Guide.docx", target="_blank"), style = "margin-bottom:20px;"),
                         includeHTML("Guidance_Tab.html")
                     ) # page
                   ),
@@ -86,12 +86,10 @@ ui <- shinyUI(fluidPage(
                         sidebarPanel(
                           width = 3,
                           div(class="panel panel-default", style="margin:10px;",
-                              div(class="panel-heading", "Step 1: Upload continuous data file", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="fileHelp")),
+                              div(class="panel-heading", "Step 1: Upload continuous data", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="fileHelp")),
                               div(class="panel-body",
                                   tagList(
-                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names. A site identifier, date and time (in one column or two), and one or more continuous parameters are required columns. 
-                                                                                                                Column(s) indicating the quality of each parameter observation can also be used to filter the data used in subsequent calculations, but this column is not required. </br></br>  
-                                                                                                                Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
+                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names. A site identifier, date and time (in one column or two), and one or more continuous parameters are required columns. Column(s) indicating the quality of each parameter observation can also be used to filter the data used in subsequent calculations, but this column is not required. </br></br>  Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
                                               placement = "right", trigger = "hover"),
                                     fileInput("uploaded_data_file",
                                               label = HTML("<b>Upload your continuous data in .csv format</b>"),

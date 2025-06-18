@@ -56,25 +56,49 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         plotly_empty()
       })
 
+      # if(dateRange$min %>% lubridate::year() < 1980 | dateRange$max %>% lubridate::year() > 2023){
+      #   output$daymet_range_warning <- renderText({paste0("Uploaded data is outside of the range of available Daymet data (1980-", as.numeric(format(Sys.time(), "%Y")) - 2, ")")})
+      # }
+      
       observe({
         if(renderUsgsAndDaymet$render == TRUE) {
           
-          if(dateRange$min %>% lubridate::year() < 1980 | dateRange$max %>% lubridate::year() > 2023){
-            output$daymet_range_warning <- renderText({paste0("Uploaded data is outside of the range of available Daymet data (1980-", as.numeric(format(Sys.time(), "%Y")) - 2, ")")})
+          if(is.null(dateRange$min)){
+            min_ymd <- ""
+            max_ymd <- ""
+            
+            min_y <- ""
+            max_y <- ""
+            
+          } else{
+            if(dateRange$min %>% lubridate::year() < 1980 | dateRange$max %>% lubridate::year() > 2023){
+              output$daymet_range_warning <- renderText({paste0("Uploaded data is outside of the range of available Daymet data (1980-", as.numeric(format(Sys.time(), "%Y")) - 2, ")")})
+            }
+            min_ymd <- dateRange$min %>% as.character()
+            max_ymd <- dateRange$max %>% as.character()
+            
+            min_y <- dateRange$min %>% lubridate::year() %>% as.numeric()
+            max_y <- dateRange$max %>% lubridate::year() %>% as.numeric()
           }
           
           output$gage_panel <- renderUI({
             div(class="panel panel-default", style="padding:10px;margin-top:20px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
-                    span("USGS Gage data", style="font-weight:bold;"),
-                    a("View Gage Ids", href="https://waterdata.usgs.gov/nwis/rt", target="_blank", style="float:right")
+                    span("USGS gage data", style="font-weight:bold;"),
+                    a("View gage IDs", href="https://waterdata.usgs.gov/nwis/rt", target="_blank", style="float:right")
                 ),
                 div(style="padding:5px;",
-                    textInput(inputId=ns("gage_id"), label="Gage Id",value=""),
-                    div(div(dateInput(ns("gage_date_start"),"Date Start",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                        div(dateInput(ns("gage_date_end"),"Date End",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
+                    textInput(inputId=ns("gage_id"), label="Gage ID",value=""),
+                    div(div(dateInput(ns("gage_date_start"),"Date start",value = min_ymd, min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                        div(dateInput(ns("gage_date_end"),"Date end",value = max_ymd, min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
                     actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
                 ),
+                # div(style="padding:5px;",
+                #     textInput(inputId=ns("gage_id"), label="Gage ID",value=""),
+                #     div(div(dateInput(ns("gage_date_start"),"Date start",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                #         div(dateInput(ns("gage_date_end"),"Date end",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
+                #     actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
+                # ),
                 div(id=ns("gageVarsDiv") , style="padding:5px;display:none",
                     selectizeInput(ns("gaze_params"), label ="Select USGS gage variables",
                                    choices=gageColNames,
@@ -93,10 +117,10 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
                     span("DayMet data", style="font-weight:bold;")),
                 div(style="padding:5px;",
-                    textInput(inputId=ns("daymet_lat"), label="Site Latitude",value=""),
-                    textInput(inputId=ns("daymet_long"), label="Site Longitude",value=""),
-                    div(div(selectInput(ns("daymet_date_start"),"Date Start",selected = dateRange$min %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2)),
-                        div(selectInput(ns("daymet_date_end"),"Date End",selected = dateRange$max %>% lubridate::year() %>% as.numeric(),choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2))),
+                    textInput(inputId=ns("daymet_lat"), label="Site latitude (decimal degrees)",value=""),
+                    textInput(inputId=ns("daymet_long"), label="Site longitude (decimal degrees)",value=""),
+                    div(div(selectInput(ns("daymet_date_start"),"Date start",selected = min_y, choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2)),
+                        div(selectInput(ns("daymet_date_end"),"Date end",selected = max_y, choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2))),
                     actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary"),
                     div(textOutput(ns("daymet_range_warning")), style = "color:red;")
                 ),
@@ -112,14 +136,19 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           })
           #end of Daymet
 
-     
+     if(is.null(dateRange$min)){
+       variables_avail <- c()
+     } else{
+       variables_avail <- homeDTvalues$homeDateAndTime$parmToProcess()
+     }
+    
           output$base_gage_daymet_panel <- renderUI({
-            variables_avail <- homeDTvalues$homeDateAndTime$parmToProcess()
+            
             div(class="panel panel-default", style="padding:10px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
                     span("View Base, Gage and DayMet data merged in a subplot", style="font-weight:bold;", icon("info-circle", style = "color: #2fa4e7", id=ns("baseDataDef")))
                 ),
-                bsPopover(id=ns("baseDataDef"), title="What is base data\\?", content = "Base data is uploaded on the \\'Upload Data\\' tab.", 
+                bsPopover(id=ns("baseDataDef"), title="What are base data\\?", content = "Base data are the data uploaded on the \\'Upload Data\\' tab.", 
                           placement = "right", trigger = "hover"),
                 div(style="padding:5px;",
                     selectizeInput(ns("dailyStats_ts_variable_name2"),label ="Select base variable names",
@@ -127,12 +156,12 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                    multiple = TRUE,
                                    selected=variables_avail[1],
                                    options = list(hideSelected = FALSE)),
-                    actionButton(inputId=ns("display_subplot_ts"), label="View Base, Gage and DayMet Merged",class="btn btn-primary")
+                    actionButton(inputId=ns("display_subplot_ts"), label="View merged data",class="btn btn-primary")
                 )
             )
           })
-   
-        } # end of reder if
+          
+        } # end of render if
       })
       
       ########USGS Gage########
@@ -267,7 +296,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
       
       observeEvent(input$display_daymet_raw, {
         clearContents()
-        dayMetPlotRaw <- draw_daymet_raw("DayMet Raw Data Plot")
+        dayMetPlotRaw <- draw_daymet_raw("DayMet raw data")
         if (!is.null(dayMetPlotRaw) & length(input$daymet_params) > 0) {
           #output$display_time_series_3 <- renderPlotly({
           output$display_downloaded_data <- renderPlotly({
@@ -307,6 +336,10 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         base_data_raw <- NULL
         mergedList <- list()
         totalH <- 0L
+        
+        if(is.null(dateRange$min)){
+          shinyalert("Upload base data", "Please upload a continuous dataset in the Upload Data tab to access this feature.", "warning")
+        }
         
         if(length(input$dailyStats_ts_variable_name2) > 0) {
           clearContents()

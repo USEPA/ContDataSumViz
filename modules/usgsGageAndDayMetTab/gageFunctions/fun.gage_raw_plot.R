@@ -36,7 +36,7 @@ fun.gageRawPlot <- function(
         
         p <- ggplot(data = raw_data_merged, aes(x = Date.Time, y = value)) +
           geom_line(aes(colour=parameter)) +
-          labs(title="USGS gage Raw Data", y="Parameters", x="Date") + 
+          labs(title="USGS gage raw data", y="Parameters", x="Date") + 
           scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+
           theme_bw()+
           theme(

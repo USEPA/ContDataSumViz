@@ -50,8 +50,8 @@
     padding: 10px;
 }
 #mainTabs li a[data-value = 'DataExploration'],
-#mainTabs li a[data-value = 'discreateDataEx'],
-#mainTabs li a[data-value = 'downloadData']
+#mainTabs li a[data-value = 'discreateDataEx']/*,
+#mainTabs li a[data-value = 'downloadData']*/
 {
   visibility:hidden;
 }

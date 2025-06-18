@@ -101,7 +101,6 @@ progressWorkflowModuleServer <- function(id, workflowStatus) {
           addSuccessClass(c("step1","step2","step3"))
           addPrimaryClass(c("step4","step5"))
           changeButtonState(state="enable", btnList=c("display_raw_ts","runQS"))
-          js$enableTab("downloadData")
           js$enableTab("discreateDataEx")
         } else if(workflowStatus$elementId == "step3" & workflowStatus$state == "error") {
           removeCssClasses()
@@ -109,7 +108,6 @@ progressWorkflowModuleServer <- function(id, workflowStatus) {
           addPrimaryClass(c("step4","step5"))
           addSuccessClass(c("step1","step2"))
           changeButtonState(state="enable", btnList=c("runQS","display_raw_ts"))
-          js$disableTab("downloadData")
           js$disableTab("discreateDataEx")
           workflowStatus$finish=FALSE
         }
@@ -146,7 +144,6 @@ progressWorkflowModuleServer <- function(id, workflowStatus) {
           js$disableTab("DataExploration")
         }
         if(workflowStatus$elementId %in% c("step1","step2") & workflowStatus$finish == FALSE) {
-          js$disableTab("downloadData")
           js$disableTab("discreateDataEx")
         }
 

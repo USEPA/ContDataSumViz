@@ -10,9 +10,9 @@ SummaryTablesModuleUI <- function(id) {
           width = 3,
           # EWL, Start
           div(class = "panel panel-default",width = "100%",style="margin:10px;",
-              div(class = "panel-heading",
-                  p("You must have completed step 1 to step 4 to use Summary Tables", style='font-weight:bold;font-family: Helvetica Neue, Helvetica, Arial, sans-serif;')
-              ),
+              # div(class = "panel-heading",
+              #     p("You must have completed step 1 to step 4 to use Summary Tables", style='font-weight:bold;font-family: Helvetica Neue, Helvetica, Arial, sans-serif;')
+              # ),
               div(class="panel-body",
                   uiOutput(ns("summary_table_input_1")),
                   uiOutput(ns("summary_table_input_2")),
