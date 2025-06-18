@@ -522,18 +522,18 @@ server <- function(input, output, session) {
           class = "panel panel-default", width = "100%",
           div(
             class = "panel-heading", style = "width:100%;",
-            span("Select Date and Time for discrete data", style = "font-weight:bold;")
+            span("Select date and time format for discrete data", style = "font-weight:bold;")
           ),
           
           div(class = "panel-body",
               div(
-                style = "margin-left:10px",
+                style = "margin-left:10px;margin-right:10px;",
                 dateAndTimeUI(id = "discretePage", paramChoices = cols_avail, uploadedCols = cols_avail)
               ),
               hr(),
               div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left:10px;margin-bottom:10px"),
               div(
-                actionButton(inputId = "display_discrete_data", label = "View Discrete-Continuous Plot", class = "btn btn-primary"), style = "margin:10px 15px 10px 10px;"),
+                actionButton(inputId = "display_discrete_data", label = "View discrete-continuous plot", class = "btn btn-primary"), style = "margin:10px 15px 10px 10px;"),
               div(id = "disDateAndTimeError", style = "margin-top:10px; margin-left:10px;")
           ) # end of box
         )
@@ -569,7 +569,7 @@ server <- function(input, output, session) {
     baseParams <- homeDTvalues$homeDateAndTime$parmToProcess()
     selectizeInput(
       "discreteBaseId",
-      label = "Select continuous parameters to process",
+      label = "Select parameters to process",
       choices = baseParams,
       multiple = TRUE,
       selected = baseParams[1],
@@ -633,7 +633,7 @@ server <- function(input, output, session) {
                 
                 mainPlot <- prepareDiscretePlot(combinded_df, mapTitle = mainMapTitle, xDateLabel = main_x_date_label, xDateBrakes = mainBreaks, base_vars_to_plot)
                 if (!is.null(mainPlot) & length(variable_to_plot) > 0) {
-                  shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
+                  #shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
                   shinyjs::runjs("$('#dateTimeBoxButton_discrete').click()")
                   output$display_time_series_discrete <- renderPlotly({
                     ggplotly(mainPlot, height = calculatePlotHeight(length(variable_to_plot) * 2))

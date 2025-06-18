@@ -37,7 +37,7 @@ ThermalStatsModuleUI <- function(id) {
                                                       " ). It generates over 200 different thermal metrics that cover five categories of stream thermal regimes: magnitude, variability, frequency, timing, and rate of change. Critical temperature refers to the cutoff temperature for the frequency calculation, which sums the number of observations greater than the cutoff."),
                             br(),
                             div(style = "width:100%;font-weight:bold;", "Citation:"),
-                            div(style="width:100%;", "Tsang, Y.P., Infante, D., Stewart, J., Wang, L., Tingly, R., Thornbrugh, D., Cooper, A., Daniel, W. 2016. StreamThermal: A Software Package for Calculating Thermal Metrics from Stream Temperature Data. Fisheries. 41. 548-554.",
+                            div(style="width:100%;", "Tsang, Y.P., Infante, D., Stewart, J., Wang, L., Tingly, R., Thornbrugh, D., Cooper, A., Daniel, W. 2016. StreamThermal: A Software Package for Calculating Thermal Metrics from Stream Temperature Data. Fisheries. 41: 548-554.",
                                 a('https://doi.org/10.1080/03632415.2016.1210517', href='https://doi.org/10.1080/03632415.2016.1210517', target='_blank')),
 
         ), # end of box
@@ -99,7 +99,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                 }else{
                   site_to_select <- possible_site_columns[1]
                 }
-                selectizeInput(ns("thermal_SiteID_name"),label ="Select SiteID Column",
+                selectizeInput(ns("thermal_SiteID_name"),label ="Select site identifier column",
                                choices=variables_avail,
                                multiple = FALSE,
                                selected=site_to_select,
@@ -107,7 +107,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
               })
               
               output$thermal_input_2 <- renderUI({
-                numericInput(ns("critical_temp"), label = "Select Critical Temperature (°C)", value = 16)
+                numericInput(ns("critical_temp"), label = "Select critical temperature (°C)", value = 16)
               })
               
               output$thermal_input_3 <- renderUI({
@@ -119,7 +119,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                 }else{
                   temp_to_select <- possible_temp_columns[1]
                 }
-                selectizeInput(ns("thermal_Temp_name"),label ="Select Temperature Column",
+                selectizeInput(ns("thermal_Temp_name"),label ="Select temperature column",
                                choices=variables_avail,
                                multiple = FALSE,
                                selected= c(temp_to_select),
@@ -153,7 +153,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
             })
             
             observeEvent(input$display_thermal, {
-                        
+              
                         #remove previous error messages if any
                         output$errorDiv <- renderUI({})
               

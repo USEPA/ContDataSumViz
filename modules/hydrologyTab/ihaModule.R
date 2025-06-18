@@ -43,13 +43,11 @@ IHAModuleUI <- function(id) {
                             br(),
                             div(style="width:100%", "The statistics are intended to be used with discharge data but we’re experimenting with using the statistics with sensor depth and water level data as well (since discharge data aren’t available for some of the RMN sites)."),
                             br(),
-                            div(style="width:100%","Citation:
-                                                    Richter, B.D., Baumgartner, J.V., Powell, J. and D.P. Braun. 1996. A Method for Assessing Hydrologic Alteration within Ecosystems. Conservation Biology 10(4): 1163-1174. 
-                                                    Available online:" ,
+                            div(style="width:100%; font-weight:bold;", "Citation:"),
+                            div(style="width:100%","Richter, B.D., Baumgartner, J.V., Powell, J., Braun, D.P.. 1996. A Method for Assessing Hydrologic Alteration within Ecosystems. Conservation Biology 10 (4): 1163-1174." ,
                                 a('https://www.waterboards.ca.gov/waterrights/water_issues/programs/bay_delta/docs/cmnt081712/sldmwa/richteretal1996.pdf', href=' https://www.waterboards.ca.gov/waterrights/water_issues/programs/bay_delta/docs/cmnt081712/sldmwa/richteretal1996.pdf', target='_blank')),
                             br(),
-                            div(style="width:100%","Additional R packages that may be of interest for working with hydrologic data: "),
-                            br(),
+                            div(style="width:100%;font-weight:bold;","Additional R packages that may be of interest for working with hydrologic data: "),
                             div(style="width:100%","Environmental Flow Components (EFC) statistics (the IHA R package does not provide these) - ",
                                 a('https://github.com/mkoohafkan/flowregime/', href=' https://github.com/mkoohafkan/flowregime/', target='_blank')),
                             br(),

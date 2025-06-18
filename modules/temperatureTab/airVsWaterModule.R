@@ -14,7 +14,7 @@ AirVsWaterModuleUI <- function(id) {
               uiOutput(ns("air_vs_water_input_1")),
               uiOutput(ns("air_vs_water_input_2")),
               radioButtons(ns("exclude_data_points"),
-                           "Exclude points less than a specified air temperature limit",
+                           "Exclude points less than an air temperature limit",
                            choices = c("No" = "No", "Yes" = "Yes"),
                            selected = "No"
               ),
@@ -85,7 +85,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
           
            observe({
             localStats <- dailyStats
-            variables_avail <- names(uploaded_data())
+            variables_avail <- names(dailyStats$processed_dailyStats)
             if(renderAirVsWater$render == TRUE) {
                   output$air_vs_water_input_1 <- renderUI({
                     air_keys_in_favor_order <- c("Air.Temp.C","AIR.TEMP.C","Air_Temp_C","AIR_TEMP_C")

@@ -50,7 +50,8 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
           observe({
              
              localStats <- dailyStats
-             variables_avail <- names(uploaded_data())
+             #variables_avail <- names(uploaded_data())
+             variables_avail <- names(dailyStats$processed_dailyStats)
              
             if(renderGrowingDegree$render == TRUE) {
               

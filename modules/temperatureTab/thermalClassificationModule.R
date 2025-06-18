@@ -40,16 +40,15 @@ ThermalClassificationModuleUI <- function(id) {
                             div(style="width:100%;", "The current version of ContDataSumViz calculates thermal classifications based on the above July-August temperature classifications.
                                 Additional classifications (e.g., Maheu et al. 2015) are forthcoming."),
                             br(),
-                            div(style="width:100%", "Citations:
-                                Maheu, Audrey & Poff, N. & St-Hilaire, André. 2015. A Classification of Stream Water Temperature Regimes in the Conterminous USA. River Research and Applications. 32. 10.1002/rra.2906."),
+                            div(style = "width:100%;font-weight:bold;", "Citations:"),
+                            div(style="width:100%", "Maheu, A., Poff, N.L., St-Hilaire, A. 2015. A Classification of Stream Water Temperature Regimes in the Conterminous USA. River Research and Applications. 32: 896-906.",
+                                a('https://doi.org/10.1002/rra.2906', href='https://doi.org/10.1002/rra.2906', target='_blank')),
                             br(),
                             div(style="width:100%", "McKay, L., Bondelid, T., Dewald, T., Johnston, J., Moore, R., Reah, A., 2012. NHDPlus Version 2: User Guide. U.S. Environmental Protection Agency.",
                                 a('https://nhdplus.com/NHDPlus/NHDPlusV2_home.php', href='https://nhdplus.com/NHDPlus/NHDPlusV2_home.php', target='_blank')),
                             br(),
-                            div(style="width:100%", "McManamay, R. & C.A. DeRolph. 2019. A stream classification system for the conterminous United States. Sci Data 6, 190017.",
+                            div(style="width:100%", "McManamay, R., DeRolph, C.A. 2019. A Stream Classification System for the Conterminous United States. Scientific Data. 6, 190017.",
                                 a('https://doi.org/10.1038/sdata.2019.17', href='https://doi.org/10.1038/sdata.2019.17', target='_blank'))
-
-
         ), # end of box
         div(DT::dataTableOutput(ns("display_water_temp_class_table")), style = "width: 50%; margin: 0 auto;")
       )
@@ -92,10 +91,10 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
               localStats <- dailyStats
               localStats$stats <- localStats$processed_dailyStats
               #gets into errors when column is not found in the processed list
-              variables_avail <- names(uploaded_data())
+              variables_avail <- names(localStats$processed_dailyStats)
               output$water_temp_class_input_1 <- renderUI({
-                water_to_select <- getSelectedVal(uploaded_data())
-                selectizeInput(ns("water_temp_name_in_class"),label ="Select Water Temperature Column",
+                water_to_select <- getSelectedVal(variables_avail)
+                selectizeInput(ns("water_temp_name_in_class"),label ="Select water temperature column",
                                choices=variables_avail,
                                multiple = FALSE,
                                selected=water_to_select,
@@ -121,8 +120,8 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
 
           })
            
-           getSelectedVal <- function(uploaded_data) {
-             variables_avail <- names(uploaded_data)
+           getSelectedVal <- function(variables_avail) {
+             variables_avail <- variables_avail
              water_to_select <- NULL
              water_keys_in_favor_order <- c("Water.Temp.C","WATER.TEMP.C","Water_Temp_C","WATER_TEMP_C")
              possible_water_columns <- water_keys_in_favor_order[water_keys_in_favor_order %in% variables_avail]
@@ -135,6 +134,7 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
            }
 
            observeEvent(input$display_water_class, {
+             
              localStats <- dailyStats
              #remove previous error messages if any
              output$errorDiv <- renderUI({})
@@ -152,28 +152,28 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
              calculated.mean <- data.frame(matrix(ncol=3,nrow=0))
 
              for (i in 1:length(all.years)){
-               year.now = all.years[i]
-               to.select <- data_water_to_calculate$Date >= as.Date(paste0(year.now,"-07-01")) & data_water_to_calculate$Date <= as.Date(paste0(year.now,"-08-31"))
-               mean.this.year <- mean(data_water_to_calculate[to.select,2],na.rm=TRUE)
-               if(is.nan(mean.this.year)){
-                 class.this.year <- "No July/August records"
-               }else if (mean.this.year<10){
-                 class.this.year <- "Very cold"
-               }else if(mean.this.year>=10&mean.this.year<15){
-                 class.this.year <- "Cold"
-               }else if(mean.this.year>=15&mean.this.year<18){
-                 class.this.year <- "Cold-cool"
-               }else if(mean.this.year>=18&mean.this.year<21){
-                 class.this.year <- "Cool"
-               }else if(mean.this.year>=21&mean.this.year<=24){
-                 class.this.year <- "Cool-warm"
-               }else if(mean.this.year>24){
-                 class.this.year <- "Warm"
-               }
+               year.now <- all.years[i]
+               to.select <- data_water_to_calculate %>% dplyr::filter(Date >= as.Date(paste0(year.now,"-07-01")) & Date <=  as.Date(paste0(year.now,"-08-31")))
+               mean.this.year <- mean(to.select[,2], na.rm = TRUE)
+               # to.select <- data_water_to_calculate$Date >= as.Date(paste0(year.now,"-07-01")) & data_water_to_calculate$Date <= as.Date(paste0(year.now,"-08-31"))
+               # mean.this.year <- mean(data_water_to_calculate[to.select,2],na.rm=TRUE)
+               class.this.year <- case_when(
+                 is.na(mean.this.year)==TRUE ~ "No July/August records",
+                 mean.this.year < 10 ~ "Very cold",
+                 mean.this.year >= 10 & mean.this.year < 15 ~ "Cold",
+                 mean.this.year >= 15 & mean.this.year < 18 ~ "Cold-cool",
+                 mean.this.year >= 18 & mean.this.year < 21 ~ "Cool",
+                 mean.this.year >= 21 & mean.this.year <=24 ~ "Cool-warm",
+                 mean.this.year > 24 ~ "Warm"
+               )
+
                calculated.mean[i,] <- c(year.now,round(mean.this.year,digits=1),class.this.year)
              } # for loop end
              second_col_name <- paste0("Mean July/Aug water temperature(C)")
              colnames(calculated.mean) <- c("Year",second_col_name,"Class")
+             calculated.mean <- calculated.mean %>% mutate(`Mean July/Aug water temperature(C)` = if_else(`Mean July/Aug water temperature(C)` == "NaN", "", `Mean July/Aug water temperature(C)`))
+             
+             
              }, error=function(e){
                 errorMsg <- print(paste0("Error in thermalClassification", e$message))
                if(e$message == "attempt to select less than one element in get1index") {

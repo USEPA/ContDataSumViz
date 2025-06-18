@@ -33,9 +33,9 @@ FlashinessModuleUI <- function(id) {
                                                 br(),
                                                 div(style="width:100%;", "The RBI is intended to be used with discharge data but we’re experimenting with using it with sensor depth and water level data as well (since discharge data aren’t available for some of the RMN sites)."),
                                                 br(),
-                                                div(style="width:100%;", "Citation:"),
-                                                div(style="width:100%;",    "Baker, D.B., Richards, R.P., Loftus, T.T. and J.K. Kramer. 2004. A New Flashiness Index: Characteristics and Applications to Midwestern Rivers and Streams.
-                                                    Journal of the American Water Resources Association 40(2): 503-522."),
+                                                div(style="width:100%; font-weight:bold;", "Citation:"),
+                                                div(style="width:100%;",    "Baker, D.B., Richards, R.P., Loftus, T.T., Kramer, J.K. 2004. A New Flashiness Index: Characteristics and Applications to Midwestern Rivers and Streams.
+                                                    Journal of the American Water Resources Association 40 (2): 503-522."),
                                                 a('https://doi.org/10.1111/j.1752-1688.2004.tb01046.x', href='https://doi.org/10.1111/j.1752-1688.2004.tb01046.x', target='_blank')
 
                             ), # end of box
@@ -65,7 +65,6 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
       observe({
         
         localStats <- dailyStats
-        variables_avail <- names(uploaded_data())
         
         if(renderFlashiness$render == TRUE) {
           #shinyjs::show(id=ns("display_help_text_flashiness"), asis=TRUE)
@@ -102,7 +101,7 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
           })
           
           output$display_flash_button <- renderUI({
-            actionButton(inputId=ns("display_RBindex"), label="Display RB Index",class="btn btn-primary")
+            actionButton(inputId=ns("display_RBindex"), label="Display flashiness",class="btn btn-primary")
           })
           
 

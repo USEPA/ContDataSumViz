@@ -109,7 +109,7 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
 
           output$time_series_input_5 <- renderUI({
             tagList(
-              actionButton(inputId = ns("display_ts"), label = "Display time series", class = "btn btn-primary")
+              actionButton(inputId = ns("display_ts"), label = "Display", class = "btn btn-primary")
             )
           })
         }

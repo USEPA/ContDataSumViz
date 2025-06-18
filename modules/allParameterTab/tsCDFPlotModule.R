@@ -118,7 +118,7 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
               })
 
               output$display_CDF_button <- renderUI({
-                actionButton(inputId=ns("run_CDF"), label="Run and display",class="btn btn-primary")
+                actionButton(inputId=ns("run_CDF"), label="Display",class="btn btn-primary")
               })
 
             }

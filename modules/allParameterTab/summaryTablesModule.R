@@ -70,7 +70,7 @@ SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables, loade
                 })
 
                 output$summary_table_input_2 <- renderUI({
-                  radioButtons(ns("summarise_by"), "Summarise by", choices = c("year/month"="year/month"
+                  radioButtons(ns("summarise_by"), "Summarize by", choices = c("year/month"="year/month"
                                                                            ,"year"="year"
                                                                            ,"year/season"="year/season"
                                                                            ,"season"="season"),
@@ -86,7 +86,7 @@ SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables, loade
                 })
 
                 output$summary_table_input_4 <- renderUI({
-                  actionButton(inputId=ns("display_table"), label="Summarise",class="btn btn-primary")
+                  actionButton(inputId=ns("display_table"), label="Display",class="btn btn-primary")
                 })
               }
           })

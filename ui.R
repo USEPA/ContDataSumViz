@@ -46,19 +46,19 @@ ui <- shinyUI(fluidPage(
     fluidRow(
       div(id = "customBusy", class = "loading-modal")
     ),
-    
+    # fluidRow(
+    #   div(span(style="float:right",
+    #            a(tags$button(tags$i(class="fas fa-arrow-down"), "Download test data", class="btn btn-primary btn-sm", style = "font-size:16px;"), href="TestData.zip", target="_blank")))
+    # ),
     fluidRow(
       column(
-        width = 12,
-        br(),
-        div(span("Please complete steps in the Upload Data Tab before proceeding to Data Exploration Tabs.", class="text-info", style="font-weight:bold"),
-            span(style="float:right",
-                 a(tags$button(tags$i(class="fas fa-arrow-down"), "Download test data", class="btn btn-primary btn-sm", style = "font-size:16px;"), href="TestData.zip", target="_blank"))
-        ),
-        br(),
-        div(span("To start over with a new dataset, refresh the page and upload the new dataset.", class="text-info", style="font-weight:bold")),
+        width = 10,
+        div("To begin, complete the steps under the ", strong("Upload Data"), "tab (consulting the ",strong("User Guide"), "tab as needed). As you complete a step in the ",strong("Upload Data"), "tab, the next step will appear. When you complete Step 3: Run meta summary, the ",strong("Discrete Data Exploration"),"tab will appear. The ", strong("USGS & Daymet Exploration"), "tab is available at all times to download and view USGS and Daymet data, but you can only visualize these downloaded data with your uploaded data after you complete Step 3. When you complete Step 4: Calculate daily statistics, the ", strong("Continuous Data Exploration"), "tab will appear. Use the three Exploration tabs to explore and visualize your data. To start over with a new dataset, refresh the page and upload a new dataset.", class = "text-info"),
         br()
-      )
+      ),
+      column(width = 2, 
+             div(span(style="float:right",
+                      a(tags$button(tags$i(class="fas fa-arrow-down"), "Download test data", class="btn btn-primary btn-sm", style = "font-size:16px;"), href="TestData.zip", target="_blank"))))
     ),
     fluidRow(
       column(width = 12,

@@ -43,7 +43,7 @@ progressWorkflowModuleUI <- function(id) {
       width = 1,
       div(class="rectangle",style="margin-left:30px;",
           span(circleButton(inputId = ns("step5"),icon = icon("check"),status = "primary", size="xs")),
-          span("Step 5: Visualize data",style="font-weight:bold; word-wrap: break-word;")
+          span("Step 5: Explore & visualize data",style="font-weight:bold; word-wrap: break-word;")
       )
     )# end of column
   )

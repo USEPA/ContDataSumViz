@@ -22,7 +22,13 @@ GageAndDaymetModuleUI <- function(id) {
                                  div(style = "width: 100%", "USGS gage data available (depending on the selected gage): discharge, water level, air temperature, water temperature, pH, precipitation, air pressure, and water pressure"),
                                  div(style = "width:100%", "Daymet data available: precipitation, shortwave radiation, snow water equivalent, maximum air temperature, minimum air temperature, and water vapor pressure"),
                                  br(),
-                                 div(style = "width:100%", "The date ranges auto-populate with the date range of user-uploaded data, but can be modified. Select the Import data buttons to download data and the View data buttons to view time series of the data."))
+                                 div(style = "width:100%", "The date ranges auto-populate with the date range of user-uploaded data, but can be modified. Select the Import data buttons to download data and the View data buttons to view time series of the data."),
+                                 br(),
+                                 div(style = "width:100%", "USGS data is downloaded using the dataRetrieval package. For more information visit ",
+                                     a('https://doi-usgs.github.io/dataRetrieval/', href='https://doi-usgs.github.io/dataRetrieval/', target='_blank')),
+                                 div(style = "width:100%", "Daymet data is downloaded using the daymetr package. For more information visit ",
+                                     a('https://cran.r-project.org/web/packages/daymetr/index.html', href='https://cran.r-project.org/web/packages/daymetr/index.html', target='_blank'))
+                                 ) # end box
              ), 
              fluidRow(div(style="width:100%", uiOutput(ns("gageDayMetError")))),
              fluidRow(withSpinner(plotlyOutput(ns("display_downloaded_data"))),type=1))

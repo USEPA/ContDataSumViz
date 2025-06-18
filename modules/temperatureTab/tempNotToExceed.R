@@ -39,7 +39,7 @@ TempNotToExceedUI <- function(id) {
                           div(style="width:100%;", "4T3 Temperature = temperature not to be exceeded for four or more consecutive hours in a 24-hour period, on more than three consecutive days."),
                           div(style="width:100%;", "6T3 Temperature = temperature not to be exceeded for six or more consecutive hours in a 24-hour period, on more than three consecutive days."),
                           div(style="width:100%;", "This module allows the user to select the hour window (i.e., 4 for 4T3 or 6 for 6T3) and number of consecutive days used in the calculation (i.e., 3 for both 4T3 and 6T3)."),
-                          div(style="width:100%", "The table returns the temperature not to exceed calculated for the selected time period, and the number of days in that period with sufficient data to include in the calculation."),
+                          div(style="width:100%", "The table returns the temperature not to exceed calculated for the selected time period and the number of days in that period with sufficient data to include in the calculation."),
                           br(),
                           div(style = "width:100%", "For more information about the 4T3 and 6T3 calculations visit:"),
                           a('https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', href='https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', target='_blank')
@@ -76,12 +76,12 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
             water_keys_in_favor_order <- c("Water.Temp.C","WATER.TEMP.C","Water_Temp_C","WATER_TEMP_C")
             possible_water_columns <- water_keys_in_favor_order[water_keys_in_favor_order %in% variables_avail]
             if (length(possible_water_columns)==0){
-              water_to_select <- variables_avail[grep('water',variables_avail,ignore.case=TRUE)][1]
+              water_to_select <- variables_avail[grep('temp',variables_avail,ignore.case=TRUE)][1]
             }else{
               water_to_select <- possible_water_columns[1]
             }
             
-            selectizeInput(ns("temp_name"),label ="Select Temperature Column",
+            selectizeInput(ns("temp_name"),label ="Select temperature column",
                            choices=variables_avail,
                            multiple = FALSE,
                            selected = water_to_select,
@@ -97,7 +97,7 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
           })
           
           output$summary_window <- renderUI({
-            radioButtons(ns("summarise_by"), "Summarise by", choices = c("year/month"="year/month"
+            radioButtons(ns("summarise_by"), "Summarize by", choices = c("year/month"="year/month"
                                                                          ,"year"="year"
                                                                          ,"year/season"="year/season"
                                                                          ,"season"="season"),
@@ -172,28 +172,28 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
               if(input$summarise_by == "year/month"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(year, month) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Year" = "year", "Month" = "month", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
               
               if(input$summarise_by == "year"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(year) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Year" = "year", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
              
               if(input$summarise_by == "year/season"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(year, season) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Year" = "year", "Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
               
               if(input$summarise_by == "season"){
                 ret_table <- cont_data_hr_sum %>% 
                   group_by(season) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE), num_days = sum(!is.na(min_temp_day))) %>% 
+                  summarize(sum_max = max(min_temp_day, na.rm = TRUE) %>% round(3), num_days = sum(!is.na(min_temp_day))) %>% 
                   rename("Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
               }
               
