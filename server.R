@@ -200,7 +200,7 @@ server <- function(input, output, session) {
     output$display_paramselect <- renderUI({
       div(class="panel panel-default", style="margin:10px;",
           div(class="panel-heading", "Step 2: Select date and time format", style="font-weight:bold;",icon("info-circle", style = "color:#2fa4e7", id="datetimeHelp"),
-              bsPopover(id="datetimeHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Lorem ipsum"),
+              bsPopover(id="datetimeHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("The test data from Posey Creek has datetimes displayed according to ISO 8601 notation with date in year, month, day format separated from time in hours, minutes, seconds format with the character `T`, which is separated from the timezone represented as the deviation from coordinated universal time (UTC) with the letter `Z`. No number after `Z` indicates that the test data are in UTC time zone."),
                         placement = "right", trigger = "hover")),
           div(class = "panel-body", style = "margin-left: 10px;margin-right: 10px;margin-top: 10px",
               dateAndTimeUI(id = "homePage", paramChoices =  fun.findVariableToProcess(colnames(uploaded_data()), getDateCols = FALSE), uploadedCols = colnames(uploaded_data()))),

@@ -3,6 +3,9 @@ title: "ContDataSumViz User Guide"
 output: html_fragment
 ---
 
+# Quick start
+To begin, complete the steps under the **Upload Data** tab (consulting the **User Guide** tab as needed). As you complete a step in the **Upload Data** tab, the next step will appear. When you complete Step 3: Run meta summary, the **Discrete Data Exploration** tab will appear. The **USGS & Daymet Exploration** tab is available at all times to download and view USGS and Daymet data, but you can only visualize these downloaded data with your uploaded data after you complete Step 3. When you complete Step 4: Calculate daily statistics, the **Continuous Data Exploration** tab will appear. Use the three Exploration tabs to explore and visualize your data. To start over with a new dataset, refresh the page and upload a new dataset.
+
 # Summary
 This tool contains data summary and visualization modules for continuous monitoring data. Tool functionalities appear as the user provides required inputs. The landing tab walks the user through the process of uploading their data. Test data is available from the download button in the upper righthand corner of the application. Once the five steps of the upload data tab are successfully completed, additional tabs will display at the top of the page. The USGS & Daymet Exploration tab allows the user to download USGS gage data at their gage of choice and Daymet daily weather and climatology data at their coordinates of choice for the same time period as their uploaded data. The Discrete Data Exploration tab allows users to overlay discrete data points on a continuous time series of the same parameter. The Continuous Exploration tab provides daily summary statistics and visualizations for any uploaded parameters as well as specific statistics for temperature and hydrology parameters. 
 

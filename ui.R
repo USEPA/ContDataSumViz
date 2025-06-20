@@ -53,7 +53,7 @@ ui <- shinyUI(fluidPage(
     fluidRow(
       column(
         width = 10,
-        div("To begin, complete the steps under the ", strong("Upload Data"), "tab (consulting the ",strong("User Guide"), "tab as needed). As you complete a step in the ",strong("Upload Data"), "tab, the next step will appear. When you complete Step 3: Run meta summary, the ",strong("Discrete Data Exploration"),"tab will appear. The ", strong("USGS & Daymet Exploration"), "tab is available at all times to download and view USGS and Daymet data, but you can only visualize these downloaded data with your uploaded data after you complete Step 3. When you complete Step 4: Calculate daily statistics, the ", strong("Continuous Data Exploration"), "tab will appear. Use the three Exploration tabs to explore and visualize your data. To start over with a new dataset, refresh the page and upload a new dataset.", class = "text-info"),
+        div("See User Guide for instruction to begin. To start over with a new dataset, refresh the page and upload a new dataset.", class = "text-info", style = "font-weight:bold;"),
         br()
       ),
       column(width = 2, 
