@@ -636,7 +636,8 @@ server <- function(input, output, session) {
                   #shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
                   shinyjs::runjs("$('#dateTimeBoxButton_discrete').click()")
                   output$display_time_series_discrete <- renderPlotly({
-                    ggplotly(mainPlot, height = calculatePlotHeight(length(variable_to_plot) * 2))
+                    ggplotly(mainPlot, height = calculatePlotHeight(length(variable_to_plot) * 2), dynamicTicks = TRUE) %>% 
+                      plotly::layout(xaxis = list(type = "date"))
                   })
                 }
               }

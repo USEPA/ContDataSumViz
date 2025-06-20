@@ -242,7 +242,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                          fun.internal = TRUE)
           
           output$display_downloaded_data <- renderPlotly({
-            ggplotly(gageRawPlot, height = calculatePlotHeight(length(isolate(input$gaze_params)) * 2)) %>% 
+            ggplotly(gageRawPlot, height = calculatePlotHeight(length(isolate(input$gaze_params)) * 2), dynamicTicks = TRUE) %>% 
+              plotly::layout(xaxis = list(type = "date")) %>% 
               plotly::config(toImageButtonOptions = list(format = "png", 
                                                          filename = paste0("USGS_gage_", input$gage_id, "_TS")))
             #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
@@ -317,7 +318,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         if (!is.null(dayMetPlotRaw) & length(input$daymet_params) > 0) {
           #output$display_time_series_3 <- renderPlotly({
           output$display_downloaded_data <- renderPlotly({
-            ggplotly(dayMetPlotRaw, height = calculatePlotHeight(length(isolate(input$daymet_params)) * 2)) %>% 
+            ggplotly(dayMetPlotRaw, height = calculatePlotHeight(length(isolate(input$daymet_params)) * 2), dynamicTicks = TRUE) %>% 
+              plotly::layout(xaxis = list(type = "date")) %>% 
               plotly::config(toImageButtonOptions = list(format = "png", filename = paste0("Daymet_", input$daymet_lat, "_", input$daymet_long, "_TS")))
             #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
           })
@@ -410,15 +412,15 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           }
           
           
-          main_range = calculate_time_range(as.list(base_data_raw))
-          mainBreaks = main_range[[1]]
-          main_x_date_label = main_range[[2]]
+          # main_range = calculate_time_range(as.list(base_data_raw))
+          # mainBreaks = main_range[[1]]
+          # main_x_date_label = main_range[[2]]
           
           #allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter), aes(x = as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
           allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter) %>% mutate(Date = as.POSIXct(Date,format="%Y-%m-%d")), aes(x = Date, y = value)) +
             geom_line(aes(colour=parameter)) +
             labs(title="Base, USGS gage and DayMet Data", y="Parameters", x="Date") + 
-            scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+
+            #scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+
             theme_bw()+
             theme(
               strip.background = element_blank()
@@ -433,7 +435,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           
           
           output$display_downloaded_data <- renderPlotly({
-            ggplotly(allCom, height = calculatePlotHeight(totalH*2)) %>% 
+            ggplotly(allCom, height = calculatePlotHeight(totalH*2), dynamicTicks = TRUE) %>% 
+              plotly::layout(xaxis = list(type = "date")) %>% 
               plotly::config(toImageButtonOptions = list(format = "png", filename = paste0("Base_USGS_", input$gage_id, "_Daymet_",input$daymet_lat, "_", input$daymet_long, "_TS")))
             #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
           }) 

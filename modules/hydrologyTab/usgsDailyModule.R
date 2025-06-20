@@ -142,7 +142,8 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
                                              fun.internal = TRUE)
               
               output$display_downloaded_data <- renderPlotly({
-                ggplotly(gageRawPlot, height = calculatePlotHeight(length(isolate(input$gaze_params)) * 2)) %>% 
+                ggplotly(gageRawPlot, height = calculatePlotHeight(length(isolate(input$gaze_params)) * 2), dynamicTicks = TRUE) %>% 
+                  plotly::layout(xaxis = list(type = "date")) %>% 
                   plotly::config(toImageButtonOptions = list(format = "png", 
                                                              filename = paste0("USGS_gage_", input$gage_id, "_TS")))
                 #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
