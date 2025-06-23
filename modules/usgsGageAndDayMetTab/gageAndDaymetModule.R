@@ -6,33 +6,63 @@ GageAndDaymetModuleUI <- function(id) {
   ns <- NS(id)
   shinyjs::useShinyjs()
   sidebarLayout(
-    sidebarPanel(
-      width = 3,
-      uiOutput(ns("gage_panel")),
-      uiOutput(ns("daymet_panel")),
-      uiOutput(ns("base_gage_daymet_panel"))
-    ),
-    mainPanel(
-      width = 9,
-      column(width = 12,
-             fluidRow(shinydashboard::box(id=ns("gage_daymet_help"), width=12, class="well",
-                                 h4("USGS & Daymet Exploration"),
-                                 div(style="width:100%;", "Contextualize uploaded data with relevant, high-frequency USGS stream gage and Daymet daily weather and climate data."),
-                                 br(),
-                                 div(style = "width: 100%", "USGS gage data available (depending on the selected gage): discharge, water level, air temperature, water temperature, pH, precipitation, air pressure, and water pressure"),
-                                 div(style = "width:100%", "Daymet data available: precipitation, shortwave radiation, snow water equivalent, maximum air temperature, minimum air temperature, and water vapor pressure"),
-                                 br(),
-                                 div(style = "width:100%", "The date ranges auto-populate with the date range of user-uploaded data, but can be modified. Select the Import data buttons to download data and the View data buttons to view time series of the data."),
-                                 br(),
-                                 div(style = "width:100%", "USGS data is downloaded using the dataRetrieval package. For more information visit ",
-                                     a('https://doi-usgs.github.io/dataRetrieval/', href='https://doi-usgs.github.io/dataRetrieval/', target='_blank')),
-                                 div(style = "width:100%", "Daymet data is downloaded using the daymetr package. For more information visit ",
-                                     a('https://cran.r-project.org/web/packages/daymetr/index.html', href='https://cran.r-project.org/web/packages/daymetr/index.html', target='_blank'))
-                                 ) # end box
-             ), 
-             fluidRow(div(style="width:100%", uiOutput(ns("gageDayMetError")))),
-             fluidRow(withSpinner(plotlyOutput(ns("display_downloaded_data"))),type=1))
-    ) # mainPanel end
+    sidebarPanel(width = 3, uiOutput(ns("gage_panel")), uiOutput(ns("daymet_panel")), uiOutput(ns(
+      "base_gage_daymet_panel"
+    ))),
+    mainPanel(width = 9, column(
+      width = 12,
+      fluidRow(
+        shinydashboard::box(
+          id = ns("gage_daymet_help"),
+          width = 12,
+          class = "well",
+          h4("USGS & Daymet Exploration"),
+          div(
+            style = "width:100%;",
+            "Contextualize uploaded data with relevant, high-frequency USGS stream gage and Daymet daily weather and climate data."
+          ),
+          br(),
+          div(
+            style = "width: 100%",
+            "USGS gage data available (depending on the selected gage): discharge, water level, air temperature, water temperature, pH, precipitation, air pressure, and water pressure"
+          ),
+          div(
+            style = "width:100%",
+            "Daymet data available: precipitation, shortwave radiation, snow water equivalent, maximum air temperature, minimum air temperature, and water vapor pressure"
+          ),
+          br(),
+          div(
+            style = "width:100%",
+            "The date ranges auto-populate with the date range of user-uploaded data, but can be modified. Select the Import data buttons to download data and the View data buttons to view time series of the data."
+          ),
+          br(),
+          div(
+            style = "width:100%",
+            "USGS data is downloaded using the dataRetrieval package. For more information visit ",
+            a(
+              'https://doi-usgs.github.io/dataRetrieval/',
+              href = 'https://doi-usgs.github.io/dataRetrieval/',
+              target = '_blank'
+            )
+          ),
+          div(
+            style = "width:100%",
+            "Daymet data is downloaded using the daymetr package. For more information visit ",
+            a(
+              'https://cran.r-project.org/web/packages/daymetr/index.html',
+              href = 'https://cran.r-project.org/web/packages/daymetr/index.html',
+              target = '_blank'
+            )
+          )
+        ) # end box
+      ),
+      fluidRow(div(style = "width:100%", uiOutput(
+        ns("gageDayMetError")
+      ))),
+      fluidRow(withSpinner(plotlyOutput(
+        ns("display_downloaded_data")
+      )), type = 1)
+    )) # mainPanel end
   ) # sidebarLayout end
 }
 
@@ -93,34 +123,72 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           #               placement = "right", trigger = "hover")),
           
           output$gage_panel <- renderUI({
-            div(class="panel panel-default", style="padding:10px;margin-top:20px;",
-                div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
-                    span("USGS gage data", style="font-weight:bold;"),
-                    a("View gage IDs", href="https://dashboard.waterdata.usgs.gov/app/nwd/en/?region=lower48", target="_blank", style="float:right"),
-                    icon("info-circle", style = "color:#2fa4e7", id="usgsHelp"),
-                    bsPopover(id="usgsHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Relevant USGS gages for the uploaded site can be found using the National Water Dashboard linked under View gage IDs to the right. For the provided test data from Posey Creek (38.89431, -78.147258) near Front Royal, VA, the nearby gage 01631000 on the South Fork of the Shenandoah River may provide relevant context data from a much larger stream."),
-                                             placement = "right", trigger = "hover")
+            div(
+              class = "panel panel-default",
+              style = "padding:10px;margin-top:20px;",
+              div(
+                class = "panel-heading",
+                style = "padding:10px 5px 10px 10px;",
+                span("USGS gage data", style = "font-weight:bold;"),
+                a(
+                  "View gage IDs",
+                  href = "https://dashboard.waterdata.usgs.gov/app/nwd/en/?region=lower48",
+                  target = "_blank",
+                  style = "float:right"
                 ),
-                div(style="padding:5px;",
-                    textInput(inputId=ns("gage_id"), label="Gage ID",value=""),
-                    div(div(dateInput(ns("gage_date_start"),"Date start",value = min_ymd, min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                        div(dateInput(ns("gage_date_end"),"Date end",value = max_ymd, min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
-                    actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
+                icon("info-circle", style = "color:#2fa4e7", id = "usgsHelp"),
+                bsPopover(
+                  id = "usgsHelp",
+                  title = HTML("<b>Helpful Hints</b>"),
+                  content = HTML(
+                    "Relevant USGS gages for the uploaded site can be found using the National Water Dashboard linked under View gage IDs to the right. For the provided test data from Posey Creek (38.89431, -78.147258) near Front Royal, VA, the nearby gage 01631000 on the South Fork of the Shenandoah River may provide relevant context data from a much larger stream."
+                  ),
+                  placement = "right",
+                  trigger = "hover"
+                )
+              ),
+              div(
+                style = "padding:5px;",
+                textInput(
+                  inputId = ns("gage_id"),
+                  label = "Gage ID",
+                  value = ""
                 ),
-                # div(style="padding:5px;",
-                #     textInput(inputId=ns("gage_id"), label="Gage ID",value=""),
-                #     div(div(dateInput(ns("gage_date_start"),"Date start",value = dateRange$min %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                #         div(dateInput(ns("gage_date_end"),"Date end",value = dateRange$max %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd"))),
-                #     actionButton(inputId=ns("display_gage_ts"), label="Import USGS gage data",class="btn btn-primary")
-                # ),
+                div(div(
+                  dateInput(
+                    ns("gage_date_start"),
+                    "Date start",
+                    value = min_ymd,
+                    min = "1980-01-01",
+                    max = "2100-01-01",
+                    format = "yyyy-mm-dd"
+                  )
+                ), div(
+                  dateInput(
+                    ns("gage_date_end"),
+                    "Date end",
+                    value = max_ymd,
+                    min = "1980-01-01",
+                    max = "2100-01-01",
+                    format = "yyyy-mm-dd"
+                  )
+                )),
+                actionButton(
+                  inputId = ns("display_gage_ts"),
+                  label = "Import USGS gage data",
+                  class = "btn btn-primary"
+                )
+              ),
                 div(id=ns("gageVarsDiv") , style="padding:5px;display:none",
                     selectizeInput(ns("gaze_params"), label ="Select USGS gage variables",
                                    choices=gageColNames,
                                    multiple = TRUE,
                                    selected=NULL,
                                    options = list(hideSelected = FALSE)),
-                    actionButton(inputId=ns("display_gage_raw"), label="View USGS raw data",class="btn btn-primary")
-                )
+                    actionButton(inputId=ns("display_gage_raw"), label="View USGS gage time series",class="btn btn-primary")
+                ),
+              div(id = ns("gageDownloadDiv"), style = "padding:5px;display:none",
+                  downloadButton(ns("download_gage_raw"), "Download imported USGS gage data", class="btn btn-primary"))
             )
           })
           
@@ -148,7 +216,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                    selected=daymetCols[1],
                                    options = list(hideSelected = FALSE)),
                     actionButton(inputId=ns("display_daymet_raw"), label="View Daymet raw data",class="btn btn-primary")
-                )
+                ),
+                div(id = ns("daymetDownloadDiv"), style = "padding:5px;display:none",
+                    downloadButton(ns("download_daymet_raw"), "Download imported Daymet data", class="btn btn-primary"))
             ) #end of parent div
           })
           #end of Daymet
@@ -225,7 +295,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
           updateSelectizeInput(session, 'gaze_params', choices = varsToPlot, selected = varsToPlot[1])
           shinyjs::show(id=ns("gageVarsDiv"),asis=TRUE)
-          
+          shinyjs::show(id=ns("gageDownloadDiv"),asis=TRUE)
           #Names the single column of the R console output data.frame
           colnames(consoleUSGS$disp) <- "R console messages for all USGS data retrieval:"
         } else {
@@ -262,6 +332,16 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         }
       })
 
+        output$download_gage_raw <- downloadHandler(
+          filename = function(){
+            paste0("USGS_gage_", input$gage_id, ".csv")
+          },
+          content = function(file){
+            write.csv(gageRawData$gagedata  %>% mutate(Date.Time = format(Date.Time, "%Y-%m-%d %H:%M:%S")), file, row.names = FALSE)
+          }
+        )
+
+
       
       ########DayMet########
       observeEvent(input$get_daymet_data, {
@@ -296,11 +376,22 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             daymetCols <- rawResult$daymetColumns
             
             dayMetRawData$daymetColumns <- rawResult$daymetColumns #
-            updateSelectizeInput(session, 'daymet_params', choices = daymetCols %>% setNames(c("Precipitation (mm)", "Shortwave radiation (W m^-2)", "Snow water equivalent (kg m^-2)",
-                                                                                              "Maximum air temperature (degrees C)", "Minimum air temperature (degrees C)", 
-                                                                                              "Water vapor pressure (Pa)")), selected = daymetCols[1])
+            updateSelectizeInput(session,
+                                 'daymet_params',
+                                 choices = daymetCols %>% setNames(
+                                   c(
+                                     "Precipitation (mm)",
+                                     "Shortwave radiation (W m^-2)",
+                                     "Snow water equivalent (kg m^-2)",
+                                     "Maximum air temperature (degrees C)",
+                                     "Minimum air temperature (degrees C)",
+                                     "Water vapor pressure (Pa)"
+                                   )
+                                 ),
+                                 selected = daymetCols[1])
             
             shinyjs::show(id="daymetVarsDiv")
+            shinyjs::show(id = "daymetDownloadDiv")
             
             #Fills in the progress bar once the operation is complete
             incProgress(1/1, detail = paste("Retrieved records for Latitude and Longitude ",input$daymet_lat, input$daymet_long))
@@ -347,6 +438,15 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         } 
         return(dayMetPlot)
       }
+    
+      output$download_daymet_raw <- downloadHandler(
+        filename = function(){
+          paste0("Daymet_", input$daymet_lat, input$daymet_long, ".csv")
+        },
+        content = function(file){
+          write.csv(dayMetRawData$dayMetData, file, row.names = FALSE)
+        }
+      )
       
       #subplot for daymet, gage and base
       observeEvent(input$display_subplot_ts, {
