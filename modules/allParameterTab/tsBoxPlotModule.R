@@ -23,7 +23,7 @@ TsBoxPlotModuleUI <- function(id) {
       fluidRow(
         shinydashboard::box(id=ns("boxplot_tab_help"), width=12, class="well",
                             h4("Any parameters – Boxplots"),
-                            div(style="width:100%;", "Displays boxplots of a user-selected daily summary statistic (e.g., mean, median, standard deviation) for any processed continuous parameter, grouped by a user-selected time period."))
+                            div(style="width:100%;", "Displays boxplots of a user-selected daily summary statistic (e.g., mean, median, standard deviation) for any processed continuous parameter, grouped by a user-selected time period. Seasons are defined as: Winter (December, January, February), Spring (March, April, May), Summer (June, July, August), Fall (September, October, November)."))
       ),
       fluidRow(div(style="width:100%", uiOutput(ns("boxPlotError"))),
                       plotlyOutput(ns("display_box_plots")))

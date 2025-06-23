@@ -26,7 +26,7 @@ TsCDFPlotModuleUI <- function(id) {
         width = 12, 
         fluidRow(shinydashboard::box(id=ns("cdf_tab_help"), width=12, class="well",
                                      h4("Any parameters – CDFs"),
-                                     div(style="width:100%;", "Displays the annual cumulative distribution function (CDF) of daily means of any processed continuous parameter, with the option to add percentile or min/max shading."))),
+                                     div(style="width:100%;", "Displays the annual cumulative distribution function (CDF) of daily means of any processed continuous parameter, with the option to add percentile or min/max shading. Seasons are defined as: Winter (December, January, February), Spring (March, April, May), Summer (June, July, August), Fall (September, October, November)."))),
         fluidRow(div(style="width:100%", uiOutput(ns("cdfError")))),
         fluidRow(div(style = "height:800px;", plotlyOutput(ns("display_plot_CDF"))))
       )

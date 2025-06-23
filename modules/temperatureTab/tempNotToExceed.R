@@ -112,156 +112,162 @@ TempNotToExceedServer <- function(id, uploaded_data, formated_raw_data, renderTe
           observeEvent(input$display_tempExceed, {
             output$errorDiv <- renderUI({})
             
-            tryCatch({
-              # using data.table for faster processing
-              # Step 1: Calculate the minimum temperature for every # consecutive hours
-              
-              metric_nm <- paste0(input$hour_num, "T", input$day_num)  
-              
-              cont_temp_dt <- as.data.table(cont_temp_df %>% rename("temp_var" = input$temp_name))
-              
-              index_time <- cont_temp_dt$date.formatted[1] + hours(input$hour_num)
-              df_start <- cont_temp_dt %>% dplyr::filter(date.formatted < index_time) %>% nrow()
-              
-              min_temp_hr <- NULL
-              
-              for(i in df_start:nrow(cont_temp_dt)){
-                end_time <-  cont_temp_dt$date.formatted[i]
-                start_time <- end_time - hours(input$hour_num)
+            if(class(cont_temp_df %>% rename("temp_var" = input$temp_name) %>% pull(temp_var)) == "character"){
+              output$errorDiv <- renderUI({div(h4("Select numeric column"), class="alert alert-danger")})
+            } else{
+              tryCatch({
+                # using data.table for faster processing
+                # Step 1: Calculate the minimum temperature for every # consecutive hours
                 
-                temp <- ifelse(all(is.na((cont_temp_dt[date.formatted > start_time & date.formatted <= end_time]$temp_var))), NA, cont_temp_dt[date.formatted > start_time & date.formatted <= end_time, min(temp_var, na.rm = TRUE)]) 
+                metric_nm <- paste0(input$hour_num, "T", input$day_num)  
                 
-                min_temp_hr <- c(min_temp_hr, temp)
-              }
-              
-              cont_temp_dt$min_temp_hr <- c(rep(NA, df_start-1), min_temp_hr) 
-              
-              # Step 2: Calculate the maximum of the # hour minimum temperature for each calendar day
-              cont_data_hr_sum <- cont_temp_dt %>% 
-                mutate(date.fm = lubridate::date(date.formatted)) %>% 
-                group_by(date.fm) %>% 
-                summarize(window_max = ifelse(all(is.na(min_temp_hr)), NA, max(min_temp_hr, na.rm = TRUE))) 
-              
-              cont_data_hr_sum <- as.data.table(cont_data_hr_sum)
-              
-              # Step 3: Calculate the minimum temperature every # +1  days
-              min_temp_day <- NULL
-              
-              for(j in (input$day_num + 1):nrow(cont_data_hr_sum)){
-                end_date <- cont_data_hr_sum$date.fm[j]
-                start_date <- end_date - days(input$day_num)
+                cont_temp_dt <- as.data.table(cont_temp_df %>% rename("temp_var" = input$temp_name))
                 
-                temp <- ifelse(all(is.na(cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date]$window_max)),NA,cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date, min(window_max, na.rm = TRUE)])
-                min_temp_day <- c(min_temp_day, temp)
-              }
-              
-              cont_data_hr_sum$min_temp_day <- c(rep(NA, input$day_num), min_temp_day)
-              
-              # Step 4: Summarize by year
-              cont_data_hr_sum$year <- lubridate::year(cont_data_hr_sum$date.fm)
-              
-              cont_data_hr_sum <- cont_data_hr_sum %>% mutate(year = lubridate::year(date.fm),
-                                                              month = lubridate::month(date.fm), 
-                                                              season = case_when(
-                                                                month %in% c(12,1,2) ~ "Winter",
-                                                                month %in% c(3:5) ~ "Spring",
-                                                                month %in% c(6:8) ~ "Summer",
-                                                                month %in% c(9:11) ~ "Fall"
-                                                              ))
-              
-              if(input$summarise_by == "year/month"){
-                ret_table <- cont_data_hr_sum %>% 
-                  group_by(year, month) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
-                  rename("Year" = "year", "Month" = "month", !!metric_nm := "sum_max", "Number of days" = "num_days")
-              }
-              
-              if(input$summarise_by == "year"){
-                ret_table <- cont_data_hr_sum %>% 
-                  group_by(year) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
-                  rename("Year" = "year", !!metric_nm := "sum_max", "Number of days" = "num_days")
-              }
-             
-              if(input$summarise_by == "year/season"){
-                ret_table <- cont_data_hr_sum %>% 
-                  group_by(year, season) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
-                  rename("Year" = "year", "Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
-              }
-              
-              if(input$summarise_by == "season"){
-                ret_table <- cont_data_hr_sum %>% 
-                  group_by(season) %>% 
-                  summarize(sum_max = max(min_temp_day, na.rm = TRUE) %>% round(3), num_days = sum(!is.na(min_temp_day))) %>% 
-                  rename("Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
-              }
-              
-              output$tempExceed_table <- DT::renderDataTable({
-                myTable <- DT::datatable(
-                  ret_table,
-                  extensions ="Buttons",
-                  rownames = FALSE,
-                  options = list(
-                    scrollX = FALSE, #allow user to scroll wide tables horizontally
-                    stateSave = FALSE,
-                    pageLength = 15,
-                    dom = 'Bt',
-                    buttons = list(
-                      list(extend='copy', text='Copy', className="btn btn-primary"),
-                      list(extend='print', text='Print', className="btn btn-primary"),
-                      list(extend='collection', buttons = 
-                             list(
-                               list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                      "_",
-                                                                      input$temp_name,
-                                                                      "_",
-                                                                      metric_nm, 
-                                                                      "_",
-                                                                      input$summarise_by)),
-                               list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                index_time <- cont_temp_dt$date.formatted[1] + hours(input$hour_num)
+                df_start <- cont_temp_dt %>% dplyr::filter(date.formatted < index_time) %>% nrow()
+                
+                min_temp_hr <- NULL
+                
+                for(i in df_start:nrow(cont_temp_dt)){
+                  end_time <-  cont_temp_dt$date.formatted[i]
+                  start_time <- end_time - hours(input$hour_num)
+                  
+                  temp <- ifelse(all(is.na((cont_temp_dt[date.formatted > start_time & date.formatted <= end_time]$temp_var))), NA, cont_temp_dt[date.formatted > start_time & date.formatted <= end_time, min(temp_var, na.rm = TRUE)]) 
+                  
+                  min_temp_hr <- c(min_temp_hr, temp)
+                }
+                
+                cont_temp_dt$min_temp_hr <- c(rep(NA, df_start-1), min_temp_hr) 
+                
+                # Step 2: Calculate the maximum of the # hour minimum temperature for each calendar day
+                cont_data_hr_sum <- cont_temp_dt %>% 
+                  mutate(date.fm = lubridate::date(date.formatted)) %>% 
+                  group_by(date.fm) %>% 
+                  summarize(window_max = ifelse(all(is.na(min_temp_hr)), NA, max(min_temp_hr, na.rm = TRUE))) 
+                
+                cont_data_hr_sum <- as.data.table(cont_data_hr_sum)
+                
+                # Step 3: Calculate the minimum temperature every # +1  days
+                min_temp_day <- NULL
+                
+                for(j in (input$day_num + 1):nrow(cont_data_hr_sum)){
+                  end_date <- cont_data_hr_sum$date.fm[j]
+                  start_date <- end_date - days(input$day_num)
+                  
+                  temp <- ifelse(all(is.na(cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date]$window_max)),NA,cont_data_hr_sum[date.fm >= start_date & date.fm <= end_date, min(window_max, na.rm = TRUE)])
+                  min_temp_day <- c(min_temp_day, temp)
+                }
+                
+                cont_data_hr_sum$min_temp_day <- c(rep(NA, input$day_num), min_temp_day)
+                
+                # Step 4: Summarize by year
+                cont_data_hr_sum$year <- lubridate::year(cont_data_hr_sum$date.fm)
+                
+                cont_data_hr_sum <- cont_data_hr_sum %>% mutate(year = lubridate::year(date.fm),
+                                                                month = lubridate::month(date.fm), 
+                                                                season = case_when(
+                                                                  month %in% c(12,1,2) ~ "Winter",
+                                                                  month %in% c(3:5) ~ "Spring",
+                                                                  month %in% c(6:8) ~ "Summer",
+                                                                  month %in% c(9:11) ~ "Fall"
+                                                                ))
+                
+                if(input$summarise_by == "year/month"){
+                  ret_table <- cont_data_hr_sum %>% 
+                    group_by(year, month) %>% 
+                    summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
+                    rename("Year" = "year", "Month" = "month", !!metric_nm := "sum_max", "Number of days" = "num_days")
+                }
+                
+                if(input$summarise_by == "year"){
+                  ret_table <- cont_data_hr_sum %>% 
+                    group_by(year) %>% 
+                    summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
+                    rename("Year" = "year", !!metric_nm := "sum_max", "Number of days" = "num_days")
+                }
+                
+                if(input$summarise_by == "year/season"){
+                  ret_table <- cont_data_hr_sum %>% 
+                    group_by(year, season) %>% 
+                    summarize(sum_max = max(min_temp_day, na.rm = TRUE)%>% round(3),, num_days = sum(!is.na(min_temp_day))) %>% 
+                    rename("Year" = "year", "Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
+                }
+                
+                if(input$summarise_by == "season"){
+                  ret_table <- cont_data_hr_sum %>% 
+                    group_by(season) %>% 
+                    summarize(sum_max = max(min_temp_day, na.rm = TRUE) %>% round(3), num_days = sum(!is.na(min_temp_day))) %>% 
+                    rename("Season" = "season", !!metric_nm := "sum_max", "Number of days" = "num_days")
+                }
+                
+                output$tempExceed_table <- DT::renderDataTable({
+                  myTable <- DT::datatable(
+                    ret_table,
+                    extensions ="Buttons",
+                    rownames = FALSE,
+                    options = list(
+                      scrollX = FALSE, #allow user to scroll wide tables horizontally
+                      stateSave = FALSE,
+                      pageLength = 15,
+                      dom = 'Bt',
+                      buttons = list(
+                        list(extend='copy', text='Copy', className="btn btn-primary"),
+                        list(extend='print', text='Print', className="btn btn-primary"),
+                        list(extend='collection', buttons = 
+                               list(
+                                 list(extend = "csv", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                        "_",
+                                                                        input$temp_name,
+                                                                        "_",
+                                                                        metric_nm, 
+                                                                        "_",
+                                                                        input$summarise_by)),
+                                 list(extend = "excel", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                          "_",
+                                                                          input$temp_name,
+                                                                          "_",
+                                                                          metric_nm,
+                                                                          "_",
+                                                                          input$summarise_by)),
+                                 list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
                                                                         "_",
                                                                         input$temp_name,
                                                                         "_",
                                                                         metric_nm,
                                                                         "_",
-                                                                        input$summarise_by)),
-                               list(extend = "pdf", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
-                                                                      "_",
-                                                                      input$temp_name,
-                                                                      "_",
-                                                                      metric_nm,
-                                                                      "_",
-                                                                      input$summarise_by))
-                             ),text='Download', className="btn btn-primary")
-                    ),
-                    columnDefs = list(list(className="dt-center",targets="_all")),
-                    initComplete = JS(
-                      "function(settings, json) {",
-                      "$(this.api().table().header()).css({'background-color': '#e3e3e3', 'color': '#000'});",
-                      "$('.dt-buttons button').removeClass('dt-button');",
-                      "}")
-                  )
-                ) # dataTable end
-                print(myTable)
-              })  ## renderDataTable end
-              
-            },
-            error = function(e){
-              
-              
-              if(e$message == "no applicable method for 'filter' applied to an object of class \"NULL\"") {
-                error_append <- "Select a temperature column"
-              } else {
-                error_append <- e$message
-              }
-              
-              errorMsg <- print(paste0("Error in temperature not to exceed module ", error_append))
-              
-              output$errorDiv <- renderUI({
-                div(h4(errorMsg), class="alert alert-danger")
+                                                                        input$summarise_by))
+                               ),text='Download', className="btn btn-primary")
+                      ),
+                      columnDefs = list(list(className="dt-center",targets="_all")),
+                      initComplete = JS(
+                        "function(settings, json) {",
+                        "$(this.api().table().header()).css({'background-color': '#e3e3e3', 'color': '#000'});",
+                        "$('.dt-buttons button').removeClass('dt-button');",
+                        "}")
+                    )
+                  ) # dataTable end
+                  print(myTable)
+                })  ## renderDataTable end
+                
+              },
+              error = function(e){
+                
+                
+                if(e$message == "no applicable method for 'filter' applied to an object of class \"NULL\"") {
+                  error_append <- "Select a temperature column"
+                } else {
+                  error_append <- e$message
+                }
+                
+                errorMsg <- print(paste0("Error in temperature not to exceed module ", error_append))
+                
+                output$errorDiv <- renderUI({
+                  div(h4(errorMsg), class="alert alert-danger")
+                })
               })
-            })
+            }
+            
+            
             
             runjs(sprintf('document.getElementById("%s").scrollIntoView({ behavior: "smooth" });', ns("tempExceed_table")))
 

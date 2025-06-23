@@ -26,7 +26,7 @@ SummaryTablesModuleUI <- function(id) {
           width = 9,
                  shinydashboard::box(id=ns("summary_tab_help"), width=12, class="well",
                                      h4("Any parameters – Summary tables"),
-                                     div(style="width:100%;", "Calculates the mean of user-selected daily summary statistics (e.g., mean, median, standard deviation) over user-selected time periods (year/month, year, year/season, season) for any processed continuous parameter.")), 
+                                     div(style="width:100%;", "Calculates the mean of user-selected daily summary statistics (e.g., mean, median, standard deviation) over user-selected time periods (year/month, year, year/season, season) for any processed continuous parameter. Seasons are defined as: Winter (December, January, February), Spring (March, April, May), Summer (June, July, August), Fall (September, October, November).")), 
                  
                  DT::dataTableOutput(ns("display_summary_table_1"))
         ) # mainPanel end
