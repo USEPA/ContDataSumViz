@@ -27,9 +27,15 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_
 
       if (!is.null(my_raw_choices) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted),])){
 
-        uploaded_raw_data <- raw_data %>% 
+        tryCatch({
+          uploaded_raw_data <- raw_data %>% 
           dplyr::select(c(userSelectedValues$parmToProcess()), "Date" = c(date.formatted)) %>% 
-          pivot_longer(cols = !Date, names_to = "parameter", values_to = "value")
+          pivot_longer(cols = !Date, names_to = "parameter", values_to = "value")},
+          error = function(e){
+            if(str_detect(conditionMessage(e),"Can't combine")){
+              shinyalert("Error in selected parameters", "Parameters with multiple classes (e.g., numeric and character) have been selected, which is not supported in the raw time series feature. Revise the parameter selection to include parameters with the same class.", "warning")
+            }
+          })
 
         p <- ggplot(data = uploaded_raw_data, aes(x=Date, y = value)) +
           geom_line(aes(colour=parameter)) +
