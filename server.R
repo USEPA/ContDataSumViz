@@ -75,6 +75,11 @@ server <- function(input, output, session) {
   renderDiscrete <- reactiveValues(render = FALSE)
   homePageInputs <- reactiveValues(changed = FALSE)
   
+  gageRawData <- reactiveValues(gagedata = data.frame(),
+                                gageColName = as.character())
+  dayMetRawData <- reactiveValues(dayMetData = data.frame(),
+                                  daymetColumns = as.character())
+  
   gageDailyRawData <- reactiveValues(gagedata = data.frame(),
                                      gageColName = as.character())
   
@@ -130,7 +135,7 @@ server <- function(input, output, session) {
   FlashinessModuleServer("flashinessTab", uploaded_data, dailyStats = processed, renderFlashiness, loaded_data, gageDailyRawData)
   
   # USGS & Daymet Exploration tab
-  GageAndDaymetModuleServer("gageDaymetAndBase", homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet)
+  GageAndDaymetModuleServer("gageDaymetAndBase", homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet, gageRawData, dayMetRawData)
   
   # Temperature Not to Exceed tab
   TempNotToExceedServer("tempNTE", uploaded_data, formated_raw_data, renderTempNTE, loaded_data)
@@ -534,6 +539,9 @@ server <- function(input, output, session) {
               div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left:10px;margin-bottom:10px"),
               div(
                 actionButton(inputId = "display_discrete_data", label = "View discrete-continuous plot", class = "btn btn-primary"), style = "margin:10px 15px 10px 10px;"),
+              div(id = "discreteDownloadDiv", style = "margin:10px 15px 10px 10px; display:none;", renderUI({
+                downloadButton("download_discrete", "Download combined data", class="btn btn-primary")
+              })),
               div(id = "disDateAndTimeError", style = "margin-top:10px; margin-left:10px;")
           ) # end of box
         )
@@ -580,6 +588,46 @@ server <- function(input, output, session) {
     )
   })
   
+  #observe(if(nrow(gageRawData$gagedata) > 0 | nrow(dayMetRawData$dayMetData) > 0){
+    output$gage_daymet_discrete <- renderUI({
+      checkboxGroupInput(inputId = "gageday_discrete", 
+                         label = "Display with downloaded data",
+                         choices = c("USGS Gage", "DayMet"), 
+                         selected = )
+    })
+    observeEvent(input$gageday_discrete, {
+      if("USGS Gage" %in% input$gageday_discrete){
+        if(nrow(gageRawData$gagedata) == 0){
+          shinyalert("Downloaded data required","Please download USGS gage data in the USGS & Daymet Exploration tab to access this feature", type = "warning")
+        }
+        
+        output$gage_select_discrete <- renderUI({
+          selectizeInput("gage_param_discrete", label ="Select USGS Gage variables",
+                         choices= setdiff(names(gageRawData$gagedata), c("GageID", "SiteID", "Date.Time")),
+                         multiple = TRUE,
+                         options = list(hideSelected = FALSE, plugins = list("remove_button")))
+        }) 
+      }
+      if("DayMet" %in% input$gageday_discrete){
+        if(nrow(dayMetRawData$dayMetData) == 0){
+          shinyalert("Downloaded data required", "Please download Daymet data in the USGS & Daymet Exploration tab to access this feature", type = "warning")
+        }
+        output$daymet_select_discrete <- renderUI({
+          selectizeInput("daymet_param_discrete", label ="Select Daymet variables",
+                         choices= setdiff(names(dayMetRawData$dayMetData), c("year", "yday", "dayl..s."))%>% setNames(
+                           c("Precipitation (mm)",
+                             "Shortwave radiation (W m^-2)",
+                             "Snow water equivalent (kg m^-2)",
+                             "Maximum air temperature (degrees C)",
+                             "Minimum air temperature (degrees C)",
+                             "Water vapor pressure (Pa)")),
+                         multiple = TRUE,
+                         options = list(hideSelected = FALSE, plugins = list("remove_button")))
+        })
+      }
+    }) 
+ # })
+  
   observeEvent(input$display_discrete_data, {
     discreteDTvalues$disDateAndTime <- dateAndTimeServer(id = "discretePage", uploaded_discreteData(), homePageInputs)
     localDiscreteDateAndTime <- discreteDTvalues$disDateAndTime
@@ -587,59 +635,91 @@ server <- function(input, output, session) {
     if (localDiscreteDateAndTime$isTimeValid() & localDiscreteDateAndTime$isDateAndtimeValid()) {
       tryCatch(
         {
-          variable_to_plot <- sort(localDiscreteDateAndTime$parmToProcess(), decreasing = FALSE)
-          base_vars_to_plot <- sort(input$discreteBaseId, decreasing = FALSE)
-          if (identical(variable_to_plot, base_vars_to_plot)) {
+          variable_to_plot <- sort(localDiscreteDateAndTime$parmToProcess(), decreasing = FALSE) # discrete
+          base_vars_to_plot <- sort(input$discreteBaseId, decreasing = FALSE) # continuous
+          if (length(intersect(variable_to_plot, base_vars_to_plot)) != 0) {
             discrete_data <- getFormattedRawData(localDiscreteDateAndTime, uploaded_discreteData(), tabName = "", errorDivId = "disDateAndTimeError")
             
             if ("date.formatted" %in% colnames(discrete_data) & nrow(discrete_data) != nrow(discrete_data[is.na(discrete_data$date.formatted), ])) {
+              
               base_data <- formated_raw_data$derivedDF
               if (!is.null(base_vars_to_plot) & nrow(base_data) != nrow(base_data[is.na(base_data$date.formatted), ])) {
                 mergedData <- NULL
                 for (varName in variable_to_plot) {
                   step1 <- base_data %>% select("continuous_value" = all_of(varName), "Date" = c(date.formatted))
                   step2 <- discrete_data %>% select("discrete_value" = all_of(varName), "Date" = c(date.formatted))
-                  step2 <- step2 %>%
-                    dplyr::left_join(step1, by = "Date") %>%
-                    dplyr::select(discrete_value, "Matching_Continuous_value" = continuous_value, "discrete_Date" = c(Date))
                   
-                  timediff <- get_interval(step1$Date)
-                  # print(timediff)
-                  timediff <- ifelse(timediff == "min", "15 mins", timediff)
-                  
-                  step1 <- step1 %>%
-                    mutate(Date = as.POSIXct(Date)) %>%
-                    tidyr::complete(Date = seq(min(Date, na.rm = TRUE), max(Date, na.rm = TRUE), by = timediff))
-                  
-                  num_fill_na <- nrow(step1)-nrow(step2)
-                  step2[nrow(step2) + num_fill_na,] <- NA
-                  tempdf <- cbind(step1, step2)
+                  tempdf <- full_join(step1, step2, by = "Date")
                   
                   mergedData[[varName]] <- tempdf
                 }
-                combinded_df <- bind_rows(mergedData, .id = "df")
+                combinded_df <- bind_rows(mergedData, .id = "df") %>% select(df, Date, continuous_value, discrete_value)
+                
+                if("USGS Gage" %in% input$gageday_discrete){
+                  temp <- gageRawData$gagedata %>% select(Date.Time, input$gage_param_discrete) %>% rename("Date" = "Date.Time") %>% 
+                    pivot_longer(cols = !Date, names_to = "df", values_to = "continuous_value") %>% 
+                    mutate(df = paste0("USGS_gage_", df)) %>% 
+                    mutate(discrete_value = NA)
+                  
+                  combinded_df <- combinded_df %>% bind_rows(temp)
+                }
+                
+                if("DayMet" %in% input$gageday_discrete){
+                  temp <- dayMetRawData$dayMetData %>% 
+                    mutate(Date = as.Date(yday, origin = paste(as.character(year - 1), "-12-31", sep = ""))) %>% 
+                    select(Date, input$daymet_param_discrete) %>% 
+                    pivot_longer(cols = !Date, names_to = "df", values_to = "continuous_value") %>% 
+                    mutate(df = case_when(
+                      df == "prcp..mm.day." ~ "Daymet_Precipitation (mm)",
+                      df == "srad..W.m.2." ~ "Daymet_Shortwave radiation (W m^-2)",
+                      df == "swe..kg.m.2." ~ "Daymet_Snow water equivalent (kg m^-2)", 
+                      df == "tmax..deg.c." ~ "Daymet_Maximum air temperature (degrees C)", 
+                      df == "tmin..deg.c." ~ "Daymet_Minimum air temperature (degrees C)", 
+                      df == "vp..Pa." ~"Daymet_Water vapor pressure (Pa)"
+                    )) %>% 
+                    mutate(discrete_value = NA)
+                  
+                  combinded_df <- combinded_df %>% bind_rows(temp)
+                }
+                
+                if(length(setdiff(base_vars_to_plot, variable_to_plot))!=0){
+                  temp <- base_data %>% select(date.formatted, setdiff(base_vars_to_plot, variable_to_plot)) %>% 
+                    rename("Date" = "date.formatted") %>% 
+                    pivot_longer(cols = !Date, names_to = "df", values_to = "continuous_value") %>% 
+                    mutate(discrete_value = NA)
+                  combinded_df <- combinded_df %>% bind_rows(temp)
+                }
                 
                 combinded_df$bothValues <- c(paste(
-                  "\nContinuous Value: ", combinded_df$Matching_Continuous_value, "\n",
+                  "\nContinuous Value: ", combinded_df$continuous_value, "\n",
                   "Discrete Value: ", combinded_df$discrete_value, "\n"
                 ))
-                
-                # shared x axis so calculate using base data file
-                mainMapTitle <- "Discrete and continuous data"
-                main_range <- calculate_time_range(as.list(combinded_df))
-                mainBreaks <- main_range[[1]]
-                main_x_date_label <- main_range[[2]]
-                
-                
-                mainPlot <- prepareDiscretePlot(combinded_df, mapTitle = mainMapTitle, xDateLabel = main_x_date_label, xDateBrakes = mainBreaks, base_vars_to_plot)
+               
+                mainPlot <- prepareDiscretePlot(combinded_df)
                 if (!is.null(mainPlot) & length(variable_to_plot) > 0) {
                   #shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
                   shinyjs::runjs("$('#dateTimeBoxButton_discrete').click()")
                   output$display_time_series_discrete <- renderPlotly({
-                    ggplotly(mainPlot, height = calculatePlotHeight(length(variable_to_plot) * 2), dynamicTicks = TRUE) %>% 
-                      plotly::layout(xaxis = list(type = "date"))
+                    ggplotly(mainPlot, height = calculatePlotHeight((length(variable_to_plot) + length(input$gageday_discrete) + length(input$gageday_discrete)) * 2), dynamicTicks = TRUE) %>% 
+                      plotly::layout(xaxis = list(type = "date")) %>% 
+                      style(hovertext = combinded_df$bothValues)
                   })
                 }
+                
+                shinyjs::show(id="discreteDownloadDiv",asis=TRUE)
+                
+                output$download_discrete <- downloadHandler(
+                  filename = function(){
+                    paste0("Discrete_continuous_", input$uploaded_discrete_file)
+                  },
+                  content = function(file){
+                    write.csv(combinded_df %>% 
+                                rename("Parameter" = "df") %>% 
+                                dplyr::select(-bothValues) %>% 
+                                mutate(Date = format(Date, "%Y-%m-%d %H:%M:%S")), file, row.names = FALSE)
+                  }
+                )
+                
               }
               
             }
@@ -725,31 +805,26 @@ server <- function(input, output, session) {
   #'
   #' @return mainPlot (object of plot)
   
-  prepareDiscretePlot <- function(mergedDataSet, mapTitle, xDateLabel, xDateBrakes, baseVarsToPlot) {
+  prepareDiscretePlot <- function(mergedDataSet) {
     mainPlot <- NULL
-    discrete <- mergedDataSet$df
-    mainPlot <- ggplot(data = mergedDataSet, dynamicTicks = TRUE, aes(name = bothValues, group = df)) +
-      geom_line(inherit.aes = FALSE, aes(x = as.POSIXct(Date), y = continuous_value, colour = df)) +
-      geom_point(inherit.aes = TRUE, aes(x = as.POSIXct(discrete_Date), y = discrete_value, shape = discrete, colour = "discrete")) +
-      labs(title = mapTitle, x = "Date", y = "Parameters") +
-      scale_x_datetime(date_labels = xDateLabel, date_breaks = xDateBrakes) +
+    mainPlot <- ggplot(mergedDataSet %>% rename("Parameters" = "df")) +
+      geom_line(aes(x= Date, y= continuous_value, color = Parameters)) +
+      geom_point(aes(x= Date, y= discrete_value), shape = 21, color = "black", show.legend = FALSE) +
+      aes(fill = Parameters)+
+      labs(title =  "Discrete and continuous data", x = "Date", y = "Parameters") +
       theme_bw() +
-      facet_grid(df ~ ., scales = "free_y") +
-      scale_color_discrete(name = "continuous") +
+      facet_grid(Parameters ~ ., scales = "free_y") +
       theme(
         strip.background = element_blank(),
-        legend.title = element_blank()
-        # ,strip.text.y = element_blank()
-        , strip.placement = "outside",
+        strip.placement = "outside",
         text = element_text(size = 10, face = "bold", color = "cornflowerblue"),
         plot.title = element_text(hjust = 0.5),
         legend.position = "bottom",
         axis.text.x = element_text(angle = 65, hjust = 1, vjust = 1)
-      )
+      )+
+      guides(fill = "none")
     return(mainPlot)
   }
-  
-  
   
   #' function for all file uploads
   #'

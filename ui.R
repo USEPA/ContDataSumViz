@@ -162,7 +162,10 @@ ui <- shinyUI(fluidPage(
 
                                     ),
                                     hr(),
-                                    uiOutput("baseParameters"))
+                                    uiOutput("baseParameters"),
+                                    uiOutput("gage_daymet_discrete"),
+                                    uiOutput("gage_select_discrete"),
+                                    uiOutput("daymet_select_discrete"))
                               ),
                               div(uiOutput("discreteDateAndTimeBox"))
                           ),

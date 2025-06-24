@@ -74,7 +74,7 @@ GageAndDaymetModuleUI <- function(id) {
 #' @param formated_raw_data 
 #' @param renderUsgsAndDaymet 
 #'
-GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet) {
+GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_data, renderUsgsAndDaymet, gageRawData, dayMetRawData) {
   
   moduleServer(
     id,
@@ -83,11 +83,11 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
       gageColNames  <- NULL
       daymetCols <- NULL
       consoleUSGS <- NULL
-      gageRawData <- reactiveValues(gagedata = data.frame(),
-                                    gageColName = as.character())
-      dayMetRawData <- reactiveValues(dayMetData = data.frame(),
-                                      daymetColumns = as.character())
-      
+      # gageRawData <- reactiveValues(gagedata = data.frame(),
+      #                               gageColName = as.character())
+      # dayMetRawData <- reactiveValues(dayMetData = data.frame(),
+      #                                 daymetColumns = as.character())
+      # 
       output$display_downloaded_data <- renderPlotly({
         plotly_empty()
       })
