@@ -82,7 +82,7 @@ TsRasterPlotModuleServer <- function(id, dailyStats, renderRasterPlot) {
           
           output$raster_input_2 <- renderUI({
             
-            selectizeInput(ns("dailyStats_raster_metrics"),label ="Select daily statistics metrics",
+            selectizeInput(ns("dailyStats_raster_metrics"),label ="Select daily statistics metric",
                            choices=c("mean","median","min", "max","range","sd","var","cv","n"),
                            multiple = FALSE,
                            selected="mean",
@@ -144,7 +144,7 @@ TsRasterPlotModuleServer <- function(id, dailyStats, renderRasterPlot) {
                 scale_fill_gradientn(name=mean_col,na.value="white",colours=colorV)+
                 scale_x_date(date_breaks="1 month",date_labels = "%b")+
                 scale_colour_manual(values=NA)+
-                labs(title=isolate(input$dailyStats_raster_title), x = "month",y = "year")+
+                labs(title=isolate(input$dailyStats_raster_title), x = "Month",y = "Year")+
                 guides(color=guide_legend("No data",override.aes = list(fill="white")))+
                 theme_classic()+
                 theme(text=element_text(size=16,face = "bold", color="cornflowerblue")

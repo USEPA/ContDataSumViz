@@ -119,7 +119,7 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
                   })
                   output$time_series_overlay_input_2 <- renderUI({
                     
-                    selectizeInput(ns("dailyStats_ts_overlay_metrics"),label ="Select daily statistics metrics",
+                    selectizeInput(ns("dailyStats_ts_overlay_metrics"),label ="Select daily statistics metric",
                                    choices=c("mean","median","min", "max","range","sd","var","cv","n"),
                                    multiple = FALSE,
                                    selected="mean",
@@ -131,8 +131,8 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
                   })
                   
                   output$time_series_overlay_input_4 <- renderUI({
-                    radioButtons(ns("overlay_shading"), "Add shading with", choices = c("none"="none"
-                                                                                    ,"mean daily min and max across all years"="overall"
+                    radioButtons(ns("overlay_shading"), "Add shading", choices = c("No shading"="none"
+                                                                                    ,"Mean daily min and max across all years"="overall"
                     ),
                     selected = "none")
                   })

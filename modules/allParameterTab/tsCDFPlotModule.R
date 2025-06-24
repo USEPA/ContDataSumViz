@@ -78,10 +78,10 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
 
               output$CDF_input_2 <- renderUI({
                 div(
-                  radioButtons(ns("CDF_shading"), "Add shading with", choices = c(
+                  radioButtons(ns("CDF_shading"), "Add shading", choices = c(
                     "No shading" = "noShading",
                     "25th & 75th percentiles"="quantiles",
-                    "minimum & maximum"="minMax"
+                    "Minimum & maximum"="minMax"
                   ),
                   selected = "minMax"))
 

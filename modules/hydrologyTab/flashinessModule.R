@@ -22,16 +22,13 @@ FlashinessModuleUI <- function(id) {
       #shinydashboard::box(id=ns("display_help_text_flashiness"), style="display:none;", width=12, class="well",
       shinydashboard::box(id=ns("display_help_text_flashiness"), width=12, class="well",
                                                 h4("Hydrology – Flashiness"),
-                                                div(style="width:100%;", "The Richards-Baker flashiness index (RBI) (Baker et al. 2004) reflects the frequency and rapidity of short-term changes in streamflow.
-                                                    It measures oscillations in discharge relative to total discharge, such that flashier streams receive higher scores.
-                                                    Results are scaled from 0 to 1 (most flashy)."),
+                                                div(style="width:100%;", "The Richards-Baker flashiness index (RBI) (Baker et al. 2004) reflects the frequency and rapidity of short-term changes in streamflow. It measures oscillations in discharge relative to total discharge. Results are scaled from 0 to 1, with flashier streams receiving higher scores."),
                                                 br(),
-                                                div(style="width:100%;", "The calculation is based on mean daily flows and is calculated by dividing the sum of the absolute values of day-to-day changes in mean daily flow by total discharge during the specified time period."),
+                                                div(style="width:100%;", "The calculation is made by dividing the sum of the absolute values of day-to-day changes in mean daily flow by total discharge during the specified time period."),
                                                 br(),
-                                                div(style="width:100%;", "The Shiny app calculation is based on mean daily values and calendar year. Those settings can be changed if you are using the R package instead of Shiny app.
-                                                    For more information, contact Erik Leppo (Erik.Leppo@tetratech.com)."),
+                                                div(style="width:100%;", "The Shiny app calculation is based on mean daily values and calendar year."),
                                                 br(),
-                                                div(style="width:100%;", "The RBI is intended to be used with discharge data but we’re experimenting with using it with sensor depth and water level data as well (since discharge data aren’t available for some of the RMN sites)."),
+                                                div(style="width:100%;", "The RBI is intended to be used with discharge data but we’re experimenting with also using it with sensor depth and water level data (since discharge data aren’t available for some of the RMN sites)."),
                                                 br(),
                                                 div(style="width:100%; font-weight:bold;", "Citation:"),
                                                 div(style="width:100%;",    "Baker, D.B., Richards, R.P., Loftus, T.T., Kramer, J.K. 2004. A New Flashiness Index: Characteristics and Applications to Midwestern Rivers and Streams.

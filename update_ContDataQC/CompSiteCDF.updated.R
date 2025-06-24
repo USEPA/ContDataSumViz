@@ -129,9 +129,9 @@ CompSiteCDF.updated <- function(file.input = NULL
     
     if(!is.null(Shaded.Names)){
       if (grepl("25%",Shaded.Names[1])){
-        shading_text <- paste0(Param.Name, " CDF between daily 25th percentiles and 75th percentiles")
+        shading_text <- paste0(Param.Name, " CDF between daily \n25th percentiles and 75th percentiles")
       }else if (grepl("min",Shaded.Names[1])){
-        shading_text <- paste0(Param.Name, " CDF between daily minimum and maximum values ")
+        shading_text <- paste0(Param.Name, " CDF between daily \nminimum and maximum values ")
       }
     } else{
       shading_text <- "Shading"

@@ -84,7 +84,7 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
           })
           output$time_series_input_2 <- renderUI({
             selectizeInput(ns("dailyStats_ts_metrics"),
-              label = "Select daily statistics metrics",
+              label = "Select daily statistics metric",
               choices = c("mean", "median", "min", "max", "range", "sd", "var", "cv", "n"),
               multiple = FALSE,
               selected = "mean",
@@ -97,7 +97,7 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
                 choices = c(
                   "No shading" = "noShading",
                   "25th & 75th percentiles" = "quantiles",
-                  "Minimum & Maximum" = "minMax"
+                  "Minimum & maximum" = "minMax"
                 ),
                 selected = "noShading"
               )

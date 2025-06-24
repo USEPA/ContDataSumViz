@@ -65,7 +65,7 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                     
                     output$box_input_2 <- renderUI({
                       
-                      selectizeInput(ns("boxplot_metrics"),label ="Select daily statistics metrics",
+                      selectizeInput(ns("boxplot_metrics"),label ="Select daily statistics metric",
                                      choices=c("mean","median","min", "max","range","sd","var","cv","n"),
                                      multiple = FALSE,
                                      selected="mean",
@@ -74,12 +74,12 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                     
                     output$box_input_3 <- renderUI({
                       div(
-                        radioButtons(ns("box_group"), "Group by", choices = c("month"="month"
-                                                                          ,"month(years side by side)"="month2"
-                                                                          ,"year"="year"
-                                                                          ,"season"="season"
-                                                                          ,"season(years side by side)"="season2"),
-                                     selected = "month"))
+                        radioButtons(ns("box_group"), "Group by", choices = c("Month"="Month"
+                                                                          ,"Month (years side by side)"="month2"
+                                                                          ,"Year"="Year"
+                                                                          ,"Season"="Season"
+                                                                          ,"Season (years side by side)"="season2"),
+                                     selected = "Month"))
                       
                     })
                     
@@ -102,16 +102,16 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                     variable_to_plot <- input$boxplot_variable_name
                     myData <- myList[[which(names(myList)==variable_to_plot)]]
                     mean_col <- paste0(input$boxplot_variable_name,".",input$boxplot_metrics)
-                    if(input$box_group=="year"){
+                    if(input$box_group=="Year"){
                       #myData[,input$box_group] <- format(myData[,"Date"],"%Y")
                       myData[,input$box_group] <- format(as.Date(myData$Date, format="%Y-%m-%d %H:%M:%S"),"%Y")
                       cols_selected = c("Date",input$box_group,mean_col)
-                    }else if(input$box_group=="month"){
+                    }else if(input$box_group=="Month"){
                       #myData[,input$box_group] <- format(myData[,"Date"],"%m")
                       myData[,input$box_group] <- format(as.Date(myData$Date, format="%Y-%m-%d %H:%M:%S"),"%m")
                       cols_selected = c("Date",input$box_group,mean_col)
-                    }else if(input$box_group=="season"){
-                      myData <- addSeason(myData)
+                    }else if(input$box_group=="Season"){
+                      myData <- addSeason(myData) %>% rename("Season" = "season")
                       cols_selected = c("Date",input$box_group,mean_col)
                     }else if(input$box_group=="month2"){
                       #myData[,"year"] <- format(myData[,"Date"],"%Y")
@@ -149,7 +149,7 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                         
                         p2 <- ggplot(data=data_to_plot,aes(x=month,y=!!sym(isolate(mean_col)),fill=year)) +
                           geom_boxplot(position=position_dodge(width=0.1))+
-                          labs(title=isolate(input$box_title),x = "month",y = isolate(input$boxplot_variable_name))+
+                          labs(title=isolate(input$box_title),x = "Month",y = isolate(input$boxplot_variable_name))+
                           theme_bw()+
                           theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                                 ,plot.title = element_text(hjust=0.5)
@@ -169,7 +169,7 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                         data_to_plot$season = reorderSeason(data_to_plot$season)
                         p2 <- ggplot(data=data_to_plot,aes(x=season,y=!!sym(isolate(mean_col)),fill=year)) +
                           geom_boxplot(position=position_dodge(width=0.1))+
-                          labs(title=isolate(input$box_title),x = "season",y = isolate(input$boxplot_variable_name))+
+                          labs(title=isolate(input$box_title),x = "Season",y = isolate(input$boxplot_variable_name))+
                           theme_bw()+
                           theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                                 ,plot.title = element_text(hjust=0.5)

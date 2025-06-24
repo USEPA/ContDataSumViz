@@ -78,7 +78,7 @@ SummaryTablesModuleServer <- function(id, dailyStats, renderSummaryTables, loade
                 })
 
                 output$summary_table_input_3 <- renderUI({
-                  selectizeInput(ns("summarise_metrics"),label ="Select metrics",
+                  selectizeInput(ns("summarise_metrics"),label ="Select metric",
                                  choices=c("mean","median","min", "max","range","sd","var","cv","n"),
                                  multiple = FALSE,
                                  selected="mean",

@@ -34,7 +34,7 @@ ThermalStatsModuleUI <- function(id) {
                             h4("Temperature – Thermal Statistics"),
                             div(style="width:100%;", "The output from this Shiny app is derived from the StreamThermal R package on GitHub (",
                             a('https://github.com/tsangyp/StreamThermal', href='https://github.com/tsangyp/StreamThermal', target='_blank'),
-                                                      " ). It generates over 200 different thermal metrics that cover five categories of stream thermal regimes: magnitude, variability, frequency, timing, and rate of change. Critical temperature refers to the cutoff temperature for the frequency calculation, which sums the number of observations greater than the cutoff."),
+                                                      " ). It generates over 200 different thermal metrics that cover five categories of stream thermal regimes: frequency, magnitude, rate of change, timing, and variability. Critical temperature refers to the cutoff temperature for the frequency calculation, which sums the number of observations greater than the cutoff."),
                             br(),
                             div(style = "width:100%;font-weight:bold;", "Citation:"),
                             div(style="width:100%;", "Tsang, Y.P., Infante, D., Stewart, J., Wang, L., Tingly, R., Thornbrugh, D., Cooper, A., Daniel, W. 2016. StreamThermal: A Software Package for Calculating Thermal Metrics from Stream Temperature Data. Fisheries. 41: 548-554.",

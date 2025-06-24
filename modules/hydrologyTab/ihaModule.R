@@ -28,7 +28,7 @@ IHAModuleUI <- function(id) {
         shinydashboard::box(id=ns("display_help_text_IHA"), width=12, class="well",
                             h4("Hydrology-IHA"),
                             br(),
-                            div(style="width:100%;","Indicators of Hydrologic Alteration (IHA) software was developed by scientists at the Nature Conservancy to facilitate hydrologic analysis in an ecologically-meaningful manner (Richter et al. 1996)."),
+                            div(style="width:100%;","Indicators of Hydrologic Alteration (IHA) software was developed by scientists at The Nature Conservancy to facilitate hydrologic analysis in an ecologically-meaningful manner (Richter et al. 1996)."),
                             br(),
                             div(style="width:100%;","The output from this Shiny app is derived from the IHA R package on GitHub (",
                             a('https://github.com/jasonelaw/iha', href='https://github.com/jasonelaw/iha', target='_blank'),
@@ -41,7 +41,7 @@ IHAModuleUI <- function(id) {
                              tags$li("Rate and frequency of water condition changes (rise rate, fall rate, reversals)"),
                             ),
                             br(),
-                            div(style="width:100%", "The statistics are intended to be used with discharge data but we’re experimenting with using the statistics with sensor depth and water level data as well (since discharge data aren’t available for some of the RMN sites)."),
+                            div(style="width:100%", "The statistics are intended to be used with discharge data but we are experimenting with also using the statistics with sensor depth and water level data (since discharge data aren’t available for some of the RMN sites)."),
                             br(),
                             div(style="width:100%; font-weight:bold;", "Citation:"),
                             div(style="width:100%","Richter, B.D., Baumgartner, J.V., Powell, J., Braun, D.P.. 1996. A Method for Assessing Hydrologic Alteration within Ecosystems. Conservation Biology 10 (4): 1163-1174." ,
@@ -304,7 +304,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             Analysis.Group.1 <- as.data.frame(Analysis.Group.1) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.1 <- Analysis.Group.1
             localResults$IHA.group.1 <- Analysis.Group.1 %>% tibble::rownames_to_column("year")
-            renderTables(id="display_IHA_table_1", data=Analysis.Group.1, tblTitle="Group 1: Magnitude of monthly water conditions", btnId=ns("display_IHA_plot_1"), iha_output_file_str = iha_output_file_str)
+            renderTables(id="display_IHA_table_1", data=Analysis.Group.1, tblTitle="Group 1: Monthly mean", btnId=ns("display_IHA_plot_1"), iha_output_file_str = iha_output_file_str)
             
             
             ## IHA parameters group 2: Magnitude of monthly water condition and include 12 parameters
@@ -313,7 +313,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             Analysis.Group.2 <- as.data.frame(Analysis.Group.2) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.2 <- Analysis.Group.2
             localResults$IHA.group.2 <- Analysis.Group.2 # LCN: I do not know why this table already has year as a column
-            renderTables(id="display_IHA_table_2", data=Analysis.Group.2, tblTitle="Group 2: Magnitude of monthly water condition and include 12 parameters",btnId=ns("display_IHA_plot_2"), iha_output_file_str = iha_output_file_str)
+            renderTables(id="display_IHA_table_2", data=Analysis.Group.2, tblTitle="Group 2: Twelve magnitude/duration statistics (1-, 3-, 7-, 30- and 90-day min/max, zero flow days, base index)",btnId=ns("display_IHA_plot_2"), iha_output_file_str = iha_output_file_str)
 
             
             ## IHA parameters group 3:Timing of annual extreme water conditions
@@ -321,7 +321,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             #save(Analysis.Group.3,file="IHA_group_3.RData")
             #localStats$IHA.group.3 <- Analysis.Group.3
             localResults$IHA.group.3 <- Analysis.Group.3 %>% as.data.frame() %>% tibble::rownames_to_column("year")
-            renderTables(id="display_IHA_table_3", data=Analysis.Group.3, tblTitle="Group 3: Timing of annual extreme water conditions", btnId=ns("display_IHA_plot_3"), iha_output_file_str = iha_output_file_str)
+            renderTables(id="display_IHA_table_3", data=Analysis.Group.3, tblTitle="Group 3: Julian day of annual minimum and maximum discharge", btnId=ns("display_IHA_plot_3"), iha_output_file_str = iha_output_file_str)
             
             ## IHA parameters group 4; Frequency and duration of high and low pulses
             # defaults to 25th and 75th percentiles
@@ -331,7 +331,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             #save(Analysis.Group.4,file="IHA_group_4.RData")
             #localStats$IHA.group.4 <- Analysis.Group.4
             localResults$IHA.group.4 <- Analysis.Group.4 %>% as.data.frame() %>% tibble::rownames_to_column("year")
-            renderTables(id="display_IHA_table_4", data=Analysis.Group.4, tblTitle="Group 4: Frequency and duration of high and low pulses", btnId=ns("display_IHA_plot_4"), iha_output_file_str = iha_output_file_str)
+            renderTables(id="display_IHA_table_4", data=Analysis.Group.4, tblTitle="Group 4: Number and length of high and low pulses", btnId=ns("display_IHA_plot_4"), iha_output_file_str = iha_output_file_str)
             
 
             ## IHA parameters group 5; Rate and frequency of water condition changes
@@ -341,13 +341,13 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
             localResults$IHA.group.5 <- Analysis.Group.5 %>% as.data.frame() %>% tibble::rownames_to_column("year")
             Analysis.Group.5 <- as.data.frame(Analysis.Group.5) %>% mutate_if(is.numeric,round,digits=2)
             
-            renderTables(id="display_IHA_table_5", data=Analysis.Group.5, tblTitle="Group 5: Rate and frequency of water condition changes", btnId=ns("display_IHA_plot_5"), iha_output_file_str = iha_output_file_str)
+            renderTables(id="display_IHA_table_5", data=Analysis.Group.5, tblTitle="Group 5: Rate and frequency of water condition changes (rise rate, fall rate, reversals)", btnId=ns("display_IHA_plot_5"), iha_output_file_str = iha_output_file_str)
             
 
             
             ## create Excel Workbook 
             require(openxlsx)
-            Group.Desc <- c("Magnitude of monthly water conditions"
+            Group.Desc <- c("Monthly mean"
                             ,"Magnitude of monthly water condition and include 12 parameters"
                             ,"Timing of annual extreme water conditions"
                             ,"Frequency and duration of high and low pulses"
