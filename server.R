@@ -83,6 +83,9 @@ server <- function(input, output, session) {
   gageDailyRawData <- reactiveValues(gagedata = data.frame(),
                                      gageColName = as.character())
   
+  flags <- reactiveValues(flagOptions = as.character(),
+                          flagCols = list(),
+                          flagCodes = list())
   ##############################
   # init shiny modules
   ##############################
@@ -91,10 +94,10 @@ server <- function(input, output, session) {
   progressWorkflowModuleServer("statusWorkflow", workflowStatus)
   
   # calculate daily statistics
-  calculateDailyStatsModuleServer("calculateDailyStats", formated_raw_data, homeDTvalues, metaHomeValues, loaded_data, dailyStatusCalculated, processed, readyForCalculation)
+  calculateDailyStatsModuleServer("calculateDailyStats", formated_raw_data, homeDTvalues, metaHomeValues, loaded_data, dailyStatusCalculated, processed, readyForCalculation, flags)
   
   # flag module
-  flagServer("displayStep3", homeDTvalues, formated_raw_data)
+  flagServer("displayStep3", homeDTvalues, formated_raw_data, flags)
   
   ############ Continuous Data Exploration >>  All parameters ############
   
@@ -296,8 +299,10 @@ server <- function(input, output, session) {
     output$display_runmetasummary <-
       renderUI({
         div(class="panel panel-default", style="margin:10px;",
-            div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;"),
-            div(class = "panel-body", flagUI("displayStep3"), style = "margin: 10px;")
+            div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="metadataHelp")),
+            div(bsPopover(id="metadataHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to identify quality flags in the data. These flags can be used to eliminate data with quality issues. If the user indicates that quality flags are available, they must be available for every selected parameter. This module is designed for data to have every flag code in the same column, so different types of flags (e.g., fail and suspect) must have different codes. If the data were prepared using ContDataQC with the default configuration, input the fail code as F, suspect code as S, and not known code as X. If the data were prepared using a modified configuration file, refer to that file for the correct quality flag codes."), 
+                          placement = "right", trigger = "hover")),
+            div(class = "panel-body", flagUI("displayStep3"), style = "margin-left: 10px; margin-right: 10px;")
         )
       })
     
@@ -340,10 +345,10 @@ server <- function(input, output, session) {
             dateRange$min <- min(as.Date(raw_data$date.formatted), na.rm = TRUE)
             dateRange$max <- max(as.Date(raw_data$date.formatted), na.rm = TRUE)
             raw_data_columns$date_column_name <- "date.formatted"
-            
+
             # now shorten the varname
             raw_data <- formated_raw_data$derivedDF
-            metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data())
+            metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data(), flags)
             raw_data_columns$date_column_name <- "date.formatted"
             output$display_fill_data <- renderUI({
               div(style = "margin-top:20px;", metaDataUI("metaDataHome")) 

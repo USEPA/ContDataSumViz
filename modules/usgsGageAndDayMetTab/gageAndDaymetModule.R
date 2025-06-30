@@ -469,11 +469,11 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               select(c(input$daymet_params), c("year", "yday")) %>%
               mutate(Date=as.Date(yday, origin=paste(as.character(year - 1), "-12-31", sep=""))) %>%
               select(c(input$daymet_params), "Date") %>%
-              gather(key = "parameter", value = "value",-Date)
+              gather(key = "Parameter", value = "value",-Date)
             allParames <- daymet_data_raw %>% pull(Parameter)
             
             totalH <- totalH + length(input$daymet_params)
-            daymet_data_raw$parameter <- paste("DayMet",allParames,sep="_")
+            daymet_data_raw$Parameter <- paste("DayMet",allParames,sep="_")
             mergedList[["DayMet"]] <- daymet_data_raw
           }
           
@@ -481,11 +481,11 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             #gageGroup <- paste(input$gage_params, "Gage", sep=".")
             gage_data_raw  <- gageRawData$gagedata %>%
               select(all_of(input$gaze_params), all_of("GageID"), 'Date'=all_of("Date.Time")) %>%
-              gather(key = "parameter", value = "value",-GageID, -Date)
+              gather(key = "Parameter", value = "value",-GageID, -Date)
             
             totalH <- totalH + length(input$gaze_params)
             allParames <- gage_data_raw %>% pull(Parameter)
-            gage_data_raw$parameter <- paste("Gage",allParames,sep="_")
+            gage_data_raw$Parameter <- paste("Gage",allParames,sep="_")
             mergedList[["Gage"]] <- gage_data_raw
           }
           raw_data <- formated_raw_data$derivedDF
@@ -503,11 +503,11 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             
             base_data_raw  <- raw_data %>%
               select(any_of(variable_to_plot), Date= c("date.formatted")) %>%
-              gather(key = "parameter", value = "value", -Date)
+              gather(key = "Parameter", value = "value", -Date)
             
             totalH <- totalH + length(variable_to_plot)
             allParames <- base_data_raw %>% pull(Parameter)
-            base_data_raw$parameter <- paste("BaseFile",allParames,sep="_")
+            base_data_raw$Parameter <- paste("BaseFile",allParames,sep="_")
             mergedList[["BaseFile"]] <- base_data_raw
           }
           
@@ -515,7 +515,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           # main_range = calculate_time_range(as.list(base_data_raw))
           # mainBreaks = main_range[[1]]
           # main_x_date_label = main_range[[2]]
-          
+          #browser()
           #allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter), aes(x = as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
           allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),Parameter) %>% mutate(Date = as.POSIXct(Date,format="%Y-%m-%d")), aes(x = Date, y = value)) +
             geom_line(aes(colour=Parameter)) +

@@ -34,57 +34,8 @@ step5ui <- function(id){
       div(a(href = "#mainTabs","Proceed to the tabs at the top of the page to visualize your data."), style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;")
   )
 }
-  
-# ORIGINAL
-# calculateDailyStatsModuleUI <- function(id, readyForCalculation) {
-#    ns <- NS(id)
-#    shinyjs::useShinyjs()
-#    if (readyForCalculation$status == TRUE) {
-#      # tagList(
-#      #   # hr(),
-#      #   actionButton(
-#      #     inputId = ns("calculateDailyStatistics2"),
-#      #     label = "Calculate daily statistics",
-#      #     class = "btn btn-primary"
-#      #   ),
-#      #   hr(),
-#      #   downloadButton(
-#      #     outputId = ns("saveDailyStatistics2"),
-#      #     label = "Save daily statistics",
-#      #     class = "btn btn-primary",
-#     #     style = "padding-left:15px;padding-right:15px;display:none;"
-#      #   )
-#      # )
-#      tagList(
-# 
-#        div(actionButton(
-#          inputId = ns("calculateDailyStatistics2"),
-#          label = "Calculate daily statistics",
-#          class = "btn btn-primary",
-#          style="margin-left:10px;margin-right:10px;margin-top:20px;"
-#        )),
-#        # div(id = ns("calcsuccess"),  style = "margin:10px",
-#        #     p("Calculation successful")),
-#        p(id = ns("calcsuccess"), "Calculation successful", style = "margin:10px;display:none"),
-#        hr(),
-#        div(downloadButton(
-#          outputId = ns("saveDailyStatistics2"),
-#          label = "Save daily statistics",
-#          class = "btn btn-primary",
-#          style = "margin-left:10px;margin-right:10px;margin-bottom:20px;display:none;") #padding-left:15px;padding-right:15px;
-#        )
-#        ,
-#        div(id = ns("step5panel"), class="panel panel-default", style = "margin:10px;display:none",
-#            div(class="panel-heading", "Step 5: Visualize data", style="font-weight:bold;"),
-#            p("Proceed to the tabs at the top of the page to visualize your data.", style = "margin-left:10px; margin-right:10px; margin-top:20px; margin-bottom:20px;font-weight:bold")
-#        )
-#      )
-#    }
-#  }
 
-
-
-calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues, metaHomeValues, loaded_data, dailyStatusCalculated, processed, readyForCalculation) {
+calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues, metaHomeValues, loaded_data, dailyStatusCalculated, processed, readyForCalculation, flags) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -113,53 +64,23 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
             withProgress(message = paste("Calculating the daily statistics"), value = 0, {
               incProgress(0, detail = "now... ")
               raw_data <- formated_raw_data$derivedDF
-              # print(head(raw_data))
-              ## print(formated_raw_data$derivedDF)
-              # dateRange$min <- min(as.Date(raw_data$date.formatted), na.rm = TRUE)
-              # dateRange$max <- max(as.Date(raw_data$date.formatted), na.rm = TRUE)
+
               variables_to_calculate <- homeDTvalues$homeDateAndTime$parmToProcess()
 
-              if (is.null(metaHomeValues$metaVal$fillMissingData2())) {
-                ContData.env$myStats.Fails.Exclude <- FALSE
-                ContData.env$myStats.Suspects.Exclude <- FALSE
-              }
-              if ("fail" %in% metaHomeValues$metaVal$fillMissingData2()) {
-                print(paste0("check the exclude flagged choices are:", metaHomeValues$metaVal$fillMissingData2()))
-                ContData.env$myStats.Fails.Exclude <- TRUE
-              } else {
-                ContData.env$myStats.Fails.Exclude <- FALSE
-              }
-              if ("suspect" %in% metaHomeValues$metaVal$fillMissingData2()) {
-                print(paste0("check the exclude flagged choices are:", metaHomeValues$metaVal$fillMissingData2()))
-                ContData.env$myStats.Suspects.Exclude <- TRUE
-              } else {
-                ContData.env$myStats.Suspects.Exclude <- FALSE
-              }
-              if ("flag not known" %in% metaHomeValues$metaVal$fillMissingData2()) {
-                # do nothing, logic is not there in the sumStts.updated function
-                # print("Just for testing")
-              }
-
-
-              # Fill missing data
-              ContData.env$myStats.missing.data.fill <- metaHomeValues$metaVal$fillMissingData2()
-
-              dailyStats$processed <- SumStats.updated(
-                fun.myFile = NULL,
-                fun.myDir.import = NULL,
+              dailyStats$processed <- sumStats.ContDataSumViz(
                 fun.myParam.Name = variables_to_calculate,
-                fun.myDateTime.Name = "date.formatted",
-                fun.myDateTime.Format = "%Y-%m-%d %H:%M:%S",
-                fun.myThreshold = 20,
-                fun.myConfig = "",
-                df.input = raw_data
+                df.input = raw_data,
+                flag.cols = flags$flagCols,
+                flag.codes = flags$flagCodes
               )
 
+              formated_raw_data$derivedDF <- dailyStats$processed$contData
+              
               shinyjs::show(id = "calcsuccess")
               shinyjs::show(id = "saveDailyStatistics2")
               shinyjs::show(id = "step5panel")
               incProgress(1 / 1, detail = "Calculated the daily statistics")
-              processed$processed_dailyStats <- dailyStats$processed
+              processed$processed_dailyStats <- dailyStats$processed$sumData
               dailyStatusCalculated$status <- "finished"
             })
           },
@@ -186,22 +107,22 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
         },
         content = function(file) {
           if (metaHomeValues$metaVal$how_to_save2() == "save2") {
-            combined_data <- Reduce(full_join, dailyStats$processed)
+            combined_data <- Reduce(full_join, dailyStats$processed$sumData)
             write.csv(combined_data, file, row.names = FALSE)
           } else if (metaHomeValues$metaVal$how_to_save2() == "save4") {
-            wqxData <- Reduce(full_join, dailyStats$processed)
+            wqxData <- Reduce(full_join, dailyStats$processed$sumData)
             wqxData <- wqxData %>%
-              gather(key = "CharacteristicName", value = "Value", -Date)
+              pivot_longer(cols = !Date, names_to = "CharacteristicName", values_to = "Value")
             write.csv(wqxData, file, row.names = FALSE)
           } else if (metaHomeValues$metaVal$how_to_save2() == "save1") {
             owd <- setwd(tempdir())
             on.exit(setwd(owd))
             files <- NULL
-            for (i in 1:length(dailyStats$processed)) {
-              name_i <- names(dailyStats$processed)[i]
+            for (i in 1:length(dailyStats$processed$sumData)) {
+              name_i <- names(dailyStats$processed$sumData)[i]
               print(name_i)
               filename <- paste0("saved_dailyStats_", loaded_data$name, "_", name_i, "_dailyStats.csv")
-              write.csv(dailyStats$processed[[i]], filename, row.names = FALSE)
+              write.csv(dailyStats$processed$sumData[[i]], filename, row.names = FALSE)
               files <- c(filename, files)
             }
             zip::zip(file, files)
