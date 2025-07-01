@@ -6,7 +6,7 @@ flagUI <- function(id) {
       div(radioButtons(inputId = ns("flagOpt"),
                        label = "Data contain quality flags",
                        choices = c("Yes", "No"),
-                       selected = "Yes")), #, style="margin:10px;"
+                       selected = "No")), #, style="margin:10px;"
     ),
     fluidRow(
       uiOutput(ns("flag_next")),
