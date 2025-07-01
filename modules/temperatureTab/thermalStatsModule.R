@@ -158,22 +158,35 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                         output$errorDiv <- renderUI({})
               
                         #shinyjs::hide(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
-                        myData <- uploaded_data
+                        temp_data <- dailyStats$processed_dailyStats[[input$thermal_Temp_name]] %>% 
+                          dplyr::select("SiteID", 
+                                        "Date", 
+                                        "MaxT" = paste0(input$thermal_Temp_name,".max"),
+                                        "MinT" = paste0(input$thermal_Temp_name,".min"), 
+                                        "MeanT" = paste0(input$thermal_Temp_name,".mean"))
                         
                         tryCatch({
-                        streamThermal_exported <- Export.StreamThermal(formated_raw_data$derivedDF
-                                                                       ,fun.col.SiteID = input$thermal_SiteID_name
-                                                                       ,fun.col.Date = "date.formatted"
-                                                                       ,fun.col.Temp = input$thermal_Temp_name
-                        )
-                        print("passed Export.StreamThermal")
+                        # streamThermal_exported <- Export.StreamThermal(formated_raw_data$derivedDF
+                        #                                                ,fun.col.SiteID = input$thermal_SiteID_name
+                        #                                                ,fun.col.Date = "date.formatted"
+                        #                                                ,fun.col.Temp = input$thermal_Temp_name
+                        # )
+                        # print("passed Export.StreamThermal")
+                          #]browser()
                         
                         ##save(streamThermal_exported, file="test_streamThermal_exported.RData")
-                        ST.freq <- T_frequency(streamThermal_exported, cT = input$critical_temp) %>% mutate_if(is.numeric,round,digits=2)
-                        ST.mag  <- T_magnitude(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
-                        ST.roc  <- T_rateofchange(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
-                        ST.tim  <- T_timing(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
-                        ST.var  <- T_variability(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
+                        ST.freq <- T_frequency(temp_data, cT = input$critical_temp) %>% mutate_if(is.numeric,round,digits=2)
+                        ST.mag  <- T_magnitude(temp_data) %>% mutate_if(is.numeric,round,digits=2)
+                        ST.roc  <- T_rateofchange(temp_data) %>% mutate_if(is.numeric,round,digits=2)
+                        ST.tim  <- T_timing(temp_data) %>% mutate_if(is.numeric,round,digits=2)
+                        ST.var  <- T_variability(temp_data) %>% mutate_if(is.numeric,round,digits=2)
+                        
+                        # ST.freq <- T_frequency(streamThermal_exported, cT = input$critical_temp) %>% mutate_if(is.numeric,round,digits=2)
+                        # ST.mag  <- T_magnitude(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
+                        # ST.roc  <- T_rateofchange(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
+                        # ST.tim  <- T_timing(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
+                        # ST.var  <- T_variability(streamThermal_exported) %>% mutate_if(is.numeric,round,digits=2)
+                        
                         
                         localStats$ST.freq <- ST.freq
                         localStats$ST.mag <- ST.mag

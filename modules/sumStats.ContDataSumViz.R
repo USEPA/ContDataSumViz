@@ -17,7 +17,7 @@ sumStats.ContDataSumViz<- function(df.input, fun.myParam.Name, flag.cols, flag.c
      df.ret <- df.load %>%
        rename("current_param" = i, "current_qf" = flag.cols[[i]]) %>%
        mutate(Date = date(date.formatted)) %>%
-       group_by(Date) %>%
+       group_by(SiteID, Date) %>% # TODO generalize SiteID col
        summarize(
        !!(paste(i, "mean", sep = ".")) := mean(current_param, na.rm = TRUE),
        !!(paste(i, "median", sep = ".")) := median(current_param, na.rm = TRUE),
@@ -37,7 +37,8 @@ sumStats.ContDataSumViz<- function(df.input, fun.myParam.Name, flag.cols, flag.c
        !!(paste(i, "q", "90%", sep = ".")) := quantile(current_param, probs = 0.90, na.rm = TRUE, names = FALSE),
        !!(paste(i, "q", "99%", sep = ".")) := quantile(current_param, probs = 0.99, na.rm = TRUE, names = FALSE)) %>% 
        mutate(across(everything(), ~ replace(., is.infinite(.), NA)),
-              across(everything(), ~ replace(., is.nan(.), NA)))
+              across(everything(), ~ replace(., is.nan(.), NA))) %>% 
+       ungroup()
      
      df.list$sumData[[i]] <- df.ret
    }

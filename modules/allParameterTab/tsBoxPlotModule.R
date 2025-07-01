@@ -23,7 +23,7 @@ TsBoxPlotModuleUI <- function(id) {
       fluidRow(
         shinydashboard::box(id=ns("boxplot_tab_help"), width=12, class="well",
                             h4("Any parameters – Boxplots"),
-                            div(style="width:100%;", "Displays boxplots of a user-selected daily summary statistic (e.g., mean, median, standard deviation) for any processed continuous parameter, grouped by a user-selected time period. Seasons are defined as: Winter (December, January, February), Spring (March, April, May), Summer (June, July, August), Fall (September, October, November)."))
+                            div(style="width:100%;", "Displays boxplots of a user-selected daily summary statistic (e.g., mean, median, standard deviation) for any processed continuous parameter, grouped by a user-selected time period. Seasons are defined as: Winter (December, January, February), Spring (March, April, May), Summer (June, July, August), Fall (September, October, November). Refer to the Days of available data table in the Summary tables tab to determine the number of points contributing to each boxplot."))
       ),
       fluidRow(div(style="width:100%", uiOutput(ns("boxPlotError"))),
                       plotlyOutput(ns("display_box_plots")))
@@ -125,6 +125,7 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                     }
                     
                     data_to_plot <- myData[cols_selected]
+                    
                     if (!all(is.na(data_to_plot[,mean_col]))&input$box_group!="month2"&input$box_group!="season2"){
                       output$display_box_plots <- renderPlotly({
                         

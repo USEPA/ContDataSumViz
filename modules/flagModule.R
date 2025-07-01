@@ -4,7 +4,7 @@ flagUI <- function(id) {
   tagList(
     fluidRow(
       div(radioButtons(inputId = ns("flagOpt"),
-                       label = "Data contains quality flags",
+                       label = "Data contain quality flags",
                        choices = c("Yes", "No"),
                        selected = "Yes")), #, style="margin:10px;"
     ),

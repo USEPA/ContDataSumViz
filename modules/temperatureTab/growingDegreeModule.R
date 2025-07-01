@@ -25,7 +25,9 @@ GrowingDegreeModuleUI <- function(id) {
         shinydashboard::box(id=ns("display_help_text_growing_degree_days"), width=12, class="well",
                 h4("Temperature – Growing Degree Days"),
                 div(style="width:100%;", "Growing Degree Days (GDD) are used to estimate the growth and development of insects during the growing season.
-                    The basic concept is that development will only occur if the temperature exceeds some minimum development threshold, or base temperature, which varies depending on the type of organisms being studied.")
+                    The basic concept is that development will only occur if the temperature exceeds some minimum development threshold, or base temperature, which varies depending on the type of organisms being studied."),
+                br(),
+                div(style = "width:100%", "The growing degree days calculation is sensitive to the number of days of data used for the calculation, so users should take care to interpret the results in light of this value. ")
                   ), 
       div(DT::dataTableOutput(ns("gdd_table")), style = "width: 50%; margin: 0 auto;")
     ))
@@ -82,31 +84,19 @@ GrowingDegreeModuleServer <- function(id, uploaded_data, dailyStats, renderGrowi
                 output$errorDiv <- renderUI({})
                 
                 daily_temp <- localStats$processed_dailyStats[[input$temp_name]]
-                years_available <- unique(lubridate::year(daily_temp$Date))
+                #years_available <- unique(lubridate::year(daily_temp$Date))
                 
                 
                 tryCatch({
-                  gdd <- NULL
-                  for(i in 1:length(years_available)){
-                    temp_date <- daily_temp %>% dplyr::filter(lubridate::year(Date) %>% as.numeric() == years_available[i])
-                    
-                    if(nrow(temp_date)< 365 * 0.99){
-                      gdd <- c(gdd, "insufficient days")
-                    }
-                    else{
-                      daily_dd <- daily_temp %>% dplyr::filter(lubridate::year(Date) %>% as.numeric() == years_available[i]) %>% 
-                        mutate(gdd = case_when(
-                          get(paste0(input$temp_name, ".mean")) <= input$base_temp ~ 0,
-                          get(paste0(input$temp_name, ".mean")) > input$base_temp ~ get(paste0(input$temp_name, ".mean")) - input$base_temp
-                        ))
-                      
-                      year_dd <- sum(daily_dd$gdd, na.rm = T) %>% round(1) %>% as.character()
-                      
-                      gdd <- c(gdd, year_dd)
-                    }
-                  }
-                  
-                  gdd_df <- data.frame(Year = years_available, GDD = gdd) %>% rename("Growing Degree Days" = GDD)
+                  gdd_df <- daily_temp %>% 
+                    dplyr::mutate(Year = lubridate::year(Date)) %>% 
+                    mutate(gdd = case_when(
+                      get(paste0(input$temp_name, ".mean")) <= input$base_temp ~ 0,
+                      get(paste0(input$temp_name, ".mean")) > input$base_temp ~ get(paste0(input$temp_name, ".mean")) - input$base_temp
+                    )) %>% 
+                    group_by(Year) %>% 
+                    summarize(GDD = sum(gdd, na.rm = TRUE) %>% round(1), n_days = sum(!is.na(gdd))) %>% 
+                    rename("Growing Degree Days" = GDD, "Number of days with data" = n_days)
                   
                   output$gdd_table <- DT::renderDataTable({
                     myTable <- DT::datatable(

@@ -50,7 +50,7 @@ ThermalClassificationModuleUI <- function(id) {
                             div(style="width:100%", "McManamay, R., DeRolph, C.A. 2019. A Stream Classification System for the Conterminous United States. Scientific Data. 6, 190017.",
                                 a('https://doi.org/10.1038/sdata.2019.17', href='https://doi.org/10.1038/sdata.2019.17', target='_blank'))
         ), # end of box
-        div(DT::dataTableOutput(ns("display_water_temp_class_table")), style = "width: 50%; margin: 0 auto;")
+        div(DT::dataTableOutput(ns("display_water_temp_class_table")), style = "width: 75%; margin: 0 auto;")
       )
 
     ) # mainPanel end
@@ -141,6 +141,7 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
              output$display_water_temp_class_table <- DT::renderDataTable({})
 
              tryCatch({
+               # probably failing because you need to change this
              myList <- localStats$processed_dailyStats
              myData.Water <- myList[[which(names(myList)==input$water_temp_name_in_class)]]
              mean_col_water <- paste0(input$water_temp_name_in_class,".mean")
@@ -149,12 +150,13 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
              ## calculate the July/August mean for each year
              all.years <- unique(format(data_water_to_calculate$Date,format="%Y"))
              #print(all.years)
-             calculated.mean <- data.frame(matrix(ncol=3,nrow=0))
+             calculated.mean <- data.frame(matrix(ncol=4,nrow=0))
 
+             
              for (i in 1:length(all.years)){
                year.now <- all.years[i]
                to.select <- data_water_to_calculate %>% dplyr::filter(Date >= as.Date(paste0(year.now,"-07-01")) & Date <=  as.Date(paste0(year.now,"-08-31")))
-               mean.this.year <- mean(to.select[,2], na.rm = TRUE)
+               mean.this.year <- to.select %>% summarize(mean_ret = mean(!!sym(mean_col_water), na.rm = TRUE)) %>% pull(mean_ret)
                # to.select <- data_water_to_calculate$Date >= as.Date(paste0(year.now,"-07-01")) & data_water_to_calculate$Date <= as.Date(paste0(year.now,"-08-31"))
                # mean.this.year <- mean(data_water_to_calculate[to.select,2],na.rm=TRUE)
                class.this.year <- case_when(
@@ -167,10 +169,12 @@ ThermalClassificationModuleServer <- function(id, dailyStats,uploaded_data, rend
                  mean.this.year > 24 ~ "Warm"
                )
 
-               calculated.mean[i,] <- c(year.now,round(mean.this.year,digits=1),class.this.year)
+               n.this.year <- to.select %>% dplyr::filter(is.na(!!sym(mean_col_water))==FALSE) %>% nrow()
+               
+               calculated.mean[i,] <- c(year.now,round(mean.this.year,digits=1),class.this.year, n.this.year)
              } # for loop end
              second_col_name <- paste0("Mean July/Aug water temperature(C)")
-             colnames(calculated.mean) <- c("Year",second_col_name,"Class")
+             colnames(calculated.mean) <- c("Year",second_col_name,"Class", "Number of days with data")
              calculated.mean <- calculated.mean %>% mutate(`Mean July/Aug water temperature(C)` = if_else(`Mean July/Aug water temperature(C)` == "NaN", "", `Mean July/Aug water temperature(C)`))
              
              

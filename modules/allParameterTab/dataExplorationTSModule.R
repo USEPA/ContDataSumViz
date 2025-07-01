@@ -134,11 +134,11 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
             mainPlot <- draw_uploaded_file_ts()
             if (!is.null(mainPlot) & length(input$dailyStats_ts_variable_name) > 0) {
               output$display_time_series <- renderPlotly({
-                ggplotly(mainPlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2), dynamicTicks = TRUE) %>% 
-                  plotly::layout(xaxis = list(type = "date")) %>% 
-                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
-                                                                                               "_dailySummary_", 
-                                                                                               isolate(input$dailyStats_ts_metrics), "_", 
+                ggplotly(mainPlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2), dynamicTicks = TRUE) %>%
+                  plotly::layout(xaxis = list(type = "date")) %>%
+                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                                               "_dailySummary_",
+                                                                                               isolate(input$dailyStats_ts_metrics), "_",
                                                                                                isolate(input$dailyStats_shading), "_TS")))
                 # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
               })
@@ -147,11 +147,12 @@ DataExplorationTSModuleServer <- function(id, dailyStats, renderDataExp, loaded_
             basePlot <- draw_uploaded_file_stats()
             if (!is.null(basePlot)) {
               output$display_time_series <- renderPlotly({
-                ggplotly(basePlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2), dynamicTicks = TRUE) %>% 
-                  plotly::layout(xaxis = list(type = "date")) %>% 
-                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"), 
-                                                                                               "_dailySummary_", 
-                                                                                               isolate(input$dailyStats_ts_metrics), "_", 
+                ggplotly(basePlot, height = calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2), dynamicTicks = TRUE) %>%
+                  
+                  plotly::layout(xaxis = list(type = "date")) %>%
+                  plotly::config(toImageButtonOptions = list(format = "png", filename = paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
+                                                                                               "_dailySummary_",
+                                                                                               isolate(input$dailyStats_ts_metrics), "_",
                                                                                                isolate(input$dailyStats_shading), "_TS")))
                 # %>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
               })

@@ -122,7 +122,7 @@ TsRasterPlotModuleServer <- function(id, dailyStats, renderRasterPlot) {
         mean_col <- paste0(input$dailyStats_raster_variable_name,".",input$dailyStats_raster_metrics)
         cols_selected <- c("Date",mean_col)
         data_to_plot <- myData[cols_selected]
-        data_to_plot[,"year"] <- format(data_to_plot[,"Date"],"%Y")
+        data_to_plot[,"year"] <- lubridate::year(data_to_plot$Date) #format(data_to_plot[,"Date"],"%Y")
         if (input$raster_plot_color=="hcl"){
           colorV <- hcl.colors(12)
         }else if(input$raster_plot_color=="rainbow"){
