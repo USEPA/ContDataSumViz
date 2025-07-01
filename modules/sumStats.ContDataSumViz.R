@@ -1,4 +1,4 @@
-sumStats.ContDataSumViz<- function(df.input, fun.myParam.Name, flag.cols, flag.codes){
+sumStats.ContDataSumViz<- function(df.input, fun.myParam.Name, flag.cols, flag.codes, replace.flagged){
    df.list <- list(contData = data.frame(),
                    sumData = list())
    
@@ -9,7 +9,7 @@ sumStats.ContDataSumViz<- function(df.input, fun.myParam.Name, flag.cols, flag.c
 
    for(i in fun.myParam.Name){
      
-     if(length(excl_vals)>0){
+     if(length(replace.flagged)>0){
        df.load <- df.load %>% 
          mutate(!!sym(i) := if_else(!!sym(flag.cols[[i]]) %in% excl_vals, NA, !!sym(i)))
      }
@@ -17,7 +17,7 @@ sumStats.ContDataSumViz<- function(df.input, fun.myParam.Name, flag.cols, flag.c
      df.ret <- df.load %>%
        rename("current_param" = i, "current_qf" = flag.cols[[i]]) %>%
        mutate(Date = date(date.formatted)) %>%
-       group_by(SiteID, Date) %>% # TODO generalize SiteID col
+       group_by(SiteID, Date) %>%
        summarize(
        !!(paste(i, "mean", sep = ".")) := mean(current_param, na.rm = TRUE),
        !!(paste(i, "median", sep = ".")) := median(current_param, na.rm = TRUE),

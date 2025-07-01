@@ -63,7 +63,8 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
           {
             withProgress(message = paste("Calculating the daily statistics"), value = 0, {
               incProgress(0, detail = "now... ")
-              raw_data <- formated_raw_data$derivedDF
+              raw_data <- formated_raw_data$derivedDF %>% 
+                rename("SiteID"=homeDTvalues$homeDateAndTime$siteIdentifier())
 
               variables_to_calculate <- homeDTvalues$homeDateAndTime$parmToProcess()
 
@@ -71,7 +72,8 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
                 fun.myParam.Name = variables_to_calculate,
                 df.input = raw_data,
                 flag.cols = flags$flagCols,
-                flag.codes = flags$flagCodes
+                flag.codes = flags$flagCodes,
+                replace.flagged = metaHomeValues$metaVal$exclude_flagged2()
               )
 
               formated_raw_data$derivedDF <- dailyStats$processed$contData

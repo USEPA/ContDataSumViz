@@ -367,7 +367,7 @@ server <- function(input, output, session) {
               renderUI({
                 div(class="panel panel-default", style="margin:10px;",
                     div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
-                    div(step4UI("metaDataHome"), style = "margin:10px; margin-top:30px"),
+                    div(step4UI("metaDataHome"), style = "margin:10px"), #; margin-top:30px
                     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
                 )
                 

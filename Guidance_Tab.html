@@ -44,7 +44,9 @@ upload the new input data file in step 1.</p>
 <div id="time-zone-selection" class="section level2">
 <h2>Time zone selection</h2>
 <p>For more information about the time zone options, including their
-deviation from UTC in standard time and daylight savings time visit: <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones" class="uri">https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a></p>
+deviation from UTC in standard time and daylight savings visit:
+<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones" target="_blank">
+https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a></p>
 </div>
 <div id="saving-and-interacting-with-plots" class="section level2">
 <h2>Saving and interacting with plots</h2>
@@ -66,14 +68,13 @@ selected or select the home icon in the control panel.</p>
 <div id="usgs-gage-data-error-messages" class="section level2">
 <h2>USGS gage data error messages</h2>
 <ul>
-<li>“missing value where TRUE/FALSE needed”: this error generally
-displays when an invalid gage id is provided. Check that the id you are
-inputting is an id in the National Water Information System (NWIS)
-database.</li>
-<li>“arguments implying different number of rows: 1, 0”: this error can
-be displayed when the input date range is entirely outside of the
-available range for the gage. Check the site page for your selected gage
-to confirm that the available date range does not overlap that of the
+<li>missing value where TRUE/FALSE needed: this error generally displays
+when an invalid gage id is provided. Check that the id you are inputting
+is an id in the National Water Information System (NWIS) database.</li>
+<li>arguments implying different number of rows: 1, 0: this error can be
+displayed when the input date range is entirely outside of the available
+range for the gage. Check the site page for your selected gage to
+confirm that the available date range does not overlap that of the
 uploaded data. Select a new gage that has an overlapping time period
 with the uploaded data.</li>
 <li>Other errors: If the USGS web service times out, it is possible to
@@ -83,9 +84,10 @@ requested from the service. If that does not resolve the error, try
 downloading the data again in a few hours or days to rule out web
 service down time. See USGS documentation for more information on the
 USGS gage web service. If none of these solutions work, please submit an
-issue on the ContDataSumViz repository [link] with details about how
-this module failed (gage id requested and date range of the uploaded
-data).</li>
+issue on the
+<a href="https://github.com/USEPA/ContDataSumViz/issues" target="_blank">ContDataSumViz
+repository</a> with details about how this module failed (gage id
+requested and date range of the uploaded data).</li>
 </ul>
 </div>
 </div>

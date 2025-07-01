@@ -76,9 +76,10 @@ head_tag <- function(){
       *{
           transition-duration: unset !important;
         }
-    h2, .h2 {
-      box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1) !important;
-    }'
+    '
   ))
   )
 }
+#h2, .h2 {
+# box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1) !important;
+# }

@@ -273,6 +273,22 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               myDir.export            <- file.path(".", "data"),
               fun.myTZ = defaultTimeZone #ContData.env$myTZ
             )
+            
+            allVars <- colnames(gageRawData$gagedata)
+            varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
+            updateSelectizeInput(session, 'gaze_params', choices = varsToPlot, selected = varsToPlot[1])
+            
+            shinyjs::show(id=ns("gageVarsDiv"),asis=TRUE)
+            shinyjs::show(id=ns("gageDownloadDiv"),asis=TRUE)
+            
+            #Names the single column of the R console output data.frame
+            colnames(consoleUSGS$disp) <- "R console messages for all USGS data retrieval:"
+            
+            message("USGS data retrieved")
+            #Fills in the progress bar once the operation is complete
+            incProgress(1/1, detail = paste("Retrieved records for site ", input$gage_id))
+            Sys.sleep(1)
+          
             }, error = function(err){
               print("Error while downloading data from USGS gage")
               print(err$message)
@@ -282,22 +298,26 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             
             if(class(gageRawData$gagedata)=="character"){
               renderErrorMsg(paste0("Error downloading USGS gage data. Check user guide for guidance on the following error: ", gageRawData$gagedata, ". Correct before proceeding."))
+              shinyjs::hide(id=ns("gageVarsDiv"),asis=TRUE)
+              shinyjs::hide(id=ns("gageDownloadDiv"),asis=TRUE)
             }
             
-            message("USGS data retrieved")
-            #Fills in the progress bar once the operation is complete
-            incProgress(1/1, detail = paste("Retrieved records for site ", input$gage_id))
-            Sys.sleep(1)
+            # message("USGS data retrieved")
+            # #Fills in the progress bar once the operation is complete
+            # incProgress(1/1, detail = paste("Retrieved records for site ", input$gage_id))
+            # Sys.sleep(1)
           })
          #browser()
           #print(gageRawData$gagedata)
-          allVars <- colnames(gageRawData$gagedata)
-          varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
-          updateSelectizeInput(session, 'gaze_params', choices = varsToPlot, selected = varsToPlot[1])
-          shinyjs::show(id=ns("gageVarsDiv"),asis=TRUE)
-          shinyjs::show(id=ns("gageDownloadDiv"),asis=TRUE)
-          #Names the single column of the R console output data.frame
-          colnames(consoleUSGS$disp) <- "R console messages for all USGS data retrieval:"
+          # allVars <- colnames(gageRawData$gagedata)
+          # varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
+          # updateSelectizeInput(session, 'gaze_params', choices = varsToPlot, selected = varsToPlot[1])
+          # 
+          # shinyjs::show(id=ns("gageVarsDiv"),asis=TRUE)
+          # shinyjs::show(id=ns("gageDownloadDiv"),asis=TRUE)
+          # 
+          # #Names the single column of the R console output data.frame
+          # colnames(consoleUSGS$disp) <- "R console messages for all USGS data retrieval:"
         } else {
           renderErrorMsg(noGageIdFound)
         }
@@ -367,11 +387,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               fun.year.end <-  input$daymet_date_end, #as.numeric(endYear),
               fun.internal <-  TRUE
             )
-            }, error = function(err){
-              print("error while downloading dayMet data from NWIS system")
-              renderErrorMsg(err$message)
-            })
-            #browser()
+            
             dayMetRawData$dayMetData <- rawResult$dayMetData
             daymetCols <- rawResult$daymetColumns
             
@@ -392,6 +408,32 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             
             shinyjs::show(id="daymetVarsDiv")
             shinyjs::show(id = "daymetDownloadDiv")
+            
+            }, error = function(err){
+              print("error while downloading dayMet data")
+              renderErrorMsg(err$message)
+            })
+            #browser()
+            # dayMetRawData$dayMetData <- rawResult$dayMetData
+            # daymetCols <- rawResult$daymetColumns
+            # 
+            # dayMetRawData$daymetColumns <- rawResult$daymetColumns #
+            # updateSelectizeInput(session,
+            #                      'daymet_params',
+            #                      choices = daymetCols %>% setNames(
+            #                        c(
+            #                          "Precipitation (mm)",
+            #                          "Shortwave radiation (W m^-2)",
+            #                          "Snow water equivalent (kg m^-2)",
+            #                          "Maximum air temperature (degrees C)",
+            #                          "Minimum air temperature (degrees C)",
+            #                          "Water vapor pressure (Pa)"
+            #                        )
+            #                      ),
+            #                      selected = daymetCols[1])
+            # 
+            # shinyjs::show(id="daymetVarsDiv")
+            # shinyjs::show(id = "daymetDownloadDiv")
             
             #Fills in the progress bar once the operation is complete
             incProgress(1/1, detail = paste("Retrieved records for Latitude and Longitude ",input$daymet_lat, input$daymet_long))
@@ -529,7 +571,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               ,text=element_text(size=10,face = "bold", color="cornflowerblue")
               ,plot.title = element_text(hjust=0.5)
               ,legend.position="bottom"
-              ,axis.text.x=element_text(angle=65, hjust=10)
+              #,axis.text.x=element_text(angle=65, hjust=10)
             )
           allCom = allCom + facet_grid(Parameter ~ ., scales = "free_y")
           

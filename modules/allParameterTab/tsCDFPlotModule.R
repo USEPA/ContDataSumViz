@@ -28,7 +28,7 @@ TsCDFPlotModuleUI <- function(id) {
                                      h4("Any parameters – CDFs"),
                                      div(style="width:100%;", "Displays the annual cumulative distribution function (CDF) of daily means of any processed continuous parameter, with the option to add percentile or min/max shading. Seasons are defined as: Winter (December, January, February), Spring (March, April, May), Summer (June, July, August), Fall (September, October, November). The cumulative distribution function is sensitive to the amount of available data. Refer to the Days of available data table in the Summary tables tab to determine the number of points contributing to each trace."))),
         fluidRow(div(style="width:100%", uiOutput(ns("cdfError")))),
-        fluidRow(div(uiOutput(ns("display_plot_CDF")))) #style = "height:800px;", 
+        fluidRow(div(style = "height = 600px", uiOutput(ns("display_plot_CDF")))) #style = "height:800px;", 
       )
       
     ) # mainPanel end
@@ -201,13 +201,13 @@ TsCDFPlotModuleServer <- function(id, dailyStats, renderCDFPlot, loaded_data) {
                                      ymax = ecdf_max,
                                      fill = Year),
                                  alpha = 0.2)
-            print(g)
-          })
+            g
+          }, height = 600)
         }
         
         if(input$CDF_shading=="noShading"){
           output$display_plot_CDF_plotly <- renderPlotly({
-            ggplotly(g)
+            ggplotly(g, height = 600)
           })
         }
         

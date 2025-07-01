@@ -91,6 +91,7 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
             variables_avail <- names(uploaded_data())
             if(renderThermalStats$render == TRUE) {
 
+              # TODO: if you keep this module, remove this because the user specifies SiteID name in the set up 
               output$thermal_input_1 <- renderUI({
                 site_keys_in_favor_order <- c("Site","SITE","SiteID","SITEID")
                 possible_site_columns <- site_keys_in_favor_order[site_keys_in_favor_order %in% variables_avail]

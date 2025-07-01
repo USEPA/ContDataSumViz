@@ -31,6 +31,11 @@ dateAndTimeUI <- function(id, paramChoices, uploadedCols) {
                      options = list(hideSelected = FALSE, plugins = list("remove_button"))
       )),
     fluidRow(
+      selectInput(ns("siteIdentifierId"),
+                     label = "Site identifier field name",
+                     choices = c("", uploadedCols))
+      ),
+    fluidRow(
       selectInput(ns("dateFieldNameId"), label = "Date field name", choices = c("", uploadedCols))
     ),
     fluidRow(
@@ -106,6 +111,7 @@ dateAndTimeServer <- function(id, data, homePageInputs) {
       iv <- InputValidator$new()
       iv$add_rule("dateColumnNumsId", sv_required())
       iv$add_rule("parmToProcessId", sv_required(message = ""))
+      iv$add_rule("siteIdentifierId", sv_required(message = ""))
       iv$add_rule("dateFieldNameId", sv_required(message = ""))
       iv$add_rule("dateFormatId", sv_required(message = ""))
       iv$add_rule("timeFormatId", sv_required(message = ""))
@@ -113,6 +119,7 @@ dateAndTimeServer <- function(id, data, homePageInputs) {
       iv$enable()
 
       dateColumnNums <- shiny::reactive(input$dateColumnNumsId)
+      siteIdentifier <- shiny::reactive(input$siteIdentifierId)
       parmToProcess <- shiny::reactive(input$parmToProcessId)
       dateFieldName <- shiny::reactive(input$dateFieldNameId)
       dateFormat <- shiny::reactive(input$dateFormatId)
@@ -133,6 +140,7 @@ dateAndTimeServer <- function(id, data, homePageInputs) {
       observeEvent(
         c(
           input$dateColumnNumsId,
+          input$siteIdentifierId,
           input$parmToProcessId,
           input$dateFieldNameId,
           input$dateFormatId,
@@ -153,6 +161,7 @@ dateAndTimeServer <- function(id, data, homePageInputs) {
       return(
         list(
           dateColumnNums = shiny::reactive(input$dateColumnNumsId),
+          siteIdentifier = shiny::reactive(input$siteIdentifierId),
           parmToProcess = shiny::reactive(input$parmToProcessId),
           dateFieldName = shiny::reactive(input$dateFieldNameId),
           dateFormat = shiny::reactive(input$dateFormatId),

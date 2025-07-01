@@ -36,7 +36,10 @@ ui <- shinyUI(fluidPage(
   # Individual Page Header
   page_header(),
 
-  titlePanel("ContDataSumViz: Visualization and Summary Statistics for Continuous Monitoring Data"),
+  #titlePanel("ContDataSumViz: Visualization and Summary Statistics for Continuous Monitoring Data"),
+  h2(id = "apptitle", 
+     "ContDataSumViz: Visualization and Summary Statistics for Continuous Monitoring Data",
+     style = "box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1) !important;"),
   
   mainPanel(
     width = 12,

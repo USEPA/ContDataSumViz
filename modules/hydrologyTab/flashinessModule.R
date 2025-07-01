@@ -24,7 +24,7 @@ FlashinessModuleUI <- function(id) {
                                                 h4("Hydrology – Flashiness"),
                                                 div(style="width:100%;", "The Richards-Baker flashiness index (RBI) (Baker et al. 2004) reflects the frequency and rapidity of short-term changes in streamflow. It measures oscillations in discharge relative to total discharge. Results are scaled from 0 to 1, with flashier streams receiving higher scores."),
                                                 br(),
-                                                div(style="width:100%;", "The calculation is made by dividing the sum of the absolute values of day-to-day changes in mean daily flow by total discharge during the specified time period."),
+                                                div(style="width:100%;", "The calculation is made by dividing the sum of the absolute values of day-to-day changes in mean daily flow by total discharge during the specified time period. The reported number of days used for the calculation represents the number of days with data on the preceeding day, for which a day-to-day change can be calculated."),
                                                 br(),
                                                 div(style="width:100%;", "The Shiny app calculation is based on mean daily values and calendar year."),
                                                 br(),
@@ -110,8 +110,8 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
               daily_Value <- localStats$processed_dailyStats[[input$flash_name]]%>% 
                 select(Date, paste0(input$flash_name, ".mean")) %>% 
                 mutate(Year = lubridate::year(Date)) %>% 
-                rename("mean" = paste0(input$flash_name, ".mean")) %>% 
-                dplyr::filter(is.na(mean) == FALSE)
+                rename("mean" = paste0(input$flash_name, ".mean")) 
+                #%>% dplyr::filter(is.na(mean) == FALSE)
               years_available <- unique(daily_Value$Year)
               
               flash_output_file_str <- paste0(str_remove(loaded_data$name, ".csv|.xlsx"),
@@ -124,23 +124,25 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
               daily_Value <- gageDailyRawData$gagedata %>% 
                 dplyr::select(Date.Time, input$flash_name) %>% 
                 dplyr::rename("Date" = "Date.Time", "mean" = input$flash_name) %>% 
-                mutate(Year = lubridate::year(Date)) %>% 
-                dplyr::filter(is.na(mean) == FALSE)
+                mutate(Year = lubridate::year(Date)) 
+                #%>% dplyr::filter(is.na(mean) == FALSE)
               years_available <- unique(daily_Value$Year)
               
               flash_output_file_str <- paste0("USGS_gage_", unique(unique(gageDailyRawData$gagedata$GageID)), "_", input$flash_name, "_RB-Index")
             }
             
             tryCatch({
-              
+           
               DailyChange_df <- daily_Value  %>% 
-                mutate(DailyChangeValue = abs(mean - dplyr::lag(mean))) %>% 
-                mutate(DailyChangeValue = replace_na(DailyChangeValue, 0))
+                mutate(DailyChangeValue = abs(mean - dplyr::lag(mean)))
+              #%>%  mutate(DailyChangeValue = replace_na(DailyChangeValue, 0))
               
               RB_df <- DailyChange_df %>% 
                 group_by(Year) %>% 
-                summarize(RB_Index = (sum(DailyChangeValue)/sum(mean)) %>% round(3)) %>% 
-                rename("RB Index" = "RB_Index")
+                summarize(RB_Index = (sum(DailyChangeValue, na.rm = TRUE)/sum(mean, na.rm = TRUE)) %>% round(3), 
+                          n_days = sum(!is.na(DailyChangeValue))) %>% 
+                rename("RB Index" = "RB_Index",
+                       "Number of days" = "n_days")
 
               
               output$flash_table <- DT::renderDataTable({
