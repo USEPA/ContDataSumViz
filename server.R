@@ -300,7 +300,7 @@ server <- function(input, output, session) {
       renderUI({
         div(class="panel panel-default", style="margin:10px;",
             div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="metadataHelp")),
-            div(bsPopover(id="metadataHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to identify quality flags in the data. These flags can be used to eliminate data with quality issues. If the user indicates that quality flags are available, they must be available for every selected parameter. This module is designed for data to have every flag code in the same column, so different types of flags (e.g., fail and suspect) must have different codes. If the data were prepared using ContDataQC with the default configuration, input the fail code as F, suspect code as S, and not known code as X. If the data were prepared using a modified configuration file, refer to that file for the correct quality flag codes."), 
+            div(bsPopover(id="metadataHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to identify quality flags in the data. These flags can be used to eliminate data with quality issues. If the user indicates that quality flags are available, they must be available for every selected parameter. This module is designed for data to have every flag code in the same column, so different types of flags (e.g., fail and suspect) must have different codes. If the data were prepared using ContDataQC with the default configuration, input the fail code as F, suspect code as S, and not known code as X. If the data were prepared using a modified configuration file, refer to that file for the correct quality flag codes. Selecting run meta summary will generate a table in the main panel summarizing missing and flagged data, the total period of record, and days in the period of record."), 
                           placement = "right", trigger = "hover")),
             div(class = "panel-body", flagUI("displayStep3"), style = "margin-left: 10px; margin-right: 10px;")
         )
@@ -366,7 +366,10 @@ server <- function(input, output, session) {
             output$display_actionButton_calculateDailyStatistics <-
               renderUI({
                 div(class="panel panel-default", style="margin:10px;",
-                    div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;"),
+                    div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;",
+                        icon("info-circle", style = "color:#2fa4e7", id="calcDailyHelp")),
+                    div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save for WQX upload will save the data in a single csv file in long format in which there is a single column for all calculated values."), 
+                                  placement = "right", trigger = "hover")),
                     div(step4UI("metaDataHome"), style = "margin:10px"), #; margin-top:30px
                     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
                 )

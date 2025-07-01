@@ -43,6 +43,14 @@ flagServer <- function(id,  homeDTvalues, formated_raw_data, flags) {
             vars_contain_col <- allCols %>% str_subset(current_param)
             selected_col <- vars_contain_col[vars_contain_col != current_param]
             
+            if(length(selected_col) > 1){
+              if(sum(str_detect(selected_col, "Flag|flag"))>0){
+                selected_col <- str_subset(selected_col, "Flag|flag")
+              } else{
+                selected_col <- selected_col[1]
+              }
+            }
+            
             selectInput(inputId = ns(paste0(current_param, "_flag")),
                         label = paste0(current_param, " flag column"),
                         choices = allCols,

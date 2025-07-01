@@ -97,31 +97,29 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
             localStats <- dailyStats
             clearContents()
             clearPlot()
-            tryCatch({
+            
+             tryCatch({
                     myList <- localStats$processed_dailyStats
                     variable_to_plot <- input$boxplot_variable_name
-                    myData <- myList[[which(names(myList)==variable_to_plot)]]
+                    myData <- myList[[which(names(myList)==variable_to_plot)]] %>% 
+                      mutate(Year = lubridate::year(Date) %>% as.factor(),
+                             Month = lubridate::month(Date) %>% as.factor(),
+                             Season = case_when(
+                               Month %in% c(12,1,2) ~ "Winter",
+                               Month %in% c(3,4,5) ~ "Spring",
+                               Month %in% c(6,7,8) ~ "Summer", 
+                               Month %in% c(9,10,11) ~ "Fall") %>% as.factor())
                     mean_col <- paste0(input$boxplot_variable_name,".",input$boxplot_metrics)
-                    if(input$box_group=="Year"){
-                      #myData[,input$box_group] <- format(myData[,"Date"],"%Y")
-                      myData[,input$box_group] <- format(as.Date(myData$Date, format="%Y-%m-%d %H:%M:%S"),"%Y")
+
+                     if(input$box_group %in% c("Year", "Month", "Season")) {
                       cols_selected = c("Date",input$box_group,mean_col)
-                    }else if(input$box_group=="Month"){
-                      #myData[,input$box_group] <- format(myData[,"Date"],"%m")
-                      myData[,input$box_group] <- format(as.Date(myData$Date, format="%Y-%m-%d %H:%M:%S"),"%m")
-                      cols_selected = c("Date",input$box_group,mean_col)
-                    }else if(input$box_group=="Season"){
-                      myData <- addSeason(myData) %>% rename("Season" = "season")
-                      cols_selected = c("Date",input$box_group,mean_col)
-                    }else if(input$box_group=="month2"){
-                      #myData[,"year"] <- format(myData[,"Date"],"%Y")
-                      myData[,"year"] <- format(as.Date(myData$Date, format="%Y-%m-%d %H:%M:%S"),"%Y")
-                      #myData[,"month"] <- format(myData[,"Date"],"%m")
-                      myData[,"month"] <- format(as.Date(myData$Date, format="%Y-%m-%d %H:%M:%S"),"%m")
-                      cols_selected = c("Date","year","month",mean_col)
+                       
+                     }else if(input$box_group=="month2"){
+                      cols_selected = c("Date","Year","Month",mean_col)
+                      
                     }else if(input$box_group=="season2"){
-                      myData <- addSeason(myData)
-                      cols_selected = c("Date","year","season",mean_col)
+                      cols_selected = c("Date","Year","Season",mean_col)
+                      
                     }
                     
                     data_to_plot <- myData[cols_selected]
@@ -148,8 +146,8 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                     } else if(!all(is.na(data_to_plot[,mean_col]))&input$box_group=="month2"){
                       output$display_box_plots <- renderPlotly({
                         
-                        p2 <- ggplot(data=data_to_plot,aes(x=month,y=!!sym(isolate(mean_col)),fill=year)) +
-                          geom_boxplot(position=position_dodge(width=0.1))+
+                        p2 <- ggplot(data=data_to_plot,aes(x=Month,y=!!sym(isolate(mean_col)),fill=Year)) +
+                          geom_boxplot()+
                           labs(title=isolate(input$box_title),x = "Month",y = isolate(input$boxplot_variable_name))+
                           theme_bw()+
                           theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
@@ -167,9 +165,9 @@ TsBoxPlotModuleServer <- function(id, dailyStats, renderTSBoxPlot, loaded_data) 
                       })
                     } else if(!all(is.na(data_to_plot[,mean_col]))&input$box_group=="season2"){
                       output$display_box_plots <- renderPlotly({
-                        data_to_plot$season = reorderSeason(data_to_plot$season)
-                        p2 <- ggplot(data=data_to_plot,aes(x=season,y=!!sym(isolate(mean_col)),fill=year)) +
-                          geom_boxplot(position=position_dodge(width=0.1))+
+                        data_to_plot$Season = reorderSeason(data_to_plot$Season)
+                        p2 <- ggplot(data=data_to_plot,aes(x=Season,y=!!sym(isolate(mean_col)),fill=Year)) +
+                          geom_boxplot()+
                           labs(title=isolate(input$box_title),x = "Season",y = isolate(input$boxplot_variable_name))+
                           theme_bw()+
                           theme(text=element_text(size=16,face = "bold", color="cornflowerblue")

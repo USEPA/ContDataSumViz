@@ -122,7 +122,7 @@ AirVsWaterModuleServer <- function(id, uploaded_data, dailyStats, renderAirVsWat
                   })
                   
                   output$display_thermal_sensitivity_button <- renderUI({
-                    actionButton(inputId=ns("display_thermal_sensitivity"), label="Display air vs. water temperature plot",class="btn btn-primary")
+                    actionButton(inputId=ns("display_thermal_sensitivity"), label="Display air vs. water plot",class="btn btn-primary")
                   })
                   #clear previous error messages
                   clearContents()

@@ -184,7 +184,9 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                    choices=gageColNames,
                                    multiple = TRUE,
                                    selected=NULL,
-                                   options = list(hideSelected = FALSE)),
+                                   options = list(hideSelected = FALSE,
+                                                  plugins = list("remove_button"))
+                                   ),
                     actionButton(inputId=ns("display_gage_raw"), label="View USGS gage time series",class="btn btn-primary")
                 ),
               div(id = ns("gageDownloadDiv"), style = "padding:5px;display:none",
@@ -214,7 +216,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                    choices=daymetCols,
                                    multiple = TRUE,
                                    selected=daymetCols[1],
-                                   options = list(hideSelected = FALSE)),
+                                   options = list(hideSelected = FALSE,
+                                                  plugins = list("remove_button"))),
                     actionButton(inputId=ns("display_daymet_raw"), label="View Daymet raw data",class="btn btn-primary")
                 ),
                 div(id = ns("daymetDownloadDiv"), style = "padding:5px;display:none",
@@ -242,8 +245,11 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                                    choices=variables_avail,
                                    multiple = TRUE,
                                    selected=variables_avail[1],
-                                   options = list(hideSelected = FALSE)),
-                    actionButton(inputId=ns("display_subplot_ts"), label="View merged data",class="btn btn-primary")
+                                   options = list(hideSelected = FALSE,
+                                                  plugins = list("remove_button"))),
+                    actionButton(inputId=ns("display_subplot_ts"), label="View merged data",class="btn btn-primary"),
+                    div(id = ns("mergedDownloadDiv"), style = "display:none;margin-top:10px;",
+                        downloadButton(ns("download_merged"), "Download merged data", class="btn btn-primary"))
                 )
             )
           })
@@ -307,17 +313,6 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             # incProgress(1/1, detail = paste("Retrieved records for site ", input$gage_id))
             # Sys.sleep(1)
           })
-         #browser()
-          #print(gageRawData$gagedata)
-          # allVars <- colnames(gageRawData$gagedata)
-          # varsToPlot <- allVars[!(allVars %in% c("SiteID","GageID","Date.Time"))]
-          # updateSelectizeInput(session, 'gaze_params', choices = varsToPlot, selected = varsToPlot[1])
-          # 
-          # shinyjs::show(id=ns("gageVarsDiv"),asis=TRUE)
-          # shinyjs::show(id=ns("gageDownloadDiv"),asis=TRUE)
-          # 
-          # #Names the single column of the R console output data.frame
-          # colnames(consoleUSGS$disp) <- "R console messages for all USGS data retrieval:"
         } else {
           renderErrorMsg(noGageIdFound)
         }
@@ -413,27 +408,6 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
               print("error while downloading dayMet data")
               renderErrorMsg(err$message)
             })
-            #browser()
-            # dayMetRawData$dayMetData <- rawResult$dayMetData
-            # daymetCols <- rawResult$daymetColumns
-            # 
-            # dayMetRawData$daymetColumns <- rawResult$daymetColumns #
-            # updateSelectizeInput(session,
-            #                      'daymet_params',
-            #                      choices = daymetCols %>% setNames(
-            #                        c(
-            #                          "Precipitation (mm)",
-            #                          "Shortwave radiation (W m^-2)",
-            #                          "Snow water equivalent (kg m^-2)",
-            #                          "Maximum air temperature (degrees C)",
-            #                          "Minimum air temperature (degrees C)",
-            #                          "Water vapor pressure (Pa)"
-            #                        )
-            #                      ),
-            #                      selected = daymetCols[1])
-            # 
-            # shinyjs::show(id="daymetVarsDiv")
-            # shinyjs::show(id = "daymetDownloadDiv")
             
             #Fills in the progress bar once the operation is complete
             incProgress(1/1, detail = paste("Retrieved records for Latitude and Longitude ",input$daymet_lat, input$daymet_long))
@@ -449,12 +423,12 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         clearContents()
         dayMetPlotRaw <- draw_daymet_raw("DayMet raw data")
         if (!is.null(dayMetPlotRaw) & length(input$daymet_params) > 0) {
-          #output$display_time_series_3 <- renderPlotly({
+
           output$display_downloaded_data <- renderPlotly({
             ggplotly(dayMetPlotRaw, height = calculatePlotHeight(length(isolate(input$daymet_params)) * 2), dynamicTicks = TRUE) %>% 
               plotly::layout(xaxis = list(type = "date")) %>% 
               plotly::config(toImageButtonOptions = list(format = "png", filename = paste0("Daymet_", input$daymet_lat, "_", input$daymet_long, "_TS")))
-            #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.3))
+
           })
         } else {
           alertMsg <- NULL
@@ -535,14 +509,6 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
           variable_to_plot <- input$dailyStats_ts_variable_name2
           if (!is.null(variable_to_plot) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted),])){
             
-            # timediff <- get_interval(raw_data$date.formatted)
-            # #print(timediff)
-            # timediff <- ifelse(timediff == "min", "15 mins", timediff)
-            # # 
-            # raw_data <- raw_data %>%
-            #   mutate(date.formatted = as.POSIXct(date.formatted)) %>%
-            #   complete(date.formatted = seq(min(date.formatted,na.rm = TRUE), max(date.formatted, na.rm = TRUE), by=timediff))
-            
             base_data_raw  <- raw_data %>%
               select(any_of(variable_to_plot), Date= c("date.formatted")) %>%
               gather(key = "Parameter", value = "value", -Date)
@@ -551,14 +517,28 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             allParames <- base_data_raw %>% pull(Parameter)
             base_data_raw$Parameter <- paste("BaseFile",allParames,sep="_")
             mergedList[["BaseFile"]] <- base_data_raw
+            
+            shinyjs::show(id = "mergedDownloadDiv")
+
+            merge_to_dwnld <- bind_rows(mergedList, .id="df") %>% 
+              dplyr::select(-GageID, -df) %>% 
+              mutate(Date = format(Date, "%Y-%m-%d %H:%M:%S")) %>% 
+              group_by(Date, Parameter) %>% 
+              slice(1) %>% # deal with two values on daylight savings time hours
+              pivot_wider(values_from = value, names_from = Parameter)
+            
+            
+            output$download_merged <- downloadHandler(
+              filename = function(){
+                paste0("Base_", input$dailyStats_ts_variable_name2, "_USGS_", input$gage_id,"_Daymet_", input$daymet_lat, input$daymet_long, ".csv")
+              },
+              content = function(file){
+                write.csv(merge_to_dwnld, file, row.names = FALSE)
+              }
+            )
           }
           
           
-          # main_range = calculate_time_range(as.list(base_data_raw))
-          # mainBreaks = main_range[[1]]
-          # main_x_date_label = main_range[[2]]
-          #browser()
-          #allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),parameter), aes(x = as.POSIXct(Date,format="%Y-%m-%d"), y = value)) +
           allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),Parameter) %>% mutate(Date = as.POSIXct(Date,format="%Y-%m-%d")), aes(x = Date, y = value)) +
             geom_line(aes(colour=Parameter)) +
             labs(title="Base, USGS gage and DayMet Data", y="Parameters", x="Date") + 
@@ -580,9 +560,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             ggplotly(allCom, height = calculatePlotHeight(totalH*2), dynamicTicks = TRUE) %>% 
               plotly::layout(xaxis = list(type = "date")) %>% 
               plotly::config(toImageButtonOptions = list(format = "png", filename = paste0("Base_USGS_", input$gage_id, "_Daymet_",input$daymet_lat, "_", input$daymet_long, "_TS")))
-            #%>% plotly::layout(legend = list(orientation = "h", x = 0.4, y = -0.4))
           }) 
-          #overridePotlyStyle("display_downloaded_data")
         } else {
           renderErrorMsg(selectBaseVars)
           clearPlot()

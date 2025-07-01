@@ -148,7 +148,7 @@ metaDataServer <- function(id, paramToProcess, formatedUploadedData, uploadData,
               ns("how_to_save2"),
               "How to save daily statistics",
               choices = c(
-                "Per site Per parameter" = "save1",
+                "Per site per parameter" = "save1",
                 "Per site with all parameters" = "save2",
                 # "Multiple sites together" = "save3",
                 "Save for WQX upload" = "save4"
@@ -168,8 +168,8 @@ metaDataServer <- function(id, paramToProcess, formatedUploadedData, uploadData,
                   # "Suspect" = "suspect",
                   # "Flag not known" = "flag not known"
                   names(flags$flagCodes)
-                ) #,
-                #selected = "fail"
+                ) ,
+                selected = "Fail"
               )
             }) # renderUI close
           }
