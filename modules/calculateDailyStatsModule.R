@@ -9,7 +9,7 @@ calculateDailyStatsModuleUI <- function(id, readyForCalculation) {
         inputId = ns("calculateDailyStatistics2"),
         label = "Calculate daily statistics",
         class = "btn btn-primary",
-        style="margin-left:10px;margin-right:10px;margin-top:20px;"
+        style="margin-left:10px;margin-right:10px;margin-top:5px;"
       )),
       # div(id = ns("calcsuccess"),  style = "margin:10px",
       #     p("Calculation successful")),

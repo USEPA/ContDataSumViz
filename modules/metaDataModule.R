@@ -55,7 +55,6 @@ metaDataServer <- function(id, paramToProcess, formatedUploadedData, uploadData,
       })
 
       observeEvent(formatedUploadedData, {
-        
         formatedUploadedData$Date <- date(formatedUploadedData$date.formatted)
         min_date <- min(formatedUploadedData$Date)
         max_date <- max(formatedUploadedData$Date)
@@ -67,12 +66,19 @@ metaDataServer <- function(id, paramToProcess, formatedUploadedData, uploadData,
           pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "param_value" )
         
         translation_vector <- setNames(names(flags$flagCols), flags$flagCols %>% unlist())
-        
         tryCatch({
-          flag_pivot <- formatedUploadedData %>% 
-            dplyr::select(date.formatted, Date,  all_of(flags$flagCols %>% unlist() %>% unname())) %>% 
-            pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "flag_value" ) %>% 
-            mutate(Parameter = recode(Parameter, !!!translation_vector))
+        
+          if(flags$flagOptions == "Yes"){
+            flag_pivot <- formatedUploadedData %>% 
+              dplyr::select(date.formatted, Date,  all_of(flags$flagCols %>% unlist() %>% unname())) %>% 
+              pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "flag_value" ) %>% 
+              mutate(Parameter = recode(Parameter, !!!translation_vector))
+          }  else if(flags$flagOptions == "No"){
+            flag_pivot <- formatedUploadedData %>% 
+              dplyr::select(date.formatted, Date, all_of(paramToProcess)) %>% 
+              pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "flag_value" ) %>% 
+              mutate(flag_value = 0)
+            }
           
           data_to_meta <- full_join(data_pivot, flag_pivot, by = c("date.formatted", "Date", "Parameter")) %>% 
             group_by(Parameter, Date) %>% 

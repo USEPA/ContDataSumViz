@@ -208,13 +208,13 @@ server <- function(input, output, session) {
     output$display_paramselect <- renderUI({
       div(class="panel panel-default", style="margin:10px;",
           div(class="panel-heading", "Step 2: Select date and time format", style="font-weight:bold;",icon("info-circle", style = "color:#2fa4e7", id="datetimeHelp"),
-              bsPopover(id="datetimeHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("The test data from Posey Creek has datetimes displayed according to ISO 8601 notation with date in year, month, day format separated from time in hours, minutes, seconds format with the character `T`, which is separated from the timezone represented as the deviation from coordinated universal time (UTC) with the letter `Z`. No number after `Z` indicates that the test data are in UTC time zone."),
+              bsPopover(id="datetimeHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("The test data from Posey Creek has datetimes displayed according to ISO 8601 notation. Date in year, month, day format is separated from time in hours, minutes, seconds format with the character `T.` The time zone follows, which is represented as the deviation from coordinated universal time (UTC) with the letter `Z`. No number after `Z` indicates that the test data are in UTC time zone. \nTo download the time series, mouse over the plot to display the control panel in the upper righthand corner and select the camera icon."),
                         placement = "right", trigger = "hover")),
           div(class = "panel-body", style = "margin-left: 10px;margin-right: 10px;margin-top: 10px",
               dateAndTimeUI(id = "homePage", paramChoices =  fun.findVariableToProcess(colnames(uploaded_data()), getDateCols = FALSE), uploadedCols = colnames(uploaded_data()))),
           div("Note: Red border denotes required fields.", style = "font-weight:bold;color:#b94a48;margin-left: 10px;margin-bottom: 10px"),
           div(actionButton(inputId = "showrawTS", label = "Display time series", class = "btn btn-primary", style = "margin: 10px;")),
-          div("To download the plot, mouse over the plot to display the control panel in the upper righthand corner and select the camera icon.", style = "margin-left:10px;margin-bottom: 10px; margin-right:10px;"),
+          # div("To download the plot, mouse over the plot to display the control panel in the upper righthand corner and select the camera icon.", style = "margin-left:10px;margin-bottom: 10px; margin-right:10px;"),
           div(id = "dateAndTimeError")
       )
     })
@@ -243,7 +243,9 @@ server <- function(input, output, session) {
     
     if(nrow(temp)!= nrow(raw_data)){
       rows_missing_data <- nrow(raw_data) - nrow(temp)
-      shinyAlertUI("removed_rows_msg", paste0("Number of rows removed with missing date/time: ", rows_missing_data), "Warning")
+      shinyAlertUI("removed_rows_msg", 
+                   paste0("Number of rows removed with missing date/time: ", rows_missing_data), 
+                   "Warning")
       print(paste0("Number of rows removed with missing date/time: ", rows_missing_data))
     }
     
@@ -253,6 +255,7 @@ server <- function(input, output, session) {
     
     # display_validation_msgs dateBox
     if (showRawDateAndTime$isTimeValid() & showRawDateAndTime$isDateAndtimeValid()) {
+
       tryCatch(
         {
           # if error had occured then on fix reset the step
@@ -273,12 +276,12 @@ server <- function(input, output, session) {
           processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
           workflowStatus$elementId <- "step2"
           workflowStatus$state <- "error"
-        },
-        message = function(parsingMsg) {
-          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "error"
-        }
+         } #,
+        # message = function(parsingMsg) {
+        #   print(parsingMsg)
+        #   workflowStatus$elementId <- "step2"
+        #   workflowStatus$state <- "success"
+        # }
       ) # end of tryCatch
     } # end of validation check
     
@@ -291,7 +294,7 @@ server <- function(input, output, session) {
                           placement = "right", trigger = "hover")),
             div(div(dateInput("date_start","Date Start",value = min(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
                 div(dateInput("date_end","Date End",value =max(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")), style="margin:10px;"),
-            div(actionButton(inputId = "updateTS", label = "Subset data and update time series", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 10px;margin-top: 20px;")),
+            div(actionButton(inputId = "updateTS", label = "Subset data & update time series", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 10px;margin-top: 20px;")),
             div("Selecting will subset the data for all subsequent outputs", style = "margin-left:10px;margin-bottom:10px;")
         )
       })
@@ -434,13 +437,15 @@ server <- function(input, output, session) {
       },
       warning = function(parsingMsg) {
         processErrors(parsingMsg, tab = tabName, elementId = errorDivId)
-      },
-      message = function(parsingMsg) {
-        processErrors(parsingMsg, tab = tabName, elementId = errorDivId)
-      }
+        } #,
+      # message = function(parsingMsg) {
+      #   #processErrors(parsingMsg, tab = tabName, elementId = errorDivId)
+      #   parsingMsg
+      # }
     ) # end of tryCatch
     return(userDataL)
   }
+  
   
   observeEvent(input$dateTimeBoxButton, {
     hideShowDateTimeBox("dateTimeBoxButton")
@@ -481,6 +486,7 @@ server <- function(input, output, session) {
     shinyjs::runjs(paste0("$('#", elementId, "').text('", processedMsg, "')"))
     shinyjs::addClass(elementId, "alert alert-danger")
   }
+  
   
   observe({
     if (dailyStatusCalculated$status == "finished") {
@@ -827,8 +833,9 @@ server <- function(input, output, session) {
         strip.placement = "outside",
         text = element_text(size = 10, face = "bold", color = "cornflowerblue"),
         plot.title = element_text(hjust = 0.5),
+        axis.title.x = element_text(margin = margin(t = 5)),
         legend.position = "bottom",
-        axis.text.x = element_text(angle = 65, hjust = 1, vjust = 1)
+        #axis.text.x = element_text(angle = 65, hjust = 1, vjust = 1)
       )+
       guides(fill = "none")
     return(mainPlot)

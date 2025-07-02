@@ -120,7 +120,7 @@ ui <- shinyUI(fluidPage(
                         mainPanel(
                           width = 9,
                           div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;"),
-                          div(uiOutput("ts_right"), style = "margin-top:20px;height:700px;overflow-y:auto"),
+                          div(uiOutput("ts_right"), style = "margin-top:20px;height:1350px;overflow-y:auto"),
                           br(),
                           div(uiOutput("display_fill_data"))
                         ) # mainPanel end

@@ -50,9 +50,9 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_
             ,text=element_text(size=12,face = "bold", color="cornflowerblue")
             ,strip.text.y = element_blank()
             ,plot.title = element_text(hjust=0.5)
-            ,axis.title.x = element_text(margin = margin(t = 20))
+            ,axis.title.x = element_text(margin = margin(t = 5))
             ,legend.position="bottom"
-            ,axis.text.x=element_text(angle=65, hjust=10)
+            #,axis.text.x=element_text(angle=65, hjust=10)
           )
 
         #p = p + facet_grid(parameter ~ ., scales = "free_y",switch = "both")
