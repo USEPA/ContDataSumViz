@@ -142,6 +142,12 @@ fun.sub.format.date <- function(fun.userDateFormat, fun.userTimeFormat, fun.user
        shinyalert("Date time parsing error", paste0(conditionMessage(w), "\n\nAll date/times failed to parse is indicative of incorrect date/time format selections. Some rows failed to parse is indicative of inconsistent date/time formatting or incorrect time zone selection. Review the rows that failed to parse for inconsistencies in date/time formatting or proximity to daylight savings time. Rows with date/times not included in time zones that observe daylight savings time will fail to parse if a daylight savings time-observing time zone is selected."), "warning") 
       }
     
-  })
+  } ,
+  message = function(m){
+    if(length(conditionMessage(m)!=0)){
+      shinyalert("Dat time parsing message", conditionMessage(m), "info")
+    }
+  }
+  )
 }
 
