@@ -21,8 +21,9 @@ step4UI <- function(id){
   shinyjs::useShinyjs()
   tagList(
     #uiOutput(outputId = ns("fillMissingData")),
+    uiOutput(outputId = ns("meta_exclude_checks")),
     uiOutput(outputId = ns("saveStats")),
-    uiOutput(outputId = ns("meta_exclude_checks"))
+    
   )
 }
 

@@ -292,8 +292,8 @@ server <- function(input, output, session) {
             div(class="panel-heading", "Step 2b: Subset time series (optional)", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="subsetHelp")),
             div(bsPopover(id="subsetHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Selecting the subset data and update time series button will subset the data for all subsequent outputs. Once subset, the app will need to be reloaded and raw uploaded to return to the full time series. If you wish to view the time series with a different date range, please use the box zoom, which can be accessed by hovering over the plot to reveal the control panel in the upper right, selecting the magnifying glass icon, clicking, and dragging across the range you wish to view."), 
                           placement = "right", trigger = "hover")),
-            div(div(dateInput("date_start","Date Start",value = min(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
-                div(dateInput("date_end","Date End",value =max(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")), style="margin:10px;"),
+            div(div(dateInput("date_start","Date start",value = min(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")),
+                div(dateInput("date_end","Date end",value =max(formated_raw_data$derivedDF$date.formatted) %>% as.character(),min="1980-01-01",max="2100-01-01",format="yyyy-mm-dd")), style="margin:10px;"),
             div(actionButton(inputId = "updateTS", label = "Subset data & update time series", class = "btn btn-primary", style = "margin-left: 10px;margin-right: 10px;margin-bottom: 10px;margin-top: 20px;")),
             div("Selecting will subset the data for all subsequent outputs", style = "margin-left:10px;margin-bottom:10px;")
         )

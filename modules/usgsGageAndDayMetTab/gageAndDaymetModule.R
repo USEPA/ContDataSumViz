@@ -373,6 +373,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             startYear <- format(dateRange$min, format='%Y')
             endYear <- format(dateRange$max, format='%Y')
             
+            # browser()
             #Actually gets the gage data from the USGS NWIS system
             tryCatch({
             rawResult <- fun.dayMetData(
@@ -497,7 +498,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             #gageGroup <- paste(input$gage_params, "Gage", sep=".")
             gage_data_raw  <- gageRawData$gagedata %>%
               select(all_of(input$gaze_params), all_of("GageID"), 'Date'=all_of("Date.Time")) %>%
-              gather(key = "Parameter", value = "value",-GageID, -Date)
+              gather(key = "Parameter", value = "value",-GageID, -Date) %>% 
+              select(-GageID)
             
             totalH <- totalH + length(input$gaze_params)
             allParames <- gage_data_raw %>% pull(Parameter)
@@ -521,7 +523,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             shinyjs::show(id = "mergedDownloadDiv")
 
             merge_to_dwnld <- bind_rows(mergedList, .id="df") %>% 
-              dplyr::select(-GageID, -df) %>% 
+              dplyr::select(-df) %>% 
               mutate(Date = format(Date, "%Y-%m-%d %H:%M:%S")) %>% 
               group_by(Date, Parameter) %>% 
               slice(1) %>% # deal with two values on daylight savings time hours

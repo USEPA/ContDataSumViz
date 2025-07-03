@@ -76,7 +76,9 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
                 replace.flagged = metaHomeValues$metaVal$exclude_flagged2()
               )
 
+              
               formated_raw_data$derivedDF <- dailyStats$processed$contData
+              print("Changed formated_raw_data")
               
               shinyjs::show(id = "calcsuccess")
               shinyjs::show(id = "saveDailyStatistics2")
