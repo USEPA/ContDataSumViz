@@ -64,15 +64,33 @@ metaDataServer <- function(id, paramToProcess, formatedUploadedData, uploadData,
         data_pivot <- formatedUploadedData %>% 
           dplyr::select(date.formatted, Date, paramToProcess) %>% 
           pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "param_value" )
-        
-        translation_vector <- setNames(names(flags$flagCols), flags$flagCols %>% unlist())
+
         tryCatch({
         
           if(flags$flagOptions == "Yes"){
-            flag_pivot <- formatedUploadedData %>% 
-              dplyr::select(date.formatted, Date,  all_of(flags$flagCols %>% unlist() %>% unname())) %>% 
-              pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "flag_value" ) %>% 
-              mutate(Parameter = recode(Parameter, !!!translation_vector))
+           
+            if(length(flags$flagCols %>% unlist() %>% unname() %>% unique()) == 1){
+              translation_vector <- setNames(names(flags$flagCols), paste(flags$flagCols %>% unlist(), names(flags$flagCols), sep= "_"))
+              flag_pivot <- formatedUploadedData %>% 
+                dplyr::select(date.formatted, Date,  all_of(flags$flagCols %>% unlist() %>% unname()))
+
+              new_qual <- names(translation_vector)
+              old_qual <- flags$flagCols %>% unlist() %>% unname() %>% unique()
+              
+              flag_pivot[,new_qual] <- flag_pivot[,old_qual]
+              
+              flag_pivot <- flag_pivot %>% select(-all_of(old_qual)) %>% 
+                pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "flag_value" ) %>% 
+                mutate(Parameter = recode(Parameter, !!!translation_vector))
+
+            } else{
+              translation_vector <- setNames(names(flags$flagCols), flags$flagCols %>% unlist())
+              flag_pivot <- formatedUploadedData %>% 
+                dplyr::select(date.formatted, Date,  all_of(flags$flagCols %>% unlist() %>% unname())) %>% 
+                pivot_longer(cols = -c(Date, date.formatted), names_to = "Parameter", values_to = "flag_value" ) %>% 
+                mutate(Parameter = recode(Parameter, !!!translation_vector))
+            }
+              
           }  else if(flags$flagOptions == "No"){
             flag_pivot <- formatedUploadedData %>% 
               dplyr::select(date.formatted, Date, all_of(paramToProcess)) %>% 

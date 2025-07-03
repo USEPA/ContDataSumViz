@@ -92,7 +92,7 @@ ui <- shinyUI(fluidPage(
                               div(class="panel-heading", "Step 1: Upload continuous data", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="fileHelp")),
                               div(class="panel-body",
                                   tagList(
-                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names. A site identifier, date and time (in one column or two), and one or more continuous parameters are required columns. Column(s) indicating the quality of each parameter observation can also be used to filter the data used in subsequent calculations, but a quality flag column(s) is not required. </br></br>  Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
+                                    bsPopover(id="fileHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Files must contain only one mandatory header row containing column names. A site identifier, date and time (in one column or two), and one or more continuous parameters are required columns. <br><br> Column(s) indicating the quality of each parameter observation can also be used to filter the data used in subsequent calculations, but a quality flag column(s) is not required. <br><br> The data must be in wide format: each parameter must have its own column. <br><br> Microsoft Excel corrupts .csv files when reopened by double clicking its icon or by using the File Open dialog. You can avoid this by using the Text or Data Import Wizard from the Excel Data Tab"),
                                               placement = "right", trigger = "hover"),
                                     fileInput("uploaded_data_file",
                                               label = HTML("<b>Upload your continuous data in .csv format</b>"),
@@ -119,8 +119,8 @@ ui <- shinyUI(fluidPage(
                         ),
                         mainPanel(
                           width = 9,
-                          div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;"),
-                          div(uiOutput("ts_right"), style = "margin-top:20px;height:1350px;overflow-y:auto"),
+                          div(uiOutput("contents"), style = "overflow-x:auto;margin:0px 15px 0px 15px;height:500px;overflow-y:auto"),
+                          div(uiOutput("ts_right"), style = "margin-top:20px;height:1240px;overflow-y:auto"),
                           br(),
                           div(uiOutput("display_fill_data"))
                         ) # mainPanel end
@@ -182,8 +182,7 @@ ui <- shinyUI(fluidPage(
                                                        br(),
                                                        div(style = "width:100%", "To begin, upload a file containing discrete data containing at least one matching parameter to the previously uploaded continuous data, and provide the date and time format."))),
                           fluidRow(width = 12, uiOutput("discreteHeader")),
-                          fluidRow(column(width = 12,
-                                          withSpinner(plotlyOutput("display_time_series_discrete"), type=1))
+                          fluidRow(div(style = "height:1500px;overflow-y:auto", withSpinner(plotlyOutput("display_time_series_discrete"), type=1))
                           )
                         ) # mainPanel end
                       ) # sidebarLayout end

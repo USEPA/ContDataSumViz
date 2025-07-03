@@ -59,9 +59,9 @@ GageAndDaymetModuleUI <- function(id) {
       fluidRow(div(style = "width:100%", uiOutput(
         ns("gageDayMetError")
       ))),
-      fluidRow(withSpinner(plotlyOutput(
+      fluidRow(div(style = "height:1500px;overflow-y:auto", withSpinner(plotlyOutput(
         ns("display_downloaded_data")
-      )), type = 1)
+      )), type = 1))
     )) # mainPanel end
   ) # sidebarLayout end
 }
@@ -206,8 +206,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
                 div(style="padding:5px;",
                     textInput(inputId=ns("daymet_lat"), label="Site latitude (decimal degrees)",value=""),
                     textInput(inputId=ns("daymet_long"), label="Site longitude (decimal degrees)",value=""),
-                    div(div(selectInput(ns("daymet_date_start"),"Date start",selected = min_y, choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2)),
-                        div(selectInput(ns("daymet_date_end"),"Date end",selected = max_y, choices = 1980:as.numeric(format(Sys.time(), "%Y")) - 2))),
+                    div(div(selectInput(ns("daymet_date_start"),"Date start",selected = min_y, choices = 1980:(as.numeric(format(Sys.time(), "%Y")) - 2))),
+                        div(selectInput(ns("daymet_date_end"),"Date end",selected = max_y, choices = 1980:(as.numeric(format(Sys.time(), "%Y")) - 2)))),
                     actionButton(inputId=ns("get_daymet_data"), label="Import Daymet data",class="btn btn-primary"),
                     div(textOutput(ns("daymet_range_warning")), style = "color:red;")
                 ),
