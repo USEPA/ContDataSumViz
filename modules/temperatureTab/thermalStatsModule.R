@@ -154,7 +154,6 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
             })
             
             observeEvent(input$display_thermal, {
-              
                         #remove previous error messages if any
                         output$errorDiv <- renderUI({})
               
@@ -164,7 +163,9 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
                                         "Date", 
                                         "MaxT" = paste0(input$thermal_Temp_name,".max"),
                                         "MinT" = paste0(input$thermal_Temp_name,".min"), 
-                                        "MeanT" = paste0(input$thermal_Temp_name,".mean"))
+                                        "MeanT" = paste0(input$thermal_Temp_name,".mean")) %>% 
+                          mutate(Date = as.Date(Date, format = "%Y-%m-%d")) %>% 
+                          as.data.frame()
                         
                         tryCatch({
                         # streamThermal_exported <- Export.StreamThermal(formated_raw_data$derivedDF
