@@ -371,7 +371,7 @@ server <- function(input, output, session) {
                 div(class="panel panel-default", style="margin:10px;",
                     div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;",
                         icon("info-circle", style = "color:#2fa4e7", id="calcDailyHelp")),
-                    div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save for WQX upload will save the data in a single csv file in long format in which there is a single column for all calculated values."), 
+                    div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save in long format will create a single column for all parameters and a single column for their corresponding value for each date/time. Saving the data in long format is a step in formatting data in Water Quality eXchange (WQP) format for upload to the Water Quality Portal (WQP)"), 
                                   placement = "right", trigger = "hover")),
                     div(step4UI("metaDataHome"), style = "margin:10px"), #; margin-top:30px
                     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))

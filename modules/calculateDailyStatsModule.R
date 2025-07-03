@@ -104,7 +104,7 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
           } else if (metaHomeValues$metaVal$how_to_save2() == "save1") {
             paste0("saved_dailyStats_", name_in_file, ".zip")
           } else if (metaHomeValues$metaVal$how_to_save2() == "save4") {
-            paste0("saved_dailyStats_wqx_", name_in_file, ".csv")
+            paste0("saved_dailyStats_long_", name_in_file, ".csv")
           }
         },
         content = function(file) {
@@ -114,7 +114,7 @@ calculateDailyStatsModuleServer <- function(id, formated_raw_data, homeDTvalues,
           } else if (metaHomeValues$metaVal$how_to_save2() == "save4") {
             wqxData <- Reduce(full_join, dailyStats$processed$sumData)
             wqxData <- wqxData %>%
-              pivot_longer(cols = !Date, names_to = "CharacteristicName", values_to = "Value")
+              pivot_longer(cols = !c(SiteID, Date), names_to = "CharacteristicName", values_to = "Value")
             write.csv(wqxData, file, row.names = FALSE)
           } else if (metaHomeValues$metaVal$how_to_save2() == "save1") {
             owd <- setwd(tempdir())

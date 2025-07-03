@@ -175,7 +175,7 @@ metaDataServer <- function(id, paramToProcess, formatedUploadedData, uploadData,
                 "Per site per parameter" = "save1",
                 "Per site with all parameters" = "save2",
                 # "Multiple sites together" = "save3",
-                "Save for WQX upload" = "save4"
+                "Save in long format" = "save4"
               ),
               selected = "save2",
               inline = FALSE
