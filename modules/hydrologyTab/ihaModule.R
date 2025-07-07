@@ -299,7 +299,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
 
             myYr <- "calendar"
             ## IHA parameters group 1; Magnitude of monthly water conditions
-            Analysis.Group.1 <- group1(myData.IHA.noNA, year=myYr)
+            Analysis.Group.1 <- group1(myData.IHA.noNA, year=myYr, FUN = mean)
             #save(Analysis.Group.1,file="IHA_group_1.RData")
             Analysis.Group.1 <- as.data.frame(Analysis.Group.1) %>% mutate_if(is.numeric,round,digits=2)
             #localStats$IHA.group.1 <- Analysis.Group.1
@@ -457,7 +457,6 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
           }
           
           observeEvent(input$display_IHA_plot_1, {
-
             if(buttonState$btn1 == FALSE) {
                 shinyjs::show(ns("IHA_plot_1_panel"),asis=TRUE)
                 buttonState$btn1 <- TRUE
@@ -465,18 +464,18 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
                 data_for_plot_1 <- data.frame(localResults$IHA.group.1,row.names = NULL) %>% 
                   rename("Year" = "year") %>%  
                   pivot_longer(cols = -Year, names_to = "Month", values_to = "Values") %>% 
-                  mutate(Year = as.numeric(Year),
-                         Month = as.factor(Month) %>% fct_relevel(c("January","February","March","April","May","June","July","August","September","October","November","December")))
-                
+                  mutate(Month = match(Month, month.name))
+
                 output$IHA_plot_1 <- renderPlot({
-                  p1 <- ggplot(data_for_plot_1, aes(x=Year,y=Values, color = Month))+
+                  p1 <- ggplot(data_for_plot_1, aes(x= Month,y=Values, color = Year))+
                     geom_line(size=0.8,linetype="dashed")+
-                    labs(x = "Year",y = paste0("Magnitude of monthly water conditions"))+
+                    labs(x = "Month",y = paste0("Mean monthly conditions"))+
                     theme_minimal()+
                     theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                           ,plot.background = element_rect(color="grey20",size=2)
                           ,legend.position = "right"
-                    )
+                    ) +
+                    scale_x_continuous(breaks = c(1:12), labels = month.abb)
                   print(p1)
               
             }) # renderPlot end
@@ -500,12 +499,23 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               max_cols_to_select <- c("year",column_names[str_detect(column_names,"Max")])
               data_to_plot_min <- data_to_plot[min_cols_to_select]
               data_to_plot_max <- data_to_plot[max_cols_to_select]
-              data_for_plot_2a <- data_to_plot_min %>% gather(key,value,-year) ## convert into long format
-              data_for_plot_2b <- data_to_plot_max %>% gather(key,value,-year) ## convert into long format
+              data_for_plot_2a <- data_to_plot_min %>% gather(key,value,-year) %>% mutate(key = as.factor(key) %>% 
+                                                                                            fct_relevel(c("1 Day Min",
+                                                                                                          "3 Day Min", 
+                                                                                                          "7 Day Min",
+                                                                                                          "30 Day Min", 
+                                                                                                          "90 Day Min"))) ## convert into long format
+              data_for_plot_2b <- data_to_plot_max %>% gather(key,value,-year)%>% mutate(key = as.factor(key) %>% 
+                                                                                           fct_relevel(c("1 Day Max",
+                                                                                                         "3 Day Max", 
+                                                                                                         "7 Day Max",
+                                                                                                         "30 Day Max", 
+                                                                                                         "90 Day Max"))) ## convert into long format
+              
               output$IHA_plot_2a <- renderPlot({
                 p1 <- ggplot(data_for_plot_2a,aes(x=year,y=value,fill=key))+
                   geom_bar(stat="identity",position="dodge")+
-                  labs(x = "Year",y = paste0("Magnitude of water condition"),fill="Parameters")+
+                  labs(x = "Year",y = paste0("Water condition min"),fill="Parameters")+
                   theme_minimal()+
                   scale_x_continuous(breaks=unique(data_for_plot_2a$year),labels = unique(data_for_plot_2a$year))+
                   theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
@@ -519,7 +529,7 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
               output$IHA_plot_2b <- renderPlot({
                 p2 <- ggplot(data_for_plot_2b,aes(x=year,y=value,fill=key))+
                   geom_bar(stat="identity",position="dodge")+
-                  labs(x = "Year",y = paste0("Magnitude of water condition"),fill="Parameters")+
+                  labs(x = "Year",y = paste0("Water condition max"),fill="Parameters")+
                   theme_minimal()+
                   scale_x_continuous(breaks=unique(data_for_plot_2b$year),labels = unique(data_for_plot_2b$year))+
                   theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
@@ -642,8 +652,8 @@ IHAModuleServer <- function(id, dailyStats, loaded_data, uploaded_data, to_downl
          buttonState$btn5 <- TRUE
          
          output$IHA_plot_5 <- renderPlot({
-           p1 <- ggplot(data_for_plot_5, aes(x=Year,y=Values,colour=Parameters))+
-             geom_line(size=0.8,linetype="dashed")+
+           p1 <- ggplot(data_for_plot_5, aes(x=Year,y=Values,fill=Parameters))+
+             geom_bar(stat = "identity", position = "dodge", size=0.8,linetype="dashed")+
              labs(x = "Year",y = paste0("Rate"))+
              theme_minimal()+
              theme(text=element_text(size=16,face = "bold", color="cornflowerblue")

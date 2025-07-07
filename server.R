@@ -303,7 +303,7 @@ server <- function(input, output, session) {
       renderUI({
         div(class="panel panel-default", style="margin:10px;",
             div(class="panel-heading", "Step 3: Run meta summary", style="font-weight:bold;", icon("info-circle", style = "color:#2fa4e7", id="metadataHelp")),
-            div(bsPopover(id="metadataHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to identify quality flags in the data. These flags can be used to eliminate data with quality issues. If the user indicates that quality flags are available, they must be available for every selected parameter. Quality flags can be included as a separate column for each parameter or in a single column, if the same flag applies to all parameters for a given observation. This module is designed to use the same flag codes for each parameter and for all flag codes (i.e., fail, suspect, known) to be contained within the same flag column(s). Consequently, different flags (e.g., fail and suspect) must have unique codes. <br><br> If the data were prepared using ContDataQC with the default configuration, the fail code is F, suspect code is S, and not known code is X. If the data were prepared using a modified configuration file, refer to that file for the correct quality flag codes. <br><br>Selecting run meta summary will generate a table in the main panel summarizing missing and flagged data, the total period of record, and days in the period of record."), 
+            div(bsPopover(id="metadataHelp",   title=HTML("<b>Helpful Hints</b>"), content = HTML("Identify quality flags to eliminate observations with quality issues. Flags must be available for each selected parameter in a separate column for each parameter or a single column, if a common flag applies to all parameters. All included flag codes (fail, suspect, known) must be in the flag column(s) and consistent across parameters, with unique codes for different flags. Run meta summary generates a main panel table summarizing missing and flagged data, the total period of record, and days in the record. <br><br> If data were prepared using ContDataQC with the default configuration, the codes are: fail = F, suspect = S, and not known = X. For modified configurations, refer to the config file for codes. <br><br> The Posey Creek test data use quality flag columns named the parameter plus QF. Observations passing quality checks have a 0; failed checks have a 1. The test data only include Fail quality flags."), 
                           placement = "right", trigger = "hover")),
             div(class = "panel-body", flagUI("displayStep3"), style = "margin-left: 10px; margin-right: 10px;")
         )
@@ -371,7 +371,7 @@ server <- function(input, output, session) {
                 div(class="panel panel-default", style="margin:10px;",
                     div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;",
                         icon("info-circle", style = "color:#2fa4e7", id="calcDailyHelp")),
-                    div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save in long format will create a single column for all parameters and a single column for their corresponding value for each date/time. Saving the data in long format is a step in formatting data in Water Quality eXchange (WQP) format for upload to the Water Quality Portal (WQP)"), 
+                    div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save in long format will create a single column for all parameters and a single column for their corresponding value for each date/time. Saving the data in long format is a step in formatting data in Water Quality eXchange (WQP) format for upload to the Water Quality Portal (WQP)."), 
                                   placement = "right", trigger = "hover")),
                     div(step4UI("metaDataHome"), style = "margin:10px"), #; margin-top:30px
                     div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
@@ -606,11 +606,11 @@ server <- function(input, output, session) {
     output$gage_daymet_discrete <- renderUI({
       checkboxGroupInput(inputId = "gageday_discrete", 
                          label = "Display with downloaded data",
-                         choices = c("USGS Gage", "DayMet"), 
+                         choices = c("USGS gage", "DayMet"), 
                          selected = )
     })
     observeEvent(input$gageday_discrete, {
-      if("USGS Gage" %in% input$gageday_discrete){
+      if("USGS gage" %in% input$gageday_discrete){
         if(nrow(gageRawData$gagedata) == 0){
           shinyalert("Downloaded data required","Please download USGS gage data in the USGS & Daymet Exploration tab to access this feature", type = "warning")
         }
@@ -669,7 +669,7 @@ server <- function(input, output, session) {
                 }
                 combinded_df <- bind_rows(mergedData, .id = "df") %>% select(df, Date, continuous_value, discrete_value)
                 
-                if("USGS Gage" %in% input$gageday_discrete){
+                if("USGS gage" %in% input$gageday_discrete){
                   temp <- gageRawData$gagedata %>% select(Date.Time, input$gage_param_discrete) %>% rename("Date" = "Date.Time") %>% 
                     pivot_longer(cols = !Date, names_to = "df", values_to = "continuous_value") %>% 
                     mutate(df = paste0("USGS_gage_", df)) %>% 

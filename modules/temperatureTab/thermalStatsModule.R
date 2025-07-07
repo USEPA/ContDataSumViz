@@ -156,9 +156,10 @@ ThermalStatsModuleServer <- function(id, uploaded_data, formated_raw_data, daily
             observeEvent(input$display_thermal, {
                         #remove previous error messages if any
                         output$errorDiv <- renderUI({})
-              
+                        
+                        localStats <- dailyStats
                         #shinyjs::hide(id=ns("display_help_text_thermal_statistics"), asis=TRUE)
-                        temp_data <- dailyStats$processed_dailyStats[[input$thermal_Temp_name]] %>% 
+                        temp_data <- localStats$processed_dailyStats[[input$thermal_Temp_name]] %>% 
                           dplyr::select("SiteID", 
                                         "Date", 
                                         "MaxT" = paste0(input$thermal_Temp_name,".max"),

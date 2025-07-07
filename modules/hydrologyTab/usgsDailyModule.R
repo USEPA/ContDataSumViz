@@ -74,7 +74,7 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
                                    choices=gageColNames,
                                    multiple = TRUE,
                                    selected=NULL,
-                                   options = list(hideSelected = FALSE)),
+                                   options = list(hideSelected = FALSE, plugins = list("remove_button"))),
                     actionButton(inputId=ns("display_gage_raw"), label="View USGS raw data",class="btn btn-primary")
                 )
             )

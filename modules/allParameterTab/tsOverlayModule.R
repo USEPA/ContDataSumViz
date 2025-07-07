@@ -160,7 +160,7 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
             cols_selected <- c("Date",mean_col)
             data_to_plot <- myData[cols_selected]
 
-            data_to_plot[,"year"] <- format(as.Date(data_to_plot$Date, format="%Y-%m-%d %H:%M:%S"),"%Y")
+            data_to_plot[,"Year"] <- format(as.Date(data_to_plot$Date, format="%Y-%m-%d %H:%M:%S"),"%Y")
             
 
             if ((input$dailyStats_ts_overlay_metrics=="mean"|input$dailyStats_ts_overlay_metrics=="median")&input$overlay_shading=="overall"){
@@ -210,13 +210,13 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
               output$display_time_series_overlay_1 <- renderPlot({
                 isolate({
                   p1 <- ggplot(data_to_plot)+
-                    geom_line(aes(x=as.Date(yday(Date),"2000-01-01"),y=isolate(!!sym(mean_col)),colour=year),size=0.8)+
+                    geom_line(aes(x=as.Date(yday(Date),"2000-01-01"),y=isolate(!!sym(mean_col)),colour=Year),size=0.8)+
                     geom_ribbon(data=merged_overlay,aes(x=as.Date(yday(paste0("2000","-",MonthDay)),"2000-01-01"),
                                                         ymin=min,ymax=max,
                                                         fill="overall minimum and maximum" ),alpha=0.5)+
                     scale_x_date(date_breaks="1 month",limits=c(as.Date("2000-01-01"),as.Date("2000-12-31")),date_labels = "%m%d")+
                     scale_fill_manual(" ",labels="overall minimum and maximum",values=c("grey80"="grey80"))+
-                    labs(title=isolate(input$dailyStats_ts_overlay_title),x = "MonthDay",y =mean_col)+
+                    labs(title=isolate(input$dailyStats_ts_overlay_title),x = "Month Day",y =mean_col)+
                     theme_classic()+
                     theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                           ,panel.border = element_rect(colour="black",fill=NA, size=0.5)
@@ -232,9 +232,9 @@ TsOverlayModuleServer <- function(id, dailyStats, renderTSOverlay, loaded_data) 
               if (!all(is.na(data_to_plot[,mean_col]))){
                         output$display_time_series_overlay <- renderPlotly({
                           p1 <- ggplot(data_to_plot,aes(x=as.Date(yday(Date),"2000-01-01"),y=!!sym(mean_col)))+
-                            geom_line(aes(colour=year),size=0.8)+
+                            geom_line(aes(colour=Year),size=0.8)+
                             scale_x_date(date_breaks="1 month",limits=c(as.Date("2000-01-01"),as.Date("2000-12-31")),date_labels = "%m%d")+
-                            labs(title=isolate(input$dailyStats_ts_overlay_title),x = "MonthDay",y =mean_col)+
+                            labs(title=isolate(input$dailyStats_ts_overlay_title),x = "Month Day",y =mean_col)+
                             theme_classic()+
                             theme(text=element_text(size=16,face = "bold", color="cornflowerblue")
                                   ,panel.border = element_rect(colour="black",fill=NA, size=0.5)
