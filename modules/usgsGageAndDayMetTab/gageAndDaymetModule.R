@@ -471,6 +471,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
         gage_data_raw <- NULL
         base_data_raw <- NULL
         mergedList <- list()
+        mergedListOriginal <- list()
         totalH <- 0L
         
         if(is.null(dateRange$min)){
@@ -492,6 +493,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             totalH <- totalH + length(input$daymet_params)
             daymet_data_raw$Parameter <- paste("DayMet",allParames,sep="_")
             mergedList[["DayMet"]] <- daymet_data_raw
+            mergedListOriginal[["DayMet"]] <- daymet_data_raw
           }
           
           if(paste0(input$gaze_params, collapse = "") != "" && length(input$gaze_params) > 0) {
@@ -505,24 +507,34 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             allParames <- gage_data_raw %>% pull(Parameter)
             gage_data_raw$Parameter <- paste("Gage",allParames,sep="_")
             mergedList[["Gage"]] <- gage_data_raw
+            mergedListOriginal[["Gage"]] <- gage_data_raw
           }
           raw_data <- formated_raw_data$derivedDF
           ##print(formated_raw_data$derivedDF)
           variable_to_plot <- input$dailyStats_ts_variable_name2
           if (!is.null(variable_to_plot) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted),])){
             
+            base_data_raw_to_plot  <- raw_data %>%
+              select(any_of(variable_to_plot), Date= c("date.formatted")) %>%
+              mutate(across(variable_to_plot, ~ 
+                              if_else((is.na(.x) & is.na(dplyr::lag(.x)) == FALSE & is.na(dplyr::lead(.x))==FALSE), 
+                                      dplyr::lag(.x), .x))) %>%
+              gather(key = "Parameter", value = "value", -Date) 
+            
             base_data_raw  <- raw_data %>%
               select(any_of(variable_to_plot), Date= c("date.formatted")) %>%
-              gather(key = "Parameter", value = "value", -Date)
+              gather(key = "Parameter", value = "value", -Date) 
             
             totalH <- totalH + length(variable_to_plot)
             allParames <- base_data_raw %>% pull(Parameter)
             base_data_raw$Parameter <- paste("BaseFile",allParames,sep="_")
-            mergedList[["BaseFile"]] <- base_data_raw
+            mergedList[["BaseFile"]] <- base_data_raw_to_plot
+            mergedListOriginal[["BaseFile"]] <- base_data_raw
+            
             
             shinyjs::show(id = "mergedDownloadDiv")
 
-            merge_to_dwnld <- bind_rows(mergedList, .id="df") %>% 
+            merge_to_dwnld <- bind_rows(mergedListOriginal, .id="df") %>% 
               dplyr::select(-df) %>% 
               mutate(Date = format(Date, "%Y-%m-%d %H:%M:%S")) %>% 
               group_by(Date, Parameter) %>% 
@@ -540,8 +552,8 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             )
           }
           
-          
-          allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),Parameter) %>% mutate(Date = as.POSIXct(Date,format="%Y-%m-%d")), aes(x = Date, y = value)) +
+          allCom <- ggplot(arrange(bind_rows(mergedList, .id="df"),Parameter) %>% 
+                             mutate(Date = as.POSIXct(Date,format="%Y-%m-%d")), aes(x = Date, y = value)) +
             geom_line(aes(colour=Parameter)) +
             labs(title="Base, USGS gage and DayMet Data", y="Parameters", x="Date") + 
             #scale_x_datetime(date_labels=main_x_date_label,date_breaks=mainBreaks)+

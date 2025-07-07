@@ -30,7 +30,10 @@ rawTSModuleServer <- function(id, userSelectedValues, formated_raw_data, loaded_
         tryCatch({
           uploaded_raw_data <- raw_data %>% 
           dplyr::select(c(userSelectedValues$parmToProcess()), "Date" = c(date.formatted)) %>% 
-          pivot_longer(cols = !Date, names_to = "parameter", values_to = "value")},
+            mutate(across(userSelectedValues$parmToProcess(), ~ if_else((is.na(.x) & is.na(dplyr::lag(.x)) == FALSE & is.na(dplyr::lead(.x))==FALSE), dplyr::lag(.x), .x))) %>% 
+          pivot_longer(cols = !Date, names_to = "parameter", values_to = "value")
+          
+          },
           error = function(e){
             if(str_detect(conditionMessage(e),"Can't combine")){
               shinyalert("Error in selected parameters", "Parameters with multiple classes (e.g., numeric and character) have been selected, which is not supported in the raw time series feature. Revise the parameter selection to include parameters with the same class.", "warning")

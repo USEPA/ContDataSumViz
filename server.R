@@ -655,19 +655,29 @@ server <- function(input, output, session) {
             discrete_data <- getFormattedRawData(localDiscreteDateAndTime, uploaded_discreteData(), tabName = "", errorDivId = "disDateAndTimeError")
             
             if ("date.formatted" %in% colnames(discrete_data) & nrow(discrete_data) != nrow(discrete_data[is.na(discrete_data$date.formatted), ])) {
-              
               base_data <- formated_raw_data$derivedDF
               if (!is.null(base_vars_to_plot) & nrow(base_data) != nrow(base_data[is.na(base_data$date.formatted), ])) {
                 mergedData <- NULL
+                mergedDataOriginal <- NULL
                 for (varName in variable_to_plot) {
-                  step1 <- base_data %>% select("continuous_value" = all_of(varName), "Date" = c(date.formatted))
+                  step1original <- base_data %>% select("continuous_value" = all_of(varName), "Date" = c(date.formatted)) 
+                  
+                  step1 <- base_data %>% select("continuous_value" = all_of(varName), "Date" = c(date.formatted)) %>% 
+                    mutate(continuous_value = if_else((is.na(continuous_value) & 
+                                                         is.na(dplyr::lag(continuous_value)) == FALSE & 
+                                                         is.na(dplyr::lead(continuous_value))==FALSE),  
+                                                      dplyr::lag(continuous_value), continuous_value))
                   step2 <- discrete_data %>% select("discrete_value" = all_of(varName), "Date" = c(date.formatted))
                   
                   tempdf <- full_join(step1, step2, by = "Date")
+                  tempdforiginal <- full_join(step1original, step2, by = "Date")
                   
                   mergedData[[varName]] <- tempdf
+                  mergedDataOriginal[[varName]] <- tempdforiginal
                 }
-                combinded_df <- bind_rows(mergedData, .id = "df") %>% select(df, Date, continuous_value, discrete_value)
+                
+                combinded_df <- bind_rows(mergedData, .id = "df") %>% select(df, Date, continuous_value, discrete_value) 
+                combinded_df_original <- bind_rows(mergedDataOriginal, .id = "df") %>% select(df, Date, continuous_value, discrete_value) 
                 
                 if("USGS gage" %in% input$gageday_discrete){
                   temp <- gageRawData$gagedata %>% select(Date.Time, input$gage_param_discrete) %>% rename("Date" = "Date.Time") %>% 
@@ -676,6 +686,7 @@ server <- function(input, output, session) {
                     mutate(discrete_value = NA)
                   
                   combinded_df <- combinded_df %>% bind_rows(temp)
+                  combinded_df_original <- combinded_df_original %>% bind_rows(temp)
                 }
                 
                 if("DayMet" %in% input$gageday_discrete){
@@ -694,6 +705,7 @@ server <- function(input, output, session) {
                     mutate(discrete_value = NA)
                   
                   combinded_df <- combinded_df %>% bind_rows(temp)
+                  combinded_df_original <- combinded_df_original %>% bind_rows(temp)
                 }
                 
                 if(length(setdiff(base_vars_to_plot, variable_to_plot))!=0){
@@ -702,6 +714,7 @@ server <- function(input, output, session) {
                     pivot_longer(cols = !Date, names_to = "df", values_to = "continuous_value") %>% 
                     mutate(discrete_value = NA)
                   combinded_df <- combinded_df %>% bind_rows(temp)
+                  combinded_df_original <- combinded_df_original %>% bind_rows(temp)
                 }
                 
                 combinded_df$bothValues <- c(paste(
@@ -709,6 +722,11 @@ server <- function(input, output, session) {
                   "Discrete Value: ", combinded_df$discrete_value, "\n"
                 ))
                
+                combinded_df_original$bothValues <- c(paste(
+                  "\nContinuous Value: ", combinded_df_original$continuous_value, "\n",
+                  "Discrete Value: ", combinded_df_original$discrete_value, "\n"
+                ))
+                
                 mainPlot <- prepareDiscretePlot(combinded_df)
                 if (!is.null(mainPlot) & length(variable_to_plot) > 0) {
                   #shinyjs::runjs("$('html, body').animate({scrollTop: $(document).height()},2000)")
@@ -727,7 +745,7 @@ server <- function(input, output, session) {
                     paste0("Discrete_continuous_", input$uploaded_discrete_file)
                   },
                   content = function(file){
-                    write.csv(combinded_df %>% 
+                    write.csv(combinded_df_original %>% 
                                 rename("Parameter" = "df") %>% 
                                 dplyr::select(-bothValues) %>% 
                                 mutate(Date = format(Date, "%Y-%m-%d %H:%M:%S")), file, row.names = FALSE)
