@@ -61,7 +61,7 @@ USGSDailyModuleServer <- function(id, dateRange, uploaded_data,dailyStats,render
             div(class="panel panel-default", style="padding:5px;margin-top:20px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
                     span("USGS Gage data", style="font-weight:bold;"),
-                    a("View Gage Ids", href="https://waterdata.usgs.gov/nwis/rt", target="_blank", style="float:right")
+                    a("View Gage Ids", href="https://dashboard.waterdata.usgs.gov/app/nwd/en/?region=lower48", target="_blank", style="float:right")
                 ),
                 div(style="padding:5px;",
                     textInput(inputId=ns("gage_id"), label="Gage Id",value=""),

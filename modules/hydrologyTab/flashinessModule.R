@@ -22,7 +22,7 @@ FlashinessModuleUI <- function(id) {
       #shinydashboard::box(id=ns("display_help_text_flashiness"), style="display:none;", width=12, class="well",
       shinydashboard::box(id=ns("display_help_text_flashiness"), width=12, class="well",
                                                 h4("Hydrology – Flashiness"),
-                                                div(style="width:100%;", "The Richards-Baker flashiness index (RBI) (Baker et al. 2004) reflects the frequency and rapidity of short-term changes in streamflow. It measures oscillations in discharge relative to total discharge. Results are scaled from 0 to 1, with flashier streams receiving higher scores."),
+                                                div(style="width:100%;", "The Richards-Baker flashiness index (RBI) (Baker et al. 2004) reflects the frequency and rapidity of short-term changes in streamflow. It measures oscillations in discharge relative to total discharge. Flashier streams receive higher scores."),
                                                 br(),
                                                 div(style="width:100%;", "The calculation is made by dividing the sum of the absolute values of day-to-day changes in mean daily flow by total discharge during the specified time period. The reported number of days used for the calculation represents the number of days with data on the preceeding day, for which a day-to-day change can be calculated."),
                                                 br(),
@@ -132,12 +132,12 @@ FlashinessModuleServer <- function(id, uploaded_data,dailyStats,renderFlashiness
             }
             
             tryCatch({
-           
               DailyChange_df <- daily_Value  %>% 
                 mutate(DailyChangeValue = abs(mean - dplyr::lag(mean)))
               #%>%  mutate(DailyChangeValue = replace_na(DailyChangeValue, 0))
               
               RB_df <- DailyChange_df %>% 
+                dplyr::filter(is.na(DailyChangeValue) == FALSE) %>% # remove daily change NA, which occurs when mean is NA or lag 1 mean is NA
                 group_by(Year) %>% 
                 summarize(RB_Index = (sum(DailyChangeValue, na.rm = TRUE)/sum(mean, na.rm = TRUE)) %>% round(3), 
                           n_days = sum(!is.na(DailyChangeValue))) %>% 

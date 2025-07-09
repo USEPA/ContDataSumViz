@@ -42,7 +42,10 @@ TempNotToExceedUI <- function(id) {
                           div(style="width:100%", "The table returns the temperature not to exceed calculated for the selected time period and the number of days in that period with sufficient data to include in the calculation."),
                           br(),
                           div(style = "width:100%", "For more information about the 4T3 and 6T3 calculations visit:"),
-                          a('https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', href='https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', target='_blank')
+                          a('https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', href='https://www.env.nm.gov/surface-water-quality/wp-content/uploads/sites/25/2019/10/Air-Water08-01-2011.pdf', target='_blank'),
+                          br(),
+                          br(),
+                          div(style="width:100%", "The moving window calculation for temperature not to exceed is computationally intensive. Results may take one minute or more to generate.")
       ), 
       DT::dataTableOutput(ns("tempExceed_table"))
     ))

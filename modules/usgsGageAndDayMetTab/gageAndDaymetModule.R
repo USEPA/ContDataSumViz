@@ -236,7 +236,7 @@ GageAndDaymetModuleServer <- function(id, homeDTvalues, dateRange, formated_raw_
             
             div(class="panel panel-default", style="padding:10px;",
                 div(class = "panel-heading", style="padding:10px 5px 10px 10px;",
-                    span("View Base, Gage and DayMet data merged in a subplot", style="font-weight:bold;", icon("info-circle", style = "color: #2fa4e7", id=ns("baseDataDef")))
+                    span("View Base, Gage, and DayMet data merged in a subplot", style="font-weight:bold;", icon("info-circle", style = "color: #2fa4e7", id=ns("baseDataDef")))
                 ),
                 bsPopover(id=ns("baseDataDef"), title="What are base data\\?", content = "Base data are the data uploaded on the \\'Upload Data\\' tab.", 
                           placement = "right", trigger = "hover"),

@@ -44,9 +44,6 @@ ThermalClassificationModuleUI <- function(id) {
                             div(style="width:100%", "Maheu, A., Poff, N.L., St-Hilaire, A. 2015. A Classification of Stream Water Temperature Regimes in the Conterminous USA. River Research and Applications. 32: 896-906.",
                                 a('https://doi.org/10.1002/rra.2906', href='https://doi.org/10.1002/rra.2906', target='_blank')),
                             br(),
-                            div(style="width:100%", "McKay, L., Bondelid, T., Dewald, T., Johnston, J., Moore, R., Reah, A., 2012. NHDPlus Version 2: User Guide. U.S. Environmental Protection Agency.",
-                                a('https://nhdplus.com/NHDPlus/NHDPlusV2_home.php', href='https://nhdplus.com/NHDPlus/NHDPlusV2_home.php', target='_blank')),
-                            br(),
                             div(style="width:100%", "McManamay, R., DeRolph, C.A. 2019. A Stream Classification System for the Conterminous United States. Scientific Data. 6, 190017.",
                                 a('https://doi.org/10.1038/sdata.2019.17', href='https://doi.org/10.1038/sdata.2019.17', target='_blank'))
         ), # end of box
