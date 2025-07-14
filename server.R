@@ -310,7 +310,7 @@ server <- function(input, output, session) {
       })
     
     output$ts_right <- renderUI({
-      div(id = "display_all_raw_ts_div", style = paste0("height:", calculatePlotHeight(length(showRawDateAndTime$parmToProcess()))), rawTSModuleUI("displayRawTS") #"height:100%;width:100%" # time series calculatePlotHeight(length(isolate(input$dailyStats_ts_variable_name)) * 2)
+      div(id = "display_all_raw_ts_div", style = paste0("height:", calculatePlotHeight(length(showRawDateAndTime$parmToProcess()))), rawTSModuleUI("displayRawTS") 
       ) # end of div
     })
   }) ## observeEvent end
@@ -321,86 +321,90 @@ server <- function(input, output, session) {
     
     showRawDateAndTime <- homeDTvalues$homeDateAndTime
     rawTSModuleServer("displayRawTS", showRawDateAndTime, formated_raw_data, loaded_data)
-    
-
   })
   
   # click Run meta summary
   observeEvent(input$runQS, {
-    tryCatch(
-      {
-
-        localHomeDateAndTime <- homeDTvalues$homeDateAndTime
-        # display_validation_msgs dateBox
-        if (localHomeDateAndTime$isTimeValid() & localHomeDateAndTime$isDateAndtimeValid()) {
-          # update the reactiveValues
-          # All the variables are selected
-          workflowStatus$elementId <- "step2"
-          workflowStatus$state <- "success"
-
-          raw_data <- formated_raw_data$derivedDF
-          # now shorten the varname
-          if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
-            print("passed fun.ConvertDateFormat")
+    
+    if(length(flags$flagCols) != 0 & length(intersect(names(flags$flagCols), unlist(unname(flags$flagCols)))) != 0){
+      shinyalert("Flag column error","Flag columns must be distinct from selected parameters to process. Refresh the application to reset the inputs and correct the error.", type = "warning")
+    } else{
+      tryCatch(
+        {
+          
+          localHomeDateAndTime <- homeDTvalues$homeDateAndTime
+          # display_validation_msgs dateBox
+          if (localHomeDateAndTime$isTimeValid() & localHomeDateAndTime$isDateAndtimeValid()) {
+            # update the reactiveValues
+            # All the variables are selected
+            workflowStatus$elementId <- "step2"
+            workflowStatus$state <- "success"
             
-            # set dateRange for other modules
-            formated_raw_data$derivedDF <- raw_data
-            dateRange$min <- min(as.Date(raw_data$date.formatted), na.rm = TRUE)
-            dateRange$max <- max(as.Date(raw_data$date.formatted), na.rm = TRUE)
-            raw_data_columns$date_column_name <- "date.formatted"
-
-            # now shorten the varname
             raw_data <- formated_raw_data$derivedDF
-            metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data(), flags)
-            raw_data_columns$date_column_name <- "date.formatted"
-            output$display_fill_data <- renderUI({
-              div(style = "margin-top:20px;", metaDataUI("metaDataHome")) 
-            })
-            
-            shinyjs::runjs("$('#dateTimeBoxButton').click()")
-            
-            if (workflowStatus$finish == FALSE) {
-              workflowStatus$elementId <- "step3"
-              workflowStatus$state <- "success"
-              readyForCalculation$status <- TRUE
-              homePageInputs$changed <- FALSE
+            # now shorten the varname
+            if ("date.formatted" %in% colnames(raw_data) & !is.null(localHomeDateAndTime$parmToProcess()) & nrow(raw_data) != nrow(raw_data[is.na(raw_data$date.formatted), ])) {
+              print("passed fun.ConvertDateFormat")
+              
+              # set dateRange for other modules
+              formated_raw_data$derivedDF <- raw_data
+              dateRange$min <- min(as.Date(raw_data$date.formatted), na.rm = TRUE)
+              dateRange$max <- max(as.Date(raw_data$date.formatted), na.rm = TRUE)
+              raw_data_columns$date_column_name <- "date.formatted"
+              
+              # now shorten the varname
+              raw_data <- formated_raw_data$derivedDF
+              metaHomeValues$metaVal <- metaDataServer("metaDataHome", localHomeDateAndTime$parmToProcess(), formatedUploadedData = raw_data, uploadData = uploaded_data(), flags)
+              raw_data_columns$date_column_name <- "date.formatted"
+              output$display_fill_data <- renderUI({
+                div(style = "margin-top:20px;", metaDataUI("metaDataHome")) 
+              })
+              
+              shinyjs::runjs("$('#dateTimeBoxButton').click()")
+              
+              if (workflowStatus$finish == FALSE) {
+                workflowStatus$elementId <- "step3"
+                workflowStatus$state <- "success"
+                readyForCalculation$status <- TRUE
+                homePageInputs$changed <- FALSE
+              }
+              
+              output$display_actionButton_calculateDailyStatistics <-
+                renderUI({
+                  div(class="panel panel-default", style="margin:10px;",
+                      div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;",
+                          icon("info-circle", style = "color:#2fa4e7", id="calcDailyHelp")),
+                      div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save in long format will create a single column for all parameters and a single column for their corresponding value for each date/time. Saving the data in long format is a step in formatting data in Water Quality eXchange (WQP) format for upload to the Water Quality Portal (WQP)."), 
+                                    placement = "right", trigger = "hover")),
+                      div(step4UI("metaDataHome"), style = "margin:10px"), #; margin-top:30px
+                      div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
+                  )
+                  
+                })
+              output$step5 <-
+                renderUI({
+                  div(step5ui("calculateDailyStats"))
+                })
+            } else {
+              # shinyAlertUI("common_alert_msg" , invalidDateFormt, "ERROR")
+              print("it should have updated users on the UI")
             }
-            
-            output$display_actionButton_calculateDailyStatistics <-
-              renderUI({
-                div(class="panel panel-default", style="margin:10px;",
-                    div(class="panel-heading", "Step 4: Calculate daily statistics", style="font-weight:bold;",
-                        icon("info-circle", style = "color:#2fa4e7", id="calcDailyHelp")),
-                    div(bsPopover(id="calcDailyHelp", title=HTML("<b>Helpful Hints</b>"), content = HTML("Use this module to calculate and download daily statistics. Saving per site per parameter will generate a zipped folder with a csv file for each selected parameter. Saving per site with all parameters will generate a single csv file with data for every selected parameter. Save in long format will create a single column for all parameters and a single column for their corresponding value for each date/time. Saving the data in long format is a step in formatting data in Water Quality eXchange (WQP) format for upload to the Water Quality Portal (WQP)."), 
-                                  placement = "right", trigger = "hover")),
-                    div(step4UI("metaDataHome"), style = "margin:10px"), #; margin-top:30px
-                    div(calculateDailyStatsModuleUI("calculateDailyStats", readyForCalculation))
-                )
-                
-              })
-            output$step5 <-
-              renderUI({
-                div(step5ui("calculateDailyStats"))
-              })
-          } else {
-            # shinyAlertUI("common_alert_msg" , invalidDateFormt, "ERROR")
-            print("it should have updated users on the UI")
           }
+        },
+        error = function(parsingMsg) {
+          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+          readyForCalculation$status <- FALSE
+        },
+        warning = function(parsingMsg) {
+          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+          readyForCalculation$status <- FALSE
+        },
+        message = function(parsingMsg) {
+          processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
+          readyForCalculation$status <- FALSE
         }
-      },
-      error = function(parsingMsg) {
-        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-        readyForCalculation$status <- FALSE
-      },
-      warning = function(parsingMsg) {
-        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-        readyForCalculation$status <- FALSE
-      },
-      message = function(parsingMsg) {
-        processErrors(parsingMsg, tab = "homePage", elementId = "dateAndTimeError")
-        readyForCalculation$status <- FALSE
-      }
-    ) # end of tryCatch
+      ) # end of tryCatch
+    }
+
   }) ## observeEvent end
   
   
